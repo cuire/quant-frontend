@@ -1,28 +1,251 @@
 .gift {
   position: relative;
-  background: #2a2a2a;
-  border-radius: 12px;
-  padding: 12px;
+  background: #212A33;
+  border-radius: 16px;
+  padding: 0;
   width: 100%;
-  height: 233px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  border: 1px solid #404040;
+  height: 280px;
+  border: 0px solid #404040;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 .gift__fast-sale-banner {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #ff6b35;
+  top: 7px;
+  right: -25px;
+  background: linear-gradient(135.45deg, #FFAE00 0.39%, #FA8800 99.61%);
   color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+  padding: 4px 20px;
+  font-size: 10px;
   font-weight: 600;
-  z-index: 1;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  z-index: 2;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  transform: rotate(45deg);
+  transform-origin: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.gift__header {
+
+
+.gift__time-badge {
+  position: absolute;
+  top: 5px;
+  right: -40px;
+  background: linear-gradient(135.45deg, #0066FF 0.39%, #009AFA 99.61%);
+  color: white;
+  padding: 4px 50px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  z-index: 2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transform: rotate(45deg);
+  transform-origin: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.gift__corner-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  z-index: 1;
+  display: none;
+}
+
+.gift__corner-badge--blue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #0088cc, #0099dd);
+  clip-path: polygon(100% 0%, 0% 0%, 100% 100%);
+}
+
+.gift__corner-badge--orange::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ff6b35, #ff8c42);
+  clip-path: polygon(100% 0%, 0% 0%, 100% 100%);
+}
+
+.gift__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 4px;
+}
+
+.gift__items-area {
+  flex: 1;
+  border-radius: 12px;
+  padding: 6px;
+  margin-bottom: 8px;
+  border: 0px solid rgba(255, 255, 255, 0.05);
+  background-color: #212A33;
+}
+
+.gift__items-grid {
+  height: 100%;
+  display: grid;
+  gap: 3px;
+  align-items: center;
+  justify-items: center;
+}
+
+/* сетка для одного элемента */
+.gift__items-grid--single {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* сетка для двух элементов */
+.gift__items-grid--double {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* сетка для множества элементов */
+.gift__items-grid--multiple { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+
+.gift__items-grid--triple {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+.gift__items-grid--triple .gift__item:nth-child(1) { grid-column: 1 / 3; grid-row: 1; display: flex; align-items: center; justify-content: center; }
+.gift__items-grid--triple .gift__item:nth-child(2) { grid-column: 1 / 2; grid-row: 2; }
+.gift__items-grid--triple .gift__item:nth-child(3) { grid-column: 2 / 3; grid-row: 2; }
+
+.gift__item {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift__item-background {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  padding: 3px;
+  border: 0px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 25px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.gift__item-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.gift__item-image {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* размеры изображений в зависимости от количества */
+.gift__items-grid--single .gift__item-image {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+.gift__items-grid--double .gift__item-image {
+  max-width: 60px;
+  max-height: 60px;
+}
+
+.gift__items-grid--multiple .gift__item-image,
+.gift__items-grid--triple .gift__item-image {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+
+.gift__items-grid--triple .gift__item:nth-child(1) .gift__item-image {
+  max-width: 64px;
+  max-height: 64px;
+}
+
+.gift__nft-badge {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  background: linear-gradient(45deg, #8b5cf6, #a855f7);
+  color: white;
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
+}
+
+.gift__quantity-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  background: #248BDA;
+  color: white;
+  font-size: 10px;
+  padding: 2px 13px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.gift__more-badge {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(47,130,199,0.15);
+  color: #CFE2F7;
+  border: 1px solid rgba(47,130,199,0.35);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.gift__footer {
+  margin-top: auto;
+}
+
+.gift__info {
+  padding: 0 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -31,111 +254,101 @@
 
 .gift__title {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.3;
 }
 
-.gift__gift-number {
-  color: #888888;
-  font-size: 10px;
-  font-weight: 500;
-  margin-left: 6px;
-}
-
-.gift__items-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.gift__item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.gift__item-icon {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.gift__item-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  max-width: 40px;
-  max-height: 40px;
-}
-
-.gift__nft-label {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  background: #8b5cf6;
-  color: white;
-  font-size: 8px;
-  padding: 2px 4px;
-  border-radius: 2px;
+.gift__number {
+  color: #5B738F;
+  font-size: 12px;
   font-weight: 600;
-}
-
-.gift__quantity {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  background: #3b82f6;
-  color: white;
-  font-size: 10px;
-  padding: 2px 4px;
-  border-radius: 50%;
-  font-weight: 600;
-  min-width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin-left: 8px;
+  flex-shrink: 0;
 }
 
 .gift__price-button {
   width: 100%;
-  background: #3b82f6;
+  background: #248BDA;
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 8px;
-  font-size: 14px;
+  border-radius: 12px;
+  padding: 6px;
+  font-size: 15px;
   font-weight: 600;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  transition: background-color 0.2s ease;
+  gap: 4px;
+  transition: all 0.2s ease;
+  
 }
 
 .gift__price-button:hover {
-  background: #2563eb;
+  background: linear-gradient(45deg, #0077bb, #0088cc);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 136, 204, 0.3);
 }
 
 .gift__price-button:active {
-  background: #1d4ed8;
+  background: linear-gradient(45deg, #006699, #0077bb);
+  transform: translateY(0);
 }
 
 .gift__diamond-icon {
-  font-size: 14px;
+  width: 13px;
+  height: 12px;
+  fill: white;
+  margin-top: 2px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 .gift__price {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* responsive */
+@media (max-width: 480px) {
+  .gift {
+    height: 260px;
+  }
+  
+  .gift__content {
+    padding: 6px;
+  }
+  
+  .gift__items-grid--single .gift__item-image {
+    max-width: 70px;
+    max-height: 70px;
+  }
+  
+  .gift__items-grid--double .gift__item-image {
+    max-width: 50px;
+    max-height: 50px;
+  }
+  
+  .gift__items-grid--multiple .gift__item-image {
+    max-width: 40px;
+    max-height: 40px;
+  }
+  
+  .gift__title {
+    font-size: 12px;
+  }
+  
+  .gift__price-button {
+    padding: 10px;
+    font-size: 14px;
+  }
 }

@@ -79,13 +79,16 @@ export const getChannelGifts = (channel: Channel, allGifts: Gift[]): Array<{
   gift: Gift;
   quantity: number;
 }> => {
-  return Object.entries(channel.gifts).map(([giftId, quantity]) => {
-    const gift = allGifts.find(g => g.id === giftId);
-    return {
-      gift: gift!,
-      quantity
-    };
-  }).filter(item => item.gift);
+  return Object.entries(channel.gifts)
+    .map(([giftId, quantity]) => {
+      const gift = allGifts.find(g => g.id === giftId);
+      if (!gift) return null;
+      return {
+        gift,
+        quantity
+      };
+    })
+    .filter((item): item is { gift: Gift; quantity: number } => item !== null);
 };
 
 // Helper function to generate channel title from gifts

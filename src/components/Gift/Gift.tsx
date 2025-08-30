@@ -21,6 +21,9 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   giftNumber: string;
   price: number;
   isFastSale?: boolean;
+  timeBadge?: string | null;
+  cornerBadge?: 'blue' | 'orange' | null;
+  backgroundColor?: string;
 }
 
 export const Gift: FC<GiftProps> = ({ 
@@ -28,44 +31,94 @@ export const Gift: FC<GiftProps> = ({
   title, 
   giftNumber, 
   price, 
-  isFastSale = false, 
+  isFastSale = false,
+  timeBadge = null,
+  cornerBadge = null,
+  backgroundColor,
   ...rest 
-}) => (
-  <div {...rest} className={classNames(b(), rest.className)}>
-    {isFastSale && (
-      <div className={e('fast-sale-banner')}>
-        Fast sale
-      </div>
-    )}
-    
-    <div className={e('header')}>
-      <h3 className={e('title')}>{title}</h3>
-      <span className={e('gift-number')}>#{giftNumber}</span>
-    </div>
-    
-    <div className={e('items-grid')}>
-      {items.map((item) => (
-        <div key={item.id} className={e('item')}>
-          <div className={e('item-icon')}>
-            <img 
-              src={item.icon} 
-              alt={item.name} 
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder-gift.svg';
-              }}
-            />
-            {item.type === 'nft' && (
-              <span className={e('nft-label')}>NFTs</span>
+}) => {
+  // Определяем класс сетки в зависимости от количества элементов
+  const getGridClass = () => {
+    if (items.length === 1) return 'single';
+    if (items.length === 2) return 'double';
+    if (items.length === 3) return 'triple';
+    return 'multiple';
+  };
+
+  // Получаем цвет фона для отдельного подарка
+  const getItemBackgroundColor = () => {
+    return '#344150'; // Единый цвет для всех подарков
+  };
+
+  return (
+    <div {...rest} className={classNames(b(), rest.className)}>
+      {isFastSale && (
+        <div className={e('fast-sale-banner')}>
+          Fast sale
+        </div>
+      )}
+      
+      {timeBadge && (
+        <div className={e('time-badge')}>
+          {timeBadge}
+        </div>
+      )}
+      
+      {cornerBadge && (
+        <div className={e('corner-badge', cornerBadge)} />
+      )}
+      
+      <div className={e('content')}>
+        <div 
+          className={e('items-area')}
+          style={{ backgroundColor: '#2A3541' }}
+        >
+          <div className={e('items-grid', getGridClass())}>
+            {items.slice(0, 4).map((item) => (
+              <div key={item.id} className={e('item')}>
+                                  <div 
+                    className={e('item-background')}
+                    style={{ 
+                      backgroundColor: getItemBackgroundColor()
+                    }}
+                  >
+                  <div className={e('item-content')}>
+                    <img 
+                      src={item.icon} 
+                      alt={item.name} 
+                      className={e('item-image')}
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder-gift.svg';
+                      }}
+                    />
+                    {item.type === 'nft' && (
+                      <span className={e('nft-badge')}>NFTs</span>
+                    )}
+                    <span className={e('quantity-badge')}>x{item.quantity}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {items.length > 4 && (
+              <div className={e('more-badge')}>+{items.length - 4} more</div>
             )}
-            <span className={e('quantity')}>x{item.quantity}</span>
           </div>
         </div>
-      ))}
+        
+        <div className={e('footer')}>
+          <div className={e('info')}>
+            <h3 className={e('title')}>{title}</h3>
+            <span className={e('number')}>{giftNumber}</span>
+          </div>
+          
+          <button className={e('price-button')}>
+            <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
+            </svg>
+            <span className={e('price')}>{price}</span>
+          </button>
+        </div>
+      </div>
     </div>
-    
-    <button className={e('price-button')}>
-      <span className={e('diamond-icon')}>💎</span>
-      <span className={e('price')}>{price}</span>
-    </button>
-  </div>
-);
+  );
+};
