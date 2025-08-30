@@ -1,0 +1,26 @@
+{
+    "user_id": 767134647,
+    "photo_url": "https://t.me/i/userpic/320/vet070X4fYvhRDSKVNpecz6TquaBHI1Ti0Mcloi4UbA.svg",
+    "first_name": "Radam 𓆉",
+    "last_name": "",
+    "lang": "en",
+    "username": "pichuoreo",
+    "is_premium": true,
+    "referral_code": "0OFEUI",
+    "balance": 0.0,
+    "total_volume": 0.0,
+    "total_purchases": 0,
+    "total_sales": 0,
+    "channel_waiting_id": null,
+    "channel_waiting_started_at": null,
+    "channel_waiting_username": null,
+    "referrals_count": 0,
+    "referrals_amount": 0.0,
+    "theme": "system",
+    "filters": {
+        "sort_by": "date_new_to_old",
+        "only_exact_gift": false,
+        "show_upgraded_gifts": true
+    },
+    "joined_main_channel": false
+}

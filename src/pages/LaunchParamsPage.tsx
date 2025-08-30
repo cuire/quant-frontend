@@ -1,6 +1,7 @@
 import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
-import { List } from '@telegram-apps/telegram-ui';
+import { List, Button } from '@telegram-apps/telegram-ui';
 import { type FC, useMemo } from 'react';
+import { Link } from '@tanstack/react-router';
 
 import { DisplayData } from '@/components/DisplayData/DisplayData.tsx';
 import { Page } from '@/components/Page.tsx';
@@ -22,6 +23,13 @@ export const LaunchParamsPage: FC = () => {
             { title: 'tgWebAppThemeParams', type: 'link', value: '/theme-params' },
           ]}
         />
+        <List.Item>
+          <Link to="/gifts" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Button size="m" mode="primary" stretched>
+              View Gifts
+            </Button>
+          </Link>
+        </List.Item>
       </List>
     </Page>
   );

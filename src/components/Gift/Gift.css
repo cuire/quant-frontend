@@ -1,0 +1,141 @@
+.gift {
+  position: relative;
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 12px;
+  width: 100%;
+  height: 233px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid #404040;
+}
+
+.gift__fast-sale-banner {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #ff6b35;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.gift__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.gift__title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gift__gift-number {
+  color: #888888;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.gift__items-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.gift__item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gift__item-icon {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gift__item-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-width: 40px;
+  max-height: 40px;
+}
+
+.gift__nft-label {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: #8b5cf6;
+  color: white;
+  font-size: 8px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.gift__quantity {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: #3b82f6;
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 50%;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift__price-button {
+  width: 100%;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.gift__price-button:hover {
+  background: #2563eb;
+}
+
+.gift__price-button:active {
+  background: #1d4ed8;
+}
+
+.gift__diamond-icon {
+  font-size: 14px;
+}
+
+.gift__price {
+  font-size: 14px;
+  font-weight: 600;
+}

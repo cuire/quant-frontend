@@ -1,0 +1,435 @@
+{
+    "channels": [
+        {
+            "id": 6911,
+            "gifts": {
+                "5832279504491381684": 4,
+                "5832497899283415733": 1,
+                "5834918435477259676": 3
+            },
+            "price": 390.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+l8sC70nFK_oyMjgy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6910,
+            "gifts": {
+                "5999277561060787166": 50,
+                "5999298447486747746": 6
+            },
+            "price": 91.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+OBUuNL0CzzI2ODYy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6905,
+            "gifts": {
+                "5999116401002939514": 5,
+                "5999277561060787166": 1,
+                "5999298447486747746": 100
+            },
+            "price": 475.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+QY3mAIK4I1pjMjM6",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6904,
+            "gifts": {
+                "5834918435477259676": 2
+            },
+            "price": 6.21,
+            "my_channel": false,
+            "invite_link": "https://t.me/+Na8WxKOf7_g4NTli",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6902,
+            "gifts": {
+                "5832371318007268701": 32
+            },
+            "price": 33.68,
+            "my_channel": false,
+            "invite_link": "https://t.me/+Mx_la71xp0w4M2Zi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6901,
+            "gifts": {
+                "5832371318007268701": 1,
+                "5832497899283415733": 1,
+                "5832644211639321671": 1,
+                "5834918435477259676": 3
+            },
+            "price": 31.58,
+            "my_channel": false,
+            "invite_link": "https://t.me/+vsidjFVXxMlhNWE0",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6898,
+            "gifts": {
+                "5832371318007268701": 4
+            },
+            "price": 5.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+4t_bOlKCNc5hZjhi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6896,
+            "gifts": {
+                "5834918435477259676": 5
+            },
+            "price": 16.88,
+            "my_channel": false,
+            "invite_link": "https://t.me/+Urr8dxZN8iwwODFi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6895,
+            "gifts": {
+                "5832371318007268701": 1
+            },
+            "price": 3.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+WUPNOUCDBzw2ZTUy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6894,
+            "gifts": {
+                "5832279504491381684": 1,
+                "5832497899283415733": 3,
+                "5832644211639321671": 8,
+                "5834918435477259676": 5
+            },
+            "price": 175.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+HeQuecLPfW81NjIy",
+            "description": "Писать @sasha90904",
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6891,
+            "gifts": {
+                "5832279504491381684": 1,
+                "5832371318007268701": 3,
+                "5832497899283415733": 4,
+                "5832644211639321671": 1
+            },
+            "price": 140.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+QwpMTcWiJ1QzY2Nh",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6887,
+            "gifts": {
+                "5832371318007268701": 2,
+                "5832644211639321671": 3
+            },
+            "price": 7.5,
+            "my_channel": false,
+            "invite_link": "https://t.me/+2sGA7EVVYgI3NGMy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6886,
+            "gifts": {
+                "5832497899283415733": 1
+            },
+            "price": 12.8,
+            "my_channel": false,
+            "invite_link": "https://t.me/+A6SwGkeduCg3Yzgy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6884,
+            "gifts": {
+                "5832497899283415733": 3
+            },
+            "price": 35.5,
+            "my_channel": false,
+            "invite_link": "https://t.me/+a6aXOg85JCszMGFi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6881,
+            "gifts": {
+                "5999277561060787166": 5
+            },
+            "price": 9.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+6CmM_9OmXgxiOThk",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6880,
+            "gifts": {
+                "5999116401002939514": 1,
+                "5999277561060787166": 1,
+                "5999298447486747746": 14
+            },
+            "price": 100.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+svl56ehT2d4yYTZi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6879,
+            "gifts": {
+                "5999116401002939514": 4
+            },
+            "price": 265.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+u0qanq8MwdJhNDg8",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6878,
+            "gifts": {
+                "upgraded": {
+                    "5895544372761461960": [
+                        "5882027152903242332"
+                    ],
+                    "6001538689543439169": [
+                        "5913544490504684636"
+                    ],
+                    "6012435906336654262": [
+                        "6017097822753522390"
+                    ]
+                },
+                "5832371318007268701": 6,
+                "5832644211639321671": 1
+            },
+            "price": 35.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+Utn6SZDseXI2YzY0",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6875,
+            "gifts": {
+                "5832371318007268701": 6
+            },
+            "price": 10.1,
+            "my_channel": false,
+            "invite_link": "https://t.me/+r_nhiZrK49NjYmMy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6872,
+            "gifts": {
+                "5832279504491381684": 1,
+                "5832497899283415733": 1,
+                "5832644211639321671": 3
+            },
+            "price": 109.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+asobbepRrhoyZGY6",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6871,
+            "gifts": {
+                "5834918435477259676": 1
+            },
+            "price": 3.4,
+            "my_channel": false,
+            "invite_link": "https://t.me/+Yg1Up19c0Gw0NGEy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6870,
+            "gifts": {
+                "5832371318007268701": 1
+            },
+            "price": 2.16,
+            "my_channel": false,
+            "invite_link": "https://t.me/+Kk8yTQpnqjQzMTMy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6869,
+            "gifts": {
+                "5832497899283415733": 2
+            },
+            "price": 24.75,
+            "my_channel": false,
+            "invite_link": "https://t.me/+KgLaIPdaQR00NDNi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6868,
+            "gifts": {
+                "5832497899283415733": 1,
+                "5832644211639321671": 1
+            },
+            "price": 14.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+F4Ui6mGPQzY1OTBi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6866,
+            "gifts": {
+                "5834918435477259676": 3
+            },
+            "price": 8.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+Njt8vHM06qsyM2Fh",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6864,
+            "gifts": {
+                "5832279504491381684": 1,
+                "5832371318007268701": 5,
+                "5832497899283415733": 4,
+                "5832644211639321671": 9,
+                "5834918435477259676": 3
+            },
+            "price": 179.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+ZxIGy4bzZ_o1MTAy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6863,
+            "gifts": {
+                "5999277561060787166": 31,
+                "5999298447486747746": 42
+            },
+            "price": 110.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+oFdIqy0L8skwMzYy",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6861,
+            "gifts": {
+                "5999277561060787166": 58
+            },
+            "price": 58.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+fW4isPrOcCUxYmU6",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6857,
+            "gifts": {
+                "upgraded": {
+                    "5783075783622787539": [
+                        "6046518421745566715"
+                    ]
+                }
+            },
+            "price": 1.4,
+            "my_channel": false,
+            "invite_link": "https://t.me/+nAc5D23Cp4o0YTA8",
+            "description": "..",
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        },
+        {
+            "id": 6854,
+            "gifts": {
+                "5832371318007268701": 5
+            },
+            "price": 7.0,
+            "my_channel": false,
+            "invite_link": "https://t.me/+xTZtuo-PvxE1YzJi",
+            "description": null,
+            "stars_count": 0,
+            "type": "waiting",
+            "is_active": true
+        }
+    ]
+}

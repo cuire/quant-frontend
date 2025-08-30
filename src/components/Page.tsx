@@ -20,5 +20,7 @@ export function Page({ children, back = true }: PropsWithChildren<{
     hideBackButton();
   }, [back]);
 
-  return <>{children}</>;
+  return <div style={{
+    background: '#1A2026',
+  }}>{children}</div>;
 }
