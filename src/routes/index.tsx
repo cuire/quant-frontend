@@ -90,7 +90,6 @@ function MarketPage() {
                   };
                 });
 
-                // Generate channel title using the same logic as generateChannelTitle
                 const generateChannelTitle = (gifts: any[], isModal = false) => {
                   if (!gifts || gifts.length === 0) return "Empty Channel";
 
@@ -120,17 +119,6 @@ function MarketPage() {
 
                 const title = generateChannelTitle(channelGiftsArray);
 
-                // Add corner badges for variety
-                let cornerBadge: 'blue' | 'orange' | null = null;
-                if (index % 3 === 0) cornerBadge = 'blue';
-                else if (index % 5 === 0) cornerBadge = 'orange';
-                
-                // Add Fast Sale banners for some items
-                const isFastSale = index % 4 === 1 || index % 7 === 0;
-                
-                // Add time badges for some items
-                const timeBadge = index % 6 === 2 ? '2h' : null;
-
                 return (
                   <Gift
                     key={channel.id}
@@ -144,9 +132,7 @@ function MarketPage() {
                                          title={title}
                     giftNumber={`#${channel.id}`}
                     price={Math.round(channel.price)}
-                    isFastSale={isFastSale}
-                    timeBadge={timeBadge}
-                    cornerBadge={cornerBadge}
+                    isFastSale={channel.type === 'fast'}
                     onClick={() => handleGiftClick(channel)}
                   />
                 );

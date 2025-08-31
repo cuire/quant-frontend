@@ -1,6 +1,6 @@
 // Simple API functions
 import { initData } from '@telegram-apps/sdk';
-import { config } from './config';
+import { config } from './config.ts';
 
 // Basic types
 export interface User {
@@ -15,6 +15,7 @@ export interface User {
 }
 
 export interface Channel {
+  type: 'fast' | undefined;
   id: number;
   username: string;
   title: string;

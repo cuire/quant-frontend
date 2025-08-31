@@ -1,8 +1,8 @@
 import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 import { useModal } from '@/contexts/ModalContext';
-import { GiftDetailsModal } from './GiftDetailsModal';
-import { OfferModal } from './OfferModal';
+import { GiftDetailsModal } from './GiftDetailsModal.tsx';
+import { OfferModal } from './OfferModal.tsx';
 import './Modal.css';
 
 export const Modal = () => {
