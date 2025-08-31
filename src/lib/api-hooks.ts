@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getOffers, acceptOffer, rejectOffer, cancelOffer } from './api';
+import { getUser, updateLanguage, getChannels, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -23,6 +23,10 @@ export const queryKeys = {
     ['offers', page, limit] as const,
   offersInfinite: (limit: number) => 
     ['offersInfinite', limit] as const,
+  userActivity: (page: number, limit: number) => 
+    ['userActivity', page, limit] as const,
+  userActivityInfinite: (limit: number) => 
+    ['userActivityInfinite', limit] as const,
 };
 
 // User hooks
@@ -221,5 +225,34 @@ export const useCancelOffer = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['offers'] });
     },
+  });
+};
+
+// User Activity hooks
+export const useUserActivity = (
+  page = 1,
+  limit = 20
+) => {
+  return useQuery({
+    queryKey: queryKeys.userActivity(page, limit),
+    queryFn: () => getUserActivity(page, limit),
+  });
+};
+
+export const useUserActivityInfinite = (
+  limit = 20
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.userActivityInfinite(limit),
+    queryFn: ({ pageParam = 1 }) => getUserActivity(pageParam, limit),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than the limit, we've reached the end
+      if (lastPage.activities.length < limit) {
+        return undefined;
+      }
+      return allPages.length + 1;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };

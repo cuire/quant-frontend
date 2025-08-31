@@ -59,7 +59,7 @@ export interface Gift {
 export interface Offer {
   id: number;
   channel_id: number;
-  gifts_data: Record<string, number>;
+  gifts_data?: Record<string, number>;
   channel_price: number;
   channel_stars: number;
   price: number;
@@ -192,14 +192,16 @@ export interface Activity {
   id: number;
   gift_id: string;
   is_upgraded: boolean;
-  gifts_data: {
-    upgraded: Record<string, number[]>;
-  };
+  gifts_data?: Record<string, number>;
   channel_stars: number;
   type: string;
   amount: number;
   channel_id: number;
   created_at: string;
+}
+
+export interface UserActivityResponse {
+  activities: Activity[];
 }
 
 export async function getActivity(
@@ -216,6 +218,18 @@ export async function getActivity(
   
   const data = await request<Activity[]>(`/activity?${params.toString()}`);
   return data || [];
+}
+
+export async function getUserActivity(
+  page = 1,
+  limit = 20
+): Promise<UserActivityResponse> {
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  
+  const data = await request<UserActivityResponse>(`/users/me/activity?${params.toString()}`);
+  return data;
 }
 
 // Offer functions

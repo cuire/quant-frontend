@@ -119,7 +119,7 @@ function PlacedOffersPage() {
       }}>
         {allOffers.map((offer, index) => {
           // Convert gifts_data to items format for Gift component
-          const items = Object.entries(offer.gifts_data).map(([giftId, quantity]) => {
+          const items = Object.entries(offer.gifts_data || {}).map(([giftId, quantity]) => {
             const giftData = giftsMap.get(giftId);
             return {
               id: giftId,
@@ -150,7 +150,7 @@ function PlacedOffersPage() {
                 timeEnd={timeEnd}
                 onSell={() => handleCancelOffer(offer.id)}
                 onClick={() => openModal('gift-details', { 
-                  channel: { id: offer.channel_id, gifts: offer.gifts_data }, 
+                  channel: { id: offer.channel_id, gifts: offer.gifts_data || {} }, 
                   gifts: giftsData || [],
                   price: offer.price,
                   showPurchaseActions: false 

@@ -124,7 +124,7 @@ function ReceivedOffersPage() {
       }}>
         {allOffers.map((offer, index) => {
           // Convert gifts_data to items format for Gift component
-          const items = Object.entries(offer.gifts_data).map(([giftId, quantity]) => {
+          const items = Object.entries(offer.gifts_data || {}).map(([giftId, quantity]) => {
             const giftData = giftsMap.get(giftId);
             return {
               id: giftId,
@@ -153,12 +153,12 @@ function ReceivedOffersPage() {
               timeEnd={timeEnd}
               onSell={() => openModal('accept-offer', { offer })}
               onDecline={() => openModal('cancel-offer', { offer })}
-              onClick={() => openModal('gift-details', { 
-                channel: { id: offer.channel_id, gifts: offer.gifts_data }, 
-                gifts: giftsData || [],
-                price: offer.price,
-                showPurchaseActions: false 
-              })}
+                              onClick={() => openModal('gift-details', { 
+                  channel: { id: offer.channel_id, gifts: offer.gifts_data || {} }, 
+                  gifts: giftsData || [],
+                  price: offer.price,
+                  showPurchaseActions: false 
+                })}
               key={offer.id} ref={index === allOffers.length - 1 ? observer : undefined}
             />
           );
