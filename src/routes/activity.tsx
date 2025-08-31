@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { MarketHeader } from '@/components/MarketHeader';
-import { BottomNav } from '@/components/Navigation';
 import { useActivityInfinite, useGifts } from '@/lib/api-hooks';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
