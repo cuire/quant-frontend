@@ -113,7 +113,14 @@ export async function getChannels(
   // Add filters
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== null && value !== undefined && value !== '') {
-      params.append(key, value.toString());
+      if (Array.isArray(value)) {
+        // Handle arrays by appending each element
+        value.forEach(item => {
+          params.append(key, item.toString());
+        });
+      } else {
+        params.append(key, value.toString());
+      }
     }
   });
   

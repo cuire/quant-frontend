@@ -12,12 +12,12 @@ const [b, e] = bem('market-header');
 export interface MarketHeaderProps {
   balance?: number;
   onFilterChange?: (filters: {
-    gift: string;
+    gift: string[]; // array of gift IDs
     channelType: string;
     sorting: string;
   }) => void;
   currentFilters?: {
-    gift: string;
+    gift: string[]; // array of gift IDs
     channelType: string;
     sorting: string;
   };
@@ -30,11 +30,16 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
   currentFilters,
   gifts = []
 }) => {
-  const [giftFilter, setGiftFilter] = useState(currentFilters?.gift || 'All');
+  // Parse current gift filter to get selected gift IDs
+  const getInitialGiftIds = (): string[] => {
+    if (!currentFilters?.gift || currentFilters.gift.length === 0) return [];
+    return currentFilters.gift;
+  };
+
   const [channelTypeFilter, setChannelTypeFilter] = useState(currentFilters?.channelType || 'All');
   const [sortingFilter, setSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
   const [openSheet, setOpenSheet] = useState<null | 'gift' | 'channelType' | 'sorting' | 'filters'>(null);
-  const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>([]);
+  const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>(getInitialGiftIds());
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1500]);
   const [qtyRange, setQtyRange] = useState<[number, number]>([0, 100]);
   const [onlyExactGift, setOnlyExactGift] = useState(false);
@@ -43,17 +48,26 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
   // Update filter states when currentFilters change
   useEffect(() => {
     if (currentFilters) {
-      setGiftFilter(currentFilters.gift);
       setChannelTypeFilter(currentFilters.channelType);
       setSortingFilter(currentFilters.sorting);
+      
+      // Update selected gift IDs
+      if (currentFilters.gift && currentFilters.gift.length > 0) {
+        setSelectedGiftIds(currentFilters.gift);
+      } else {
+        setSelectedGiftIds([]);
+      }
     }
   }, [currentFilters]);
 
   // Helper function to get gift name by ID
-  const getGiftNameById = (giftId: string): string => {
-    if (giftId === 'All') return 'All';
-    const gift = gifts.find(g => g.id === giftId);
-    return gift ? (gift.short_name || gift.full_name) : 'All';
+  const getGiftNameById = (giftIds: string[]): string => {
+    if (giftIds.length === 0) return 'All';
+    if (giftIds.length === 1) {
+      const gift = gifts.find(g => g.id === giftIds[0]);
+      return gift ? (gift.short_name || gift.full_name) : 'All';
+    }
+    return `${giftIds.length} gifts selected`;
   };
 
   // Helper function to convert backend channel type to frontend display
@@ -79,12 +93,15 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
 
   const handleFilterChange = (type: string, value: string) => {
     const newFilters = {
-      gift: type === 'gift' ? value : giftFilter,
+      gift: type === 'gift' ? selectedGiftIds : selectedGiftIds,
       channelType: type === 'channelType' ? value : channelTypeFilter,
       sorting: type === 'sorting' ? value : sortingFilter,
     };
 
-    if (type === 'gift') setGiftFilter(value);
+    if (type === 'gift') {
+      // For gift, we use selectedGiftIds directly
+      // setGiftFilter(value); // This line is removed
+    }
     if (type === 'channelType') setChannelTypeFilter(value);
     if (type === 'sorting') setSortingFilter(value);
 
@@ -128,7 +145,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
         <div className={e('filter-chip')} onClick={() => setOpenSheet('gift')} role="button" tabIndex={0}>
           <span className={e('chip-label')}>Gift</span>
           <div className={e('chip-control')}>
-            <span className={e('chip-value')}>{getGiftNameById(giftFilter)}</span>
+            <span className={e('chip-value')}>{getGiftNameById(selectedGiftIds)}</span>
             <div className={e('chip-select')} />
           </div>
         </div>
@@ -208,6 +225,9 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                 <div className={e('panel')}>
                   {gifts.map((gift) => {
                     const checked = selectedGiftIds.includes(gift.id);
+                    if (gift.count === 0) {
+                      return;
+                    }
                     return (
                       <label key={gift.id} className={e('row')}>
                         <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
@@ -219,7 +239,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                           <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span>{gift.short_name || gift.full_name}</span>
                           </div>
-                          <div className={e('row-note')}>channels on sale</div>
+                          <div className={e('row-note')}>{gift.count} channels on sale</div>
                         </div>
                         <div className={e('row-right')}>
                           <div className={e('row-price')}>
@@ -236,7 +256,10 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                 </div>
                 <div className={e('sheet-footer')}>
                   <button className={e('btn-secondary')} onClick={() => { setSelectedGiftIds([]); }}>Restart</button>
-                  <button className={e('btn-primary')} onClick={() => { handleFilterChange('gift', selectedGiftIds[0] ?? 'All'); setOpenSheet(null); }}>Search</button>
+                  <button className={e('btn-primary')} onClick={() => { 
+                    handleFilterChange('gift', selectedGiftIds.join(',')); 
+                    setOpenSheet(null); 
+                  }}>Search</button>
                 </div>
               </div>
             )}

@@ -9,17 +9,64 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
   const { openModal } = useModal();
 
   const handleMakeOffer = () => {
-    openModal('offer', data);
+    openModal('offer', { channel, gifts });
   };
+
+  // Extract channel and gifts data
+  const channel = data.channel || data;
+  const gifts = data.gifts || [];
+  
+  // Transform gifts object to items array if needed
+  const items = channel.items || (channel.gifts ? Object.entries(channel.gifts).map(([gift_id, quantity]: [string, any]) => {
+    const foundGift = gifts.find((gift: any) => gift.id === gift_id);
+    return {
+      id: gift_id,
+      name: foundGift?.short_name || foundGift?.full_name || `Gift ${gift_id}`,
+      icon: `https://FlowersRestricted.github.io/gifts/${gift_id}/default.png`,
+      quantity: quantity
+    };
+  }) : []);
+  
+  // Generate title and other properties like in the routes file
+  const generateChannelTitle = (gifts: any[], isModal = false) => {
+    if (!gifts || gifts.length === 0) return "Empty Channel";
+
+    const maxDisplay = 2;
+    const displayGifts = gifts.slice(0, maxDisplay);
+
+    let parts = [];
+
+    for (let i = 0; i < displayGifts.length; i++) {
+      const gift = displayGifts[i];
+      const giftName = gift.name || "Unknown";
+      const giftText = `${giftName} x${gift.quantity}`;
+
+      // Add spacing if not first item
+      const spacing = i > 0 ? (isModal ? "  " : " ") : "";
+
+      parts.push(`${spacing}${giftText}`);
+    }
+
+    // Add ellipsis if there are more gifts
+    if (gifts.length > maxDisplay) {
+      parts[parts.length - 1] += "...";
+    }
+
+    return parts.join("");
+  };
+
+  const title = generateChannelTitle(items, true);
+  const giftNumber = `#${channel.id}`;
+  const price = Math.round(channel.price);
 
   return (
     <div className="market-header__sheet">
       <div className="product-sheet__header">
         <div className="product-sheet__gallery">
           {(() => {
-            const count = data.items.length;
+            const count = items.length;
             const gridClass = count === 1 ? 'single' : count === 2 ? 'double' : count === 3 ? 'triple' : 'multiple';
-            const visible = gridClass === 'multiple' ? data.items.slice(0, 4) : data.items.slice(0, count);
+            const visible = gridClass === 'multiple' ? items.slice(0, 4) : items.slice(0, count);
             return (
               <div className={`product-sheet__grid product-sheet__grid--${gridClass}`}>
                 {visible.map((it: any) => (
@@ -38,11 +85,11 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
         <button className="product-sheet__close" onClick={onClose}>✕</button>
       </div>
       <div className="product-sheet__title">
-        <div className="product-sheet__name">{data.title}</div>
-        <div className="product-sheet__num">{data.giftNumber}</div>
+        <div className="product-sheet__name">{title}</div>
+        <div className="product-sheet__num">{giftNumber}</div>
       </div>
       <div className="product-sheet__list">
-        {data.items.map((it: any) => (
+        {items.map((it: any) => (
           <div key={it.id} className="product-sheet__row">
             <div className="product-sheet__row-icon"><img src={it.icon} alt={it.name} /></div>
             <div className="product-sheet__row-main">
@@ -69,7 +116,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
       <div className="product-sheet__actions">
         <button className="product-sheet__btn" type="button" onClick={handleMakeOffer}>Make Offer</button>
         <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Buy Channel
-          <span className="product-sheet__price">{data.price} TON</span>
+          <span className="product-sheet__price">{price} TON</span>
         </button>
       </div>
     </div>
