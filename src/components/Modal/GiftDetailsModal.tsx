@@ -144,12 +144,30 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
           Open Channel
         </Link>
       </div>
+
       {showPurchaseActions && (
         <div className="product-sheet__actions">
-          <button className="product-sheet__btn" type="button" onClick={handleMakeOffer}>Make Offer</button>
-          <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Buy Channel
-            <span className="product-sheet__price">{price} TON</span>
-          </button>
+          {channel?.status === 'reserved' ? (
+            <>
+              <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
+              <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Sell Channel
+              </button>
+            </>
+          ) : channel?.status === 'active' ? (
+            <>
+              <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
+              <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Change Price
+                <span className="product-sheet__price">{price} TON</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="product-sheet__btn" type="button" onClick={handleMakeOffer}>Make Offer</button>
+              <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Buy Channel
+                <span className="product-sheet__price">{price} TON</span>
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

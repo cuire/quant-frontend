@@ -28,7 +28,7 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
    * Вариант отображения карточки. По умолчанию рыночный вариант.
    * Для страницы Storage используется вариант 'storage-offer'.
    */
-  variant?: 'market' | 'storage-offer';
+  variant?: 'market' | 'storage-offer' | 'my-channel';
   /** Цена предложения (TON) для варианта storage */
   offerPriceTon?: number;
   /** Остаток времени в формате HH:MM:SS для варианта storage */
@@ -39,6 +39,8 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   onDecline?: () => void;
   /** Тип действия в storage: продажа (Received) или удаление (Placed) */
   storageAction?: 'sell' | 'remove';
+  /** Статус канала для отображения цены */
+  channelStatus?: string;
 }
 
 export const Gift = forwardRef<HTMLDivElement, GiftProps>(({ 
@@ -56,6 +58,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
   onSell,
   onDecline,
   storageAction = 'sell',
+  channelStatus,
   ...rest 
 }, ref) => {
   // Определяем класс сетки в зависимости от количества элементов
@@ -71,10 +74,10 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
     return '#344150'; // Единый цвет для всех подарков
   };
 
-  const isStorage = variant === 'storage-offer';
+  const isStorage = variant === 'storage-offer' || variant === 'my-channel';
 
   return (
-    <div {...rest} ref={ref} className={classNames(b(isStorage ? 'storage' : undefined), rest.className)}>
+    <div {...rest} ref={ref} className={classNames(b(isStorage ? 'storage' : undefined), b(channelStatus === 'transferring' ? 'transferring' : undefined), rest.className)}>
       {isFastSale && (
         <div className={e('fast-sale-banner')}>
           Fast sale
@@ -126,6 +129,14 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
               <div className={e('more-badge')}>+{items.length - 4} more</div>
             )}
           </div>
+
+          {channelStatus === 'transferring' && (
+            <div className={e('transferring-badge')}>
+              <span>
+                Transferring
+              </span>
+            </div>
+          )}
         </div>
         
         <div className={e('footer')}>
@@ -136,15 +147,58 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
 
           {isStorage ? (
             <div className={e('storage')}> 
-              <div className={e('storage-row')}>
-                <span className={e('storage-label')}>Offer Price:</span>
-                <span className={e('storage-value')}>{typeof offerPriceTon === 'number' ? `${offerPriceTon} TON` : `${price} TON`}</span>
-              </div>
-              <div className={e('storage-row')}>
-                <span className={e('storage-label')}>Time End:</span>
-                <span className={e('storage-value-time')}>{timeEnd ?? '--:--:--'}</span>
-              </div>
-              {storageAction === 'remove' ? (
+              {variant === 'my-channel' && channelStatus === 'reserved' ? (
+                <div className={e('actions', 'single')}>
+                  <button 
+                    type="button" 
+                    className={e('sell-button')} 
+                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                  >
+                    Sell
+                  </button>
+                </div>
+              ) : variant === 'my-channel' && channelStatus === 'transferring' ? (
+                <div className={e('actions', 'single')}>
+                  <button 
+                    type="button" 
+                    className={e('sell-button')} 
+                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                    style={{ 
+                      backgroundColor: '#DA7024',
+                    }}
+                  >
+                    Receiving
+                  </button>
+                </div>
+              ) : variant === 'my-channel' && channelStatus === 'frozen' ? (
+                <div className={e('actions', 'single')}>
+                  <button 
+                    type="button" 
+                    className={e('sell-button')} 
+                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                  >
+                    Frozen by admin
+                  </button>
+                </div>
+              ) : variant === 'my-channel' && channelStatus === 'active' ? (
+                <div className={e('actions', 'single')}>
+                  <button 
+                    type="button" 
+                    className={e('sell-button')} 
+                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                    style={{ 
+                      backgroundColor: '#32404D',
+                      display: 'flex', alignItems: 'center', gap: '4px', paddingLeft: '12px', paddingRight: '12px', textAlign: 'left' }}
+                  >
+                    <div className="" style={{ flex: 1 }}>
+                      Your Price:
+                    </div>
+                    <div className="">
+                      {price} TON
+                    </div>
+                  </button>
+                </div>
+              ) : storageAction === 'remove' ? (
                 <div className={e('actions', 'single')}>
                   <button 
                     type="button" 

@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getUserChannels, addChannel, getGifts, getActivity } from './api';
+import { getUser, updateLanguage, getChannels, getUserChannels, getMeChannels, addChannel, getGifts, getActivity } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -10,6 +10,10 @@ export const queryKeys = {
   channelsInfinite: (limit: number, filters?: Record<string, any>) => 
     ['channelsInfinite', limit, filters] as const,
   userChannels: ['userChannels'] as const,
+  meChannels: (page: number, limit: number) => 
+    ['meChannels', page, limit] as const,
+  meChannelsInfinite: (limit: number) => 
+    ['meChannelsInfinite', limit] as const,
   gifts: ['gifts'] as const,
   activity: (limit: number, offset: number, onlyExactGift: boolean, showUpgradedGifts: boolean) => 
     ['activity', limit, offset, onlyExactGift, showUpgradedGifts] as const,
@@ -71,6 +75,34 @@ export const useUserChannels = () => {
   return useQuery({
     queryKey: queryKeys.userChannels,
     queryFn: getUserChannels,
+  });
+};
+
+export const useMeChannels = (
+  page = 1, 
+  limit = 20
+) => {
+  return useQuery({
+    queryKey: queryKeys.meChannels(page, limit),
+    queryFn: () => getMeChannels(page, limit),
+  });
+};
+
+export const useMeChannelsInfinite = (
+  limit = 20
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.meChannelsInfinite(limit),
+    queryFn: ({ pageParam = 1 }) => getMeChannels(pageParam, limit),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than the limit, we've reached the end
+      if (lastPage.length < limit) {
+        return undefined;
+      }
+      return allPages.length + 1;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 

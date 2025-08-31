@@ -1256,6 +1256,49 @@
     color: #fff;
 }
 
+/* Link styles for storage tabs */
+.storage-segment .storage-tab-link {
+    height: 34px;
+    border-radius: 18px;
+    background: rgba(33, 42, 51, 1);
+    border: 0px solid #2F3C49;
+    color: #E7EEF7;
+    font-weight: 590;
+    font-size: 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.storage-segment .storage-tab-link.is-active {
+    background: #248BDA;
+    border-color: #248BDA;
+    color: #fff;
+}
+
+.storage-subsegment .storage-tab-link {
+    height: 34px;
+    border-radius: 18px;
+    background: rgba(33, 42, 51, 1);
+    border: 0px solid #2F3C49;
+    color: #E7EEF7;
+    font-weight: 590;
+    font-size: 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.storage-subsegment .storage-tab-link.is-active {
+    background: #248BDA;
+    border-color: #248BDA;
+    color: #fff;
+}
+
 .storage-empty {
     margin-top: 40px;
     display: flex;

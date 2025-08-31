@@ -57,8 +57,7 @@ export const BottomNav = () => {
   return (
     <nav className={b()}>
       {navItems.map((item) => {
-        const isActive = currentPath === item.path;
-        
+        const isActive = item.path !== '/' ? currentPath.startsWith(item.path) : currentPath === item.path;
         return (
           <Link
             key={item.id}

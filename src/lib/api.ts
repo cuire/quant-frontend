@@ -30,6 +30,19 @@ export interface Channel {
   gifts?: Record<number, number>;  // { gift_id: quantity }
 }
 
+export interface UserChannel extends Channel {
+  gifts: Record<string, number>;  // { gift_id: quantity }
+  status: string;
+  waiting_started_at?: string;
+  invite_link: string;
+  my_channel: boolean;
+  transferring_started_at?: string;
+  transferring_to_id?: number;
+  transferring_to_username?: string;
+  transferring_to_full_name?: string;
+  stars_count: number;
+}
+
 export interface Gift {
   id: string;
   short_name: string;
@@ -131,6 +144,18 @@ export async function getChannels(
 export async function getUserChannels(): Promise<Channel[]> {
   const response = await request<{ channels: Channel[] }>("/users/me/channels");
   return response.channels || [];
+}
+
+export async function getMeChannels(
+  page = 1, 
+  limit = 20
+): Promise<UserChannel[]> {
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  
+  const data = await request<{channels: UserChannel[]}>(`/users/me/channels?${params.toString()}`);
+  return data.channels || [];
 }
 
 export async function addChannel(inviteLink: string): Promise<Channel> {

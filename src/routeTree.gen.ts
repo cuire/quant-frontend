@@ -12,6 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StorageRouteImport } from './routes/storage'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StorageIndexRouteImport } from './routes/storage/index'
+import { Route as StorageChannelsRouteImport } from './routes/storage/channels'
+import { Route as StorageActivityRouteImport } from './routes/storage/activity'
+import { Route as StorageOffersReceivedRouteImport } from './routes/storage/offers/received'
+import { Route as StorageOffersPlacedRouteImport } from './routes/storage/offers/placed'
 
 const StorageRoute = StorageRouteImport.update({
   id: '/storage',
@@ -28,35 +33,98 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StorageIndexRoute = StorageIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StorageRoute,
+} as any)
+const StorageChannelsRoute = StorageChannelsRouteImport.update({
+  id: '/channels',
+  path: '/channels',
+  getParentRoute: () => StorageRoute,
+} as any)
+const StorageActivityRoute = StorageActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => StorageRoute,
+} as any)
+const StorageOffersReceivedRoute = StorageOffersReceivedRouteImport.update({
+  id: '/offers/received',
+  path: '/offers/received',
+  getParentRoute: () => StorageRoute,
+} as any)
+const StorageOffersPlacedRoute = StorageOffersPlacedRouteImport.update({
+  id: '/offers/placed',
+  path: '/offers/placed',
+  getParentRoute: () => StorageRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
-  '/storage': typeof StorageRoute
+  '/storage': typeof StorageRouteWithChildren
+  '/storage/activity': typeof StorageActivityRoute
+  '/storage/channels': typeof StorageChannelsRoute
+  '/storage/': typeof StorageIndexRoute
+  '/storage/offers/placed': typeof StorageOffersPlacedRoute
+  '/storage/offers/received': typeof StorageOffersReceivedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
-  '/storage': typeof StorageRoute
+  '/storage/activity': typeof StorageActivityRoute
+  '/storage/channels': typeof StorageChannelsRoute
+  '/storage': typeof StorageIndexRoute
+  '/storage/offers/placed': typeof StorageOffersPlacedRoute
+  '/storage/offers/received': typeof StorageOffersReceivedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
-  '/storage': typeof StorageRoute
+  '/storage': typeof StorageRouteWithChildren
+  '/storage/activity': typeof StorageActivityRoute
+  '/storage/channels': typeof StorageChannelsRoute
+  '/storage/': typeof StorageIndexRoute
+  '/storage/offers/placed': typeof StorageOffersPlacedRoute
+  '/storage/offers/received': typeof StorageOffersReceivedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/activity' | '/storage'
+  fullPaths:
+    | '/'
+    | '/activity'
+    | '/storage'
+    | '/storage/activity'
+    | '/storage/channels'
+    | '/storage/'
+    | '/storage/offers/placed'
+    | '/storage/offers/received'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/activity' | '/storage'
-  id: '__root__' | '/' | '/activity' | '/storage'
+  to:
+    | '/'
+    | '/activity'
+    | '/storage/activity'
+    | '/storage/channels'
+    | '/storage'
+    | '/storage/offers/placed'
+    | '/storage/offers/received'
+  id:
+    | '__root__'
+    | '/'
+    | '/activity'
+    | '/storage'
+    | '/storage/activity'
+    | '/storage/channels'
+    | '/storage/'
+    | '/storage/offers/placed'
+    | '/storage/offers/received'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
-  StorageRoute: typeof StorageRoute
+  StorageRoute: typeof StorageRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +150,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/storage/': {
+      id: '/storage/'
+      path: '/'
+      fullPath: '/storage/'
+      preLoaderRoute: typeof StorageIndexRouteImport
+      parentRoute: typeof StorageRoute
+    }
+    '/storage/channels': {
+      id: '/storage/channels'
+      path: '/channels'
+      fullPath: '/storage/channels'
+      preLoaderRoute: typeof StorageChannelsRouteImport
+      parentRoute: typeof StorageRoute
+    }
+    '/storage/activity': {
+      id: '/storage/activity'
+      path: '/activity'
+      fullPath: '/storage/activity'
+      preLoaderRoute: typeof StorageActivityRouteImport
+      parentRoute: typeof StorageRoute
+    }
+    '/storage/offers/received': {
+      id: '/storage/offers/received'
+      path: '/offers/received'
+      fullPath: '/storage/offers/received'
+      preLoaderRoute: typeof StorageOffersReceivedRouteImport
+      parentRoute: typeof StorageRoute
+    }
+    '/storage/offers/placed': {
+      id: '/storage/offers/placed'
+      path: '/offers/placed'
+      fullPath: '/storage/offers/placed'
+      preLoaderRoute: typeof StorageOffersPlacedRouteImport
+      parentRoute: typeof StorageRoute
+    }
   }
 }
+
+interface StorageRouteChildren {
+  StorageActivityRoute: typeof StorageActivityRoute
+  StorageChannelsRoute: typeof StorageChannelsRoute
+  StorageIndexRoute: typeof StorageIndexRoute
+  StorageOffersPlacedRoute: typeof StorageOffersPlacedRoute
+  StorageOffersReceivedRoute: typeof StorageOffersReceivedRoute
+}
+
+const StorageRouteChildren: StorageRouteChildren = {
+  StorageActivityRoute: StorageActivityRoute,
+  StorageChannelsRoute: StorageChannelsRoute,
+  StorageIndexRoute: StorageIndexRoute,
+  StorageOffersPlacedRoute: StorageOffersPlacedRoute,
+  StorageOffersReceivedRoute: StorageOffersReceivedRoute,
+}
+
+const StorageRouteWithChildren =
+  StorageRoute._addFileChildren(StorageRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
-  StorageRoute: StorageRoute,
+  StorageRoute: StorageRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
