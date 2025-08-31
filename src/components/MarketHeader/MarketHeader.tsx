@@ -24,13 +24,15 @@ export interface MarketHeaderProps {
     sorting: string;
   };
   gifts?: Gift[];
+  hideFilters?: boolean;
 }
 
 export const MarketHeader: FC<MarketHeaderProps> = ({ 
   balance = 243.16, 
   onFilterChange,
   currentFilters,
-  gifts = []
+  gifts = [],
+  hideFilters = false
 }) => {
   // Parse current gift filter to get selected gift IDs
   const getInitialGiftIds = (): string[] => {
@@ -141,7 +143,8 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
       </div>
 
       {/* Filters */}
-      <div className={e('filters')}>
+      {!hideFilters && (
+        <div className={e('filters')}>
         {/* Gift chip */}
         <div  style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
         <div className={e('filter-chip')} onClick={() => setOpenSheet('gift')} role="button" tabIndex={0}>
@@ -199,7 +202,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
           </svg>
         </button>
       </div>
-
+      )}
       {openSheet && createPortal(
         <div className={e('sheet-overlay')} onClick={() => setOpenSheet(null)}>
           <div className={e('sheet')} onClick={(ev) => ev.stopPropagation()}>

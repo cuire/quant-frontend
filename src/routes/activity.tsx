@@ -209,6 +209,7 @@ function ActivityPage() {
           sorting: 'date_new_to_old'
         }}
         gifts={gifts}
+        hideFilters={true}
       />
 
       {/* Activity Content */}
@@ -260,7 +261,7 @@ function ActivityPage() {
                          onClick={() => {
                            // Create items array from gifts_data
                            let items: { id: string; name: string; icon: string; quantity: number }[] = [];
-                           if (activity.is_upgraded) {
+                           if (activity.gifts_data.upgraded) {
                             items = Object.entries(activity.gifts_data.upgraded).map(([giftId, channelIds]) => ({
                               id: giftId,
                               name: getGiftNameById(giftId),
