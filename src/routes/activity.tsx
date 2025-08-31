@@ -260,7 +260,7 @@ function ActivityPage() {
                          onClick={() => {
                            // Create items array from gifts_data
                            let items: { id: string; name: string; icon: string; quantity: number }[] = [];
-                           if (activity.gifts_data.upgraded) {
+                           if (activity.gifts_data?.upgraded) {
                             items = Object.entries(activity.gifts_data.upgraded).map(([giftId, channelIds]) => ({
                               id: giftId,
                               name: getGiftNameById(giftId),
@@ -268,7 +268,7 @@ function ActivityPage() {
                               quantity: channelIds.length
                             }));
                           } else {
-                            items = Object.entries(activity.gifts_data).map(([giftId, quantity]) => ({
+                            items = Object.entries(activity.gifts_data ?? {}).map(([giftId, quantity]) => ({
                               id: giftId,
                               name: getGiftNameById(giftId),
                               icon: getGiftIconById(giftId),
