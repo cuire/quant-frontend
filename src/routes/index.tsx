@@ -241,7 +241,8 @@ function MarketPage() {
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, 1fr)',
                   gap: '12px',
-                  marginBottom: '20px'
+                  marginBottom: '20px',
+                  padding: '12px', 
                 }}>
                   {channels.map((channel, index) => {
                     // Generate gift display data
@@ -320,7 +321,8 @@ function MarketPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
                     gap: '12px',
-                    marginBottom: '20px'
+                    marginBottom: '20px',
+                    padding: '12px',
                   }}>
                     <Skeleton count={4} />
                   </div>
