@@ -42,7 +42,7 @@ export const Modal = () => {
       case 'gift-details':
         return <GiftDetailsModal data={modalData} onClose={closeModal} />;
       case 'offer':
-        return <OfferModal data={modalData} onClose={closeModal} />;
+        return <OfferModal onClose={closeModal} />;
       default:
         return null;
     }
