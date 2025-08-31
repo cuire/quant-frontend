@@ -12,6 +12,11 @@ body {
   margin: 0px;
   padding: 0px;
   box-sizing: border-box;
+
+  /* hide scroll bar */
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 button,

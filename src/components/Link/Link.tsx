@@ -6,7 +6,12 @@ import { classNames } from '@/css/classnames.ts';
 
 import './Link.css';
 
-export const Link: FC<LinkProps> = ({
+interface CustomLinkProps extends LinkProps {
+  className?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+}
+
+export const Link: FC<CustomLinkProps> = ({
   className,
   onClick: propsOnClick,
   to,
@@ -21,7 +26,7 @@ export const Link: FC<LinkProps> = ({
     if (typeof to === 'string') {
       path = to;
     } else {
-      const { search = '', pathname = '', hash = '' } = to;
+      const { search = '', pathname = '', hash = '' } = to || {};
       path = `${pathname}?${search}#${hash}`;
     }
 
