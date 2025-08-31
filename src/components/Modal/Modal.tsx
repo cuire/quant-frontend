@@ -58,8 +58,8 @@ export const Modal = () => {
   };
 
   return createPortal(
-    <div className="modal-overlay" onClick={closeModal}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="market-header__sheet-overlay" onClick={closeModal}>
+      <div onClick={(e) => e.stopPropagation()}>
         {renderModal()}
       </div>
     </div>,
