@@ -6,6 +6,8 @@ import type { Gift } from '@/lib/api';
 import { GiftIcon } from '@/components/GiftIcon';
 
 import './MarketHeader.css';
+import { Link } from '../Link/Link';
+import { config } from '@/lib/config';
 
 const [b, e] = bem('market-header');
 
@@ -117,7 +119,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
               <path d="M14.624 3.44667L12.604 12.9033C12.4533 13.5693 12.0667 13.7193 11.508 13.4187L8.47799 11.184L6.99466 12.602C6.84466 12.7527 6.69399 12.9033 6.34999 12.9033L6.58666 9.78667L12.2387 4.65067C12.4747 4.414 12.174 4.328 11.8733 4.522L4.84599 8.94867L1.81533 8.02467C1.14933 7.81 1.14933 7.358 1.96599 7.058L13.7427 2.48C14.3227 2.308 14.8173 2.60933 14.624 3.44667Z" fill="white"/>
             </svg>
           </div>
-          <span className={e('telegram-text')}>Telegram Channel</span>
+          <Link className={e('telegram-text')} href={config.telegramChannelUrl}>Telegram Channel</Link>
           <div className={e('arrow')}>
             <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2.99998 11.6667L6.33331 8.33333L2.99998 5" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
