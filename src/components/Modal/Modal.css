@@ -121,7 +121,7 @@ body.modal-open {
 }
 
 .market-header__panel .market-header__toggle-row+.market-header__toggle-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .market-header__sheet-item {
@@ -137,8 +137,8 @@ body.modal-open {
 
 /* list rows */
 .market-header__row {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
     gap: 12px;
     padding: 10px 16px;
     align-items: center;
@@ -151,18 +151,17 @@ body.modal-open {
 .market-header__row-main {
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 
 .market-header__row-title {
     color: #E7EEF7;
-    font-weight: 500;
-    font-size: 12px;
+    font-weight: 590;
+    font-size: 14px;
 }
 
 .market-header__row-note {
     color: #5B738F;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .market-header__row-right {
@@ -172,7 +171,9 @@ body.modal-open {
 .market-header__row-price {
     color: #E7EEF7;
     font-weight: 700;
-    font-size: 12px;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
 }
 
 /* Product sheet styles for gift details */
@@ -369,6 +370,7 @@ body.modal-open {
     gap: 8px;
     border-top: 1px solid #2A3541;
     padding-top: 16px;
+    padding: 12px;
     flex-shrink: 0;
 }
 
@@ -424,7 +426,7 @@ body.modal-open {
 .offer-modal {
     width: 100%;
     max-width: 100%;
-    background: #29353F;
+    background: rgba(33, 42, 51, 1);
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;
     box-shadow: 0 -18px 32px rgba(0, 0, 0, .45);
@@ -462,7 +464,6 @@ body.modal-open {
 
 .offer-modal__block {
     border-radius: 12px;
-    padding: 12px;
     margin: 8px 0;
 }
 

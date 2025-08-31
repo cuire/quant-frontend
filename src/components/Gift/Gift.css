@@ -274,6 +274,12 @@
   font-size: 12px;
 }
 
+.gift__storage-value-time {
+  color: #fff;
+  font-weight: 400;
+  font-size: 12px;
+}
+
 .gift__actions {
   display: grid;
   grid-template-columns: 1fr 32px;

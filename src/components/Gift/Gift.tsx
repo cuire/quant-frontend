@@ -142,7 +142,7 @@ export const Gift: FC<GiftProps> = ({
               </div>
               <div className={e('storage-row')}>
                 <span className={e('storage-label')}>Time End:</span>
-                <span className={e('storage-value')}>{timeEnd ?? '--:--:--'}</span>
+                <span className={e('storage-value-time')}>{timeEnd ?? '--:--:--'}</span>
               </div>
               {storageAction === 'remove' ? (
                 <div className={e('actions', 'single')}>

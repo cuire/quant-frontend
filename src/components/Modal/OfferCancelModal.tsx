@@ -23,7 +23,7 @@ export const CancelOfferModal = ({ data, onClose }: CancelOfferModalProps) => {
         />
         <div className="offer-modal__balance">YOU WILL RECEIVE: <span style={{color:'#2F82C7'}}>400 TON</span></div>
       </div>
-      <button className="offer-modal__submit" style={{background:'#503434'}} type="button" onClick={onClose}>
+      <button className="offer-modal__submit" style={{background:'rgba(80, 52, 52, 1)', color:'rgba(255, 125, 127, 1)'}} type="button" onClick={onClose}>
         Cancel Offer
       </button>
     </div>
