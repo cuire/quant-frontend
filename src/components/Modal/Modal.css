@@ -137,8 +137,7 @@ body.modal-open {
 
 /* list rows */
 .market-header__row {
-    display: grid;
-    grid-template-columns: 24px 1fr auto;
+    display: flex;
     gap: 12px;
     padding: 10px 16px;
     align-items: center;
@@ -151,6 +150,7 @@ body.modal-open {
 .market-header__row-main {
     display: flex;
     flex-direction: column;
+    flex: 1;
 }
 
 .market-header__row-title {

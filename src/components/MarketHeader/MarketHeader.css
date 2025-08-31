@@ -1173,10 +1173,12 @@
 .activity-badge--purchase {
     background: rgba(107, 255, 93, 0.1);
     color: rgba(126, 255, 109, 1);
+    text-transform: capitalize;
 }
 
 .activity-center {
     display: flex;
+    gap: 5px;
     align-items: center;
     justify-content: center;
 }

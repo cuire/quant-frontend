@@ -144,3 +144,34 @@ export async function addChannel(inviteLink: string): Promise<Channel> {
 export async function getGifts(): Promise<Gift[]> {
   return request<Gift[]>("/gifts");
 }
+
+// Activity functions
+export interface Activity {
+  id: number;
+  gift_id: string;
+  is_upgraded: boolean;
+  gifts_data: {
+    upgraded: Record<string, number[]>;
+  };
+  channel_stars: number;
+  type: string;
+  amount: number;
+  channel_id: number;
+  created_at: string;
+}
+
+export async function getActivity(
+  limit = 20,
+  offset = 0,
+  onlyExactGift = false,
+  showUpgradedGifts = true
+): Promise<Activity[]> {
+  const params = new URLSearchParams();
+  params.append('limit', limit.toString());
+  params.append('offset', offset.toString());
+  params.append('only_exact_gift', onlyExactGift.toString());
+  params.append('show_upgraded_gifts', showUpgradedGifts.toString());
+  
+  const data = await request<Activity[]>(`/activity?${params.toString()}`);
+  return data || [];
+}

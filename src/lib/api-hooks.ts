@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getUserChannels, addChannel, getGifts } from './api';
+import { getUser, updateLanguage, getChannels, getUserChannels, addChannel, getGifts, getActivity } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -11,6 +11,10 @@ export const queryKeys = {
     ['channelsInfinite', limit, filters] as const,
   userChannels: ['userChannels'] as const,
   gifts: ['gifts'] as const,
+  activity: (limit: number, offset: number, onlyExactGift: boolean, showUpgradedGifts: boolean) => 
+    ['activity', limit, offset, onlyExactGift, showUpgradedGifts] as const,
+  activityInfinite: (limit: number, onlyExactGift: boolean, showUpgradedGifts: boolean) => 
+    ['activityInfinite', limit, onlyExactGift, showUpgradedGifts] as const,
 };
 
 // User hooks
@@ -86,5 +90,38 @@ export const useGifts = () => {
   return useQuery({
     queryKey: queryKeys.gifts,
     queryFn: getGifts,
+  });
+};
+
+// Activity hooks
+export const useActivity = (
+  limit = 20,
+  offset = 0,
+  onlyExactGift = false,
+  showUpgradedGifts = true
+) => {
+  return useQuery({
+    queryKey: queryKeys.activity(limit, offset, onlyExactGift, showUpgradedGifts),
+    queryFn: () => getActivity(limit, offset, onlyExactGift, showUpgradedGifts),
+  });
+};
+
+export const useActivityInfinite = (
+  limit = 20,
+  onlyExactGift = false,
+  showUpgradedGifts = true
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.activityInfinite(limit, onlyExactGift, showUpgradedGifts),
+    queryFn: ({ pageParam = 0 }) => getActivity(limit, pageParam, onlyExactGift, showUpgradedGifts),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than the limit, we've reached the end
+      if (lastPage.length < limit) {
+        return undefined;
+      }
+      return allPages.length * limit;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
