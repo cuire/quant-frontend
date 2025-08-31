@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { forwardRef } from 'react';
 
 import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
@@ -24,9 +24,24 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   timeBadge?: string | null;
   cornerBadge?: 'blue' | 'orange' | null;
   backgroundColor?: string;
+  /**
+   * Вариант отображения карточки. По умолчанию рыночный вариант.
+   * Для страницы Storage используется вариант 'storage-offer'.
+   */
+  variant?: 'market' | 'storage-offer';
+  /** Цена предложения (TON) для варианта storage */
+  offerPriceTon?: number;
+  /** Остаток времени в формате HH:MM:SS для варианта storage */
+  timeEnd?: string;
+  /** Обработчик кнопки Sell для варианта storage */
+  onSell?: () => void;
+  /** Обработчик отклонения (крестик) для варианта storage */
+  onDecline?: () => void;
+  /** Тип действия в storage: продажа (Received) или удаление (Placed) */
+  storageAction?: 'sell' | 'remove';
 }
 
-export const Gift: FC<GiftProps> = ({ 
+export const Gift = forwardRef<HTMLDivElement, GiftProps>(({ 
   items, 
   title, 
   giftNumber, 
@@ -35,8 +50,14 @@ export const Gift: FC<GiftProps> = ({
   timeBadge = null,
   cornerBadge = null,
   backgroundColor,
+  variant = 'market',
+  offerPriceTon,
+  timeEnd,
+  onSell,
+  onDecline,
+  storageAction = 'sell',
   ...rest 
-}) => {
+}, ref) => {
   // Определяем класс сетки в зависимости от количества элементов
   const getGridClass = () => {
     if (items.length === 1) return 'single';
@@ -50,8 +71,10 @@ export const Gift: FC<GiftProps> = ({
     return '#344150'; // Единый цвет для всех подарков
   };
 
+  const isStorage = variant === 'storage-offer';
+
   return (
-    <div {...rest} className={classNames(b(), rest.className)}>
+    <div {...rest} ref={ref} className={classNames(b(isStorage ? 'storage' : undefined), rest.className)}>
       {isFastSale && (
         <div className={e('fast-sale-banner')}>
           Fast sale
@@ -106,19 +129,61 @@ export const Gift: FC<GiftProps> = ({
         </div>
         
         <div className={e('footer')}>
-          <div className={e('info')}>
+          <div className={e('info', isStorage && 'storage')}>
             <h3 className={e('title')}>{title}</h3>
             <span className={e('number')}>{giftNumber}</span>
           </div>
-          
-          <button className={e('price-button')}>
-            <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
-            </svg>
-            <span className={e('price')}>{price}</span>
-          </button>
+
+          {isStorage ? (
+            <div className={e('storage')}> 
+              <div className={e('storage-row')}>
+                <span className={e('storage-label')}>Offer Price:</span>
+                <span className={e('storage-value')}>{typeof offerPriceTon === 'number' ? `${offerPriceTon} TON` : `${price} TON`}</span>
+              </div>
+              <div className={e('storage-row')}>
+                <span className={e('storage-label')}>Time End:</span>
+                <span className={e('storage-value-time')}>{timeEnd ?? '--:--:--'}</span>
+              </div>
+              {storageAction === 'remove' ? (
+                <div className={e('actions', 'single')}>
+                  <button 
+                    type="button" 
+                    className={e('remove-button')} 
+                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                  >
+                    Remove Offers
+                  </button>
+                </div>
+              ) : (
+                <div className={e('actions')}>
+                  <button 
+                    type="button" 
+                    className={e('sell-button')} 
+                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                  >
+                    Sell
+                  </button>
+                  <button 
+                    type="button" 
+                    className={e('decline-button')} 
+                    aria-label="Decline" 
+                    onClick={(ev) => { ev.stopPropagation(); onDecline && onDecline(); }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button className={e('price-button')}>
+              <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
+              </svg>
+              <span className={e('price')}>{price}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
-};
+});

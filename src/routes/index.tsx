@@ -241,7 +241,8 @@ function MarketPage() {
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, 1fr)',
                   gap: '12px',
-                  marginBottom: '20px'
+                  marginBottom: '20px',
+                  padding: '12px', 
                 }}>
                   {channels.map((channel, index) => {
                     // Generate gift display data
@@ -294,22 +295,22 @@ function MarketPage() {
                     const ref = isLastElement ? lastElementRef : undefined;
 
                     return (
-                      <div key={channel.id} ref={ref}>
-                        <Gift
-                          items={channelGiftsArray.slice(0, 4).map((gift) => ({
-                            id: gift.id.toString(),
-                            name: gift.name,
-                            icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
-                            quantity: 1,
-                            type: undefined
-                          }))}
-                          title={title}
-                          giftNumber={`#${channel.id}`}
-                          price={Math.round(channel.price)}
-                          isFastSale={channel.type === 'fast'}
-                          onClick={() => handleGiftClick(channel)}
-                        />
-                      </div>
+                      <Gift
+                        key={channel.id}
+                        ref={ref}
+                        items={channelGiftsArray.slice(0, 4).map((gift) => ({
+                          id: gift.id.toString(),
+                          name: gift.name,
+                          icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
+                          quantity: 1,
+                          type: undefined
+                        }))}
+                        title={title}
+                        giftNumber={`#${channel.id}`}
+                        price={Math.round(channel.price)}
+                        isFastSale={channel.type === 'fast'}
+                        onClick={() => handleGiftClick(channel)}
+                      />
                     );
                   })}
                 </div>
@@ -320,7 +321,8 @@ function MarketPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
                     gap: '12px',
-                    marginBottom: '20px'
+                    marginBottom: '20px',
+                    padding: '12px',
                   }}>
                     <Skeleton count={4} />
                   </div>

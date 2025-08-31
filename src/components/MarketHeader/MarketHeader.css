@@ -122,6 +122,7 @@
     font-weight: 590;
     font-size: 12px;
     margin-bottom: 1px;
+    color: #ffffff;
 }
 
 .market-header__arrow {
@@ -338,7 +339,7 @@
 }
 
 .market-header__sheet {
-    width: 100%;
+    width: 100vw;
     background: #212A33;
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;
@@ -390,15 +391,15 @@
 }
 
 .market-header__panel {
-    margin: 8px 12px;
-    background: #2A3541;
-    border: 1px solid #242E37;
+    margin: 8px 3px;
+    background: rgba(33, 42, 51, 1);
+    border: 1px solid rgba(62, 76, 93, 1);
     border-radius: 12px;
     overflow: hidden;
 }
 
 .market-header__panel .market-header__toggle-row+.market-header__toggle-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(62, 76, 93, 1);
 }
 
 .market-header__sheet-item {
@@ -671,7 +672,7 @@
 
 .product-sheet__header {
     position: relative;
-    padding: 20px 16px 12px 16px;
+    padding: 20px 16px 5px 16px;
 }
 
 .product-sheet__gallery {
@@ -686,7 +687,7 @@
 
 .product-sheet__grid {
     display: grid;
-    gap: 10px;
+    gap: 7px;
 }
 
 .product-sheet__grid--single {
@@ -726,7 +727,6 @@
 
 .product-sheet__cell {
     position: relative;
-    width: 92px;
     height: 92px;
     background: #344150;
     border-radius: 10px;
@@ -823,7 +823,6 @@
     background: #2A3541;
     border: 1px solid #242E37;
     border-radius: 12px;
-    overflow: hidden;
 }
 
 .product-sheet__row {
@@ -913,10 +912,9 @@
 }
 
 .offer-modal {
-    width: 360px;
-    max-width: calc(100% - 32px);
-    background: #29353F;
-    border-radius: 14px;
+    width: 100vw;
+    background: rgba(33, 42, 51, 1);
+    border-radius: 14px 14px 0 0;
     box-shadow: 0 12px 32px rgba(0, 0, 0, .45);
     padding: 12px;
 }
@@ -947,7 +945,6 @@
 
 .offer-modal__block {
     border-radius: 12px;
-    padding: 12px;
     margin: 8px 0;
 }
 
@@ -1047,7 +1044,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border: 0px solid rgba(62, 76, 93, 1);
 }
 
 .market-header__sheet-item--active {

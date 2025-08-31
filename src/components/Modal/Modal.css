@@ -121,7 +121,7 @@ body.modal-open {
 }
 
 .market-header__panel .market-header__toggle-row+.market-header__toggle-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .market-header__sheet-item {
@@ -137,8 +137,8 @@ body.modal-open {
 
 /* list rows */
 .market-header__row {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
     gap: 12px;
     padding: 10px 16px;
     align-items: center;
@@ -151,18 +151,17 @@ body.modal-open {
 .market-header__row-main {
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 
 .market-header__row-title {
     color: #E7EEF7;
-    font-weight: 500;
-    font-size: 12px;
+    font-weight: 590;
+    font-size: 14px;
 }
 
 .market-header__row-note {
     color: #5B738F;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .market-header__row-right {
@@ -172,7 +171,9 @@ body.modal-open {
 .market-header__row-price {
     color: #E7EEF7;
     font-weight: 700;
-    font-size: 12px;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
 }
 
 /* Product sheet styles for gift details */
@@ -180,50 +181,79 @@ body.modal-open {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
     flex-shrink: 0;
 }
 
-.product-sheet__gallery {
-    flex: 1;
-}
+
 
 .product-sheet__grid {
     display: grid;
-    gap: 8px;
+    gap: 10px;
 }
 
+/* сетка как в карточке Gift */
 .product-sheet__grid--single {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
 }
 
 .product-sheet__grid--double {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
 }
 
 .product-sheet__grid--triple {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+.product-sheet__grid--triple .product-sheet__cell:nth-child(1) {
+    grid-column: 1 / 3;
+    grid-row: 1;
+}
+.product-sheet__grid--triple .product-sheet__cell:nth-child(2) {
+    grid-column: 1 / 2;
+    grid-row: 2;
+}
+.product-sheet__grid--triple .product-sheet__cell:nth-child(3) {
+    grid-column: 2 / 3;
+    grid-row: 2;
 }
 
 .product-sheet__grid--multiple {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
 }
 
 .product-sheet__cell {
     position: relative;
-    background: #2A3541;
-    border-radius: 8px;
-    padding: 12px;
+    background: #344150;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 60px;
+    width: 100%;
+    height: 100%;
+    min-width: 92px;
+    min-height: 92px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25);
+}
+.product-sheet__grid--single .product-sheet__cell {
+    min-width: 192px;
+    min-height: 192px;
+}
+.product-sheet__grid--double .product-sheet__cell {
+    min-width: 192px;
+    min-height: 92px;
 }
 
 .product-sheet__cell img {
-    width: 40px;
-    height: 40px;
+    max-width: 64px;
+    max-height: 64px;
     object-fit: contain;
+}
+.product-sheet__grid--triple .product-sheet__cell:nth-child(1) img {
+    max-width: 72px;
+    max-height: 72px;
 }
 
 .product-sheet__q {
@@ -271,7 +301,6 @@ body.modal-open {
 }
 
 .product-sheet__title {
-    margin-bottom: 16px;
     flex-shrink: 0;
 }
 
@@ -290,8 +319,9 @@ body.modal-open {
 
 .product-sheet__list {
     margin-bottom: 16px;
+    flex: 1;
+    min-height: 0; /* важно для корректного расчёта высоты внутри flex-контейнера */
     overflow-y: auto;
-    max-height: 200px;
 }
 
 .product-sheet__row {
@@ -341,6 +371,7 @@ body.modal-open {
     gap: 8px;
     border-top: 1px solid #2A3541;
     padding-top: 16px;
+    padding: 12px;
     flex-shrink: 0;
 }
 
@@ -396,7 +427,7 @@ body.modal-open {
 .offer-modal {
     width: 100%;
     max-width: 100%;
-    background: #29353F;
+    background: rgba(33, 42, 51, 1);
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;
     box-shadow: 0 -18px 32px rgba(0, 0, 0, .45);
@@ -434,7 +465,6 @@ body.modal-open {
 
 .offer-modal__block {
     border-radius: 12px;
-    padding: 12px;
     margin: 8px 0;
 }
 

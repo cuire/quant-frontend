@@ -1,8 +1,11 @@
 import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 import { useModal } from '@/contexts/ModalContext';
-import { GiftDetailsModal } from './GiftDetailsModal.tsx';
-import { OfferModal } from './OfferModal.tsx';
+import { GiftDetailsModal } from './GiftDetailsModal';
+import { OfferModal } from './OfferModal';
+import { AcceptOfferModal } from './OfferAcceptModal';
+import { AcceptOfferConfirmModal } from './OfferAcceptConfirmModal';
+import { CancelOfferModal } from './OfferCancelModal';
 import './Modal.css';
 
 export const Modal = () => {
@@ -43,14 +46,20 @@ export const Modal = () => {
         return <GiftDetailsModal data={modalData} onClose={closeModal} />;
       case 'offer':
         return <OfferModal onClose={closeModal} />;
+      case 'accept-offer':
+        return <AcceptOfferModal data={modalData} onClose={closeModal} />;
+      case 'accept-offer-confirm':
+        return <AcceptOfferConfirmModal data={modalData} onClose={closeModal} />;
+      case 'cancel-offer':
+        return <CancelOfferModal data={modalData} onClose={closeModal} />;
       default:
         return null;
     }
   };
 
   return createPortal(
-    <div className="modal-overlay" onClick={closeModal}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="market-header__sheet-overlay" onClick={closeModal}>
+      <div onClick={(e) => e.stopPropagation()}>
         {renderModal()}
       </div>
     </div>,
