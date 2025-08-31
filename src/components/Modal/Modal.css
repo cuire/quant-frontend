@@ -10,7 +10,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
+    z-index: 20;
     animation: mh-overlay-fade 160ms ease-out both;
     overflow: hidden;
     touch-action: none;
@@ -44,7 +44,7 @@ body.modal-open {
     -webkit-backdrop-filter: blur(6px);
     align-items: flex-end;
     justify-content: center;
-    z-index: 2000;
+    z-index: 20;
     animation: mh-overlay-fade 160ms ease-out both;
     overflow: hidden;
 }
@@ -428,7 +428,7 @@ body.modal-open {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    z-index: 3000;
+    z-index: 20;
     animation: mh-overlay-fade 160ms ease-out both;
 }
 
