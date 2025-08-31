@@ -56,6 +56,22 @@ export interface Gift {
   count: number;
 }
 
+export interface Offer {
+  id: number;
+  channel_id: number;
+  gifts_data: Record<string, number>;
+  channel_price: number;
+  channel_stars: number;
+  price: number;
+  expires_at: string | null;
+  channel_type: string | null;
+}
+
+export interface OffersResponse {
+  received: Offer[];
+  placed: Offer[];
+}
+
 // Base URL
 const baseURL = import.meta.env.VITE_API_URL ||  "https://quant-marketplace-dev.top/api";
 
@@ -200,4 +216,35 @@ export async function getActivity(
   
   const data = await request<Activity[]>(`/activity?${params.toString()}`);
   return data || [];
+}
+
+// Offer functions
+export async function getOffers(
+  page = 1,
+  limit = 20
+): Promise<OffersResponse> {
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  
+  const data = await request<OffersResponse>(`/users/me/offers?${params.toString()}`);
+  return data;
+}
+
+export async function acceptOffer(offerId: number): Promise<void> {
+  return request<void>(`/offers/${offerId}/accept`, {
+    method: 'POST',
+  });
+}
+
+export async function rejectOffer(offerId: number): Promise<void> {
+  return request<void>(`/offers/${offerId}/reject`, {
+    method: 'POST',
+  });
+}
+
+export async function cancelOffer(offerId: number): Promise<void> {
+  return request<void>(`/offers/${offerId}/cancel`, {
+    method: 'POST',
+  });
 }
