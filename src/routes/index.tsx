@@ -67,7 +67,7 @@ function MarketPage() {
   const { channelGifts } = Route.useLoaderData();
   const { openModal } = useModal();
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = () => {
     // Here you could implement actual filtering logic
   };
 

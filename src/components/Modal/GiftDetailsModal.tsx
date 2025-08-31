@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useModal } from '@/contexts/ModalContext';
 
 interface GiftDetailsModalProps {
@@ -8,10 +7,8 @@ interface GiftDetailsModalProps {
 
 export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
   const { openModal } = useModal();
-  const [showOffer, setShowOffer] = useState(false);
 
   const handleMakeOffer = () => {
-    setShowOffer(true);
     openModal('offer', data);
   };
 

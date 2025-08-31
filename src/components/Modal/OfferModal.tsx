@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
 interface OfferModalProps {
-  data: any;
   onClose: () => void;
 }
 
-export const OfferModal = ({ data, onClose }: OfferModalProps) => {
+export const OfferModal = ({ onClose }: OfferModalProps) => {
   const [offerPrice, setOfferPrice] = useState<string>('');
   const [offerDuration, setOfferDuration] = useState<'1d' | '1w' | 'forever'>('1d');
 
