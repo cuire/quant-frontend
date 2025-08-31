@@ -31,6 +31,7 @@ export interface Channel {
 }
 
 export interface UserChannel extends Channel {
+  transferring_end_at: string | undefined;
   gifts: Record<string, number>;  // { gift_id: quantity }
   status: string;
   waiting_started_at?: string;

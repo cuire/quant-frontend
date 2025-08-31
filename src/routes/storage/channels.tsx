@@ -120,7 +120,7 @@ function ChannelsPage() {
              return parts.join("");
            };
 
-           const title = channel.status + " " + generateChannelTitle(items);
+           const title = generateChannelTitle(items);
             return (
               <Gift
                 items={items}
