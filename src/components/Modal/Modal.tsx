@@ -6,6 +6,7 @@ import { OfferModal } from './OfferModal';
 import { AcceptOfferModal } from './OfferAcceptModal';
 import { AcceptOfferConfirmModal } from './OfferAcceptConfirmModal';
 import { CancelOfferModal } from './OfferCancelModal';
+import { AddChannelModal } from './AddChannelModal';
 import './Modal.css';
 
 export const Modal = () => {
@@ -52,6 +53,8 @@ export const Modal = () => {
         return <AcceptOfferConfirmModal data={modalData} onClose={closeModal} />;
       case 'cancel-offer':
         return <CancelOfferModal data={modalData} onClose={closeModal} />;
+      case 'add-channel':
+        return <AddChannelModal onClose={closeModal} />;
       default:
         return null;
     }

@@ -111,6 +111,11 @@
     background: #0077bb;
 }
 
+.market-header__telegram-badge {
+    cursor: pointer;
+    border: none;
+}
+
 .market-header__telegram-icon {
     font-size: 12px;
     text-transform: none;
@@ -1270,6 +1275,11 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+}
+
+.storage-segment .storage-tab-link[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .storage-segment .storage-tab-link.is-active {
