@@ -87,6 +87,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
   const giftNumber = `#${channel.id}`;
   const price = Math.round(channel.price);
   const shareText = generateShareText();
+  const showPurchaseActions = data?.showPurchaseActions ?? true;
 
   return (
     <div className="market-header__sheet">
@@ -143,12 +144,14 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
           Open Channel
         </Link>
       </div>
-      <div className="product-sheet__actions">
-        <button className="product-sheet__btn" type="button" onClick={handleMakeOffer}>Make Offer</button>
-        <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Buy Channel
-          <span className="product-sheet__price">{price} TON</span>
-        </button>
-      </div>
+      {showPurchaseActions && (
+        <div className="product-sheet__actions">
+          <button className="product-sheet__btn" type="button" onClick={handleMakeOffer}>Make Offer</button>
+          <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Buy Channel
+            <span className="product-sheet__price">{price} TON</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

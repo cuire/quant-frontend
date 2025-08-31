@@ -1,8 +1,11 @@
 import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 import { useModal } from '@/contexts/ModalContext';
-import { GiftDetailsModal } from './GiftDetailsModal.tsx';
-import { OfferModal } from './OfferModal.tsx';
+import { GiftDetailsModal } from './GiftDetailsModal';
+import { OfferModal } from './OfferModal';
+import { AcceptOfferModal } from './OfferAcceptModal';
+import { AcceptOfferConfirmModal } from './OfferAcceptConfirmModal';
+import { CancelOfferModal } from './OfferCancelModal';
 import './Modal.css';
 
 export const Modal = () => {
@@ -43,6 +46,12 @@ export const Modal = () => {
         return <GiftDetailsModal data={modalData} onClose={closeModal} />;
       case 'offer':
         return <OfferModal onClose={closeModal} />;
+      case 'accept-offer':
+        return <AcceptOfferModal data={modalData} onClose={closeModal} />;
+      case 'accept-offer-confirm':
+        return <AcceptOfferConfirmModal data={modalData} onClose={closeModal} />;
+      case 'cancel-offer':
+        return <CancelOfferModal data={modalData} onClose={closeModal} />;
       default:
         return null;
     }

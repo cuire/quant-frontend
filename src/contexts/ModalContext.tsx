@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-export type ModalType = 'gift-details' | 'offer' | null;
+export type ModalType = 'gift-details' | 'offer' | 'accept-offer' | 'accept-offer-confirm' | 'cancel-offer' | null;
 
 interface ModalContextType {
   modalType: ModalType;

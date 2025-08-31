@@ -12,6 +12,11 @@
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* увеличенная высота для варианта storage, чтобы сохранить размер сетки */
+.gift--storage {
+  height: 264px;
+}
+
 .gift__fast-sale-banner {
   position: absolute;
   top: 7px;
@@ -244,12 +249,82 @@
   margin-top: auto;
 }
 
+/* storage variant footer */
+.gift__storage {
+  border-radius: 12px;
+  display: grid;
+}
+
+.gift__storage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.gift__storage-label {
+  color: #fff;
+  font-weight: 590;
+  font-size: 12px;
+}
+
+.gift__storage-value {
+  color: rgba(36, 139, 218, 1);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.gift__actions {
+  display: grid;
+  grid-template-columns: 1fr 32px;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.gift__actions--single {
+  grid-template-columns: 1fr;
+}
+
+.gift__sell-button {
+  background: #248BDA;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  height: 32px;
+  font-weight: 600;
+}
+
+.gift__remove-button {
+  background: rgba(80, 52, 52, 1);
+  color: rgba(255, 125, 127, 1);
+  border: 0px solid rgba(255, 125, 127, .35);
+  border-radius: 10px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: 590;
+}
+
+.gift__decline-button {
+  background: rgba(80, 52, 52, 1);
+  color: rgba(255, 125, 127, 1);
+  border: none;
+  border-radius: 9px;
+  height: 32px;
+  width: 32px;
+}
+
 .gift__info {
   padding: 0 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+
+/* версия info без внутренних отступов и внешних отступов для storage */
+.gift__info--storage {
+  padding: 0;
+  margin: 0;
 }
 
 .gift__title {
@@ -268,7 +343,7 @@
 .gift__number {
   color: #5B738F;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   margin-left: 8px;
   flex-shrink: 0;
@@ -322,6 +397,9 @@
 @media (max-width: 480px) {
   .gift {
     height: 260px;
+  }
+  .gift--storage {
+    height: 264px;
   }
   
   .gift__content {
