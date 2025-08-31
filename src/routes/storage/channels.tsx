@@ -132,6 +132,7 @@ function ChannelsPage() {
                 onClick={() => openModal('gift-details', {channel, gifts: giftsData || [],
                   showPurchaseActions: channel.status !== 'transferring' && channel.status !== 'frozen'
                 })}
+                transferringEndAt={channel.transferring_end_at}
                 
                 key={channel.id}
               ref={index === allChannels.length - 1 ? lastElementRef : undefined}

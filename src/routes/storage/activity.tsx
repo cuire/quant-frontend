@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { MarketHeader } from '@/components/MarketHeader';
 
 export const Route = createFileRoute('/storage/activity')({
   component: ActivityPage,

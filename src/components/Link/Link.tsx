@@ -23,7 +23,9 @@ export const Link: FC<CustomLinkProps> = ({
     // Compute if target path is external. In this case we would like to open
     // link using TMA method.
     let path: string;
-    if (typeof to === 'string') {
+    if (typeof rest.href === 'string') {
+      path = rest.href;
+    } else if (typeof to === 'string') {
       path = to;
     } else {
       const { search = '', pathname = '', hash = '' } = to || {};

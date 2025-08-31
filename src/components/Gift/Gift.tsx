@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 
 import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
+import { CountdownTimer } from '@/components/CountdownTimer';
 
 import './Gift.css';
 
@@ -41,6 +42,8 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   storageAction?: 'sell' | 'remove';
   /** Статус канала для отображения цены */
   channelStatus?: string;
+
+  transferringEndAt?: string;
 }
 
 export const Gift = forwardRef<HTMLDivElement, GiftProps>(({ 
@@ -59,6 +62,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
   onDecline,
   storageAction = 'sell',
   channelStatus,
+  transferringEndAt,
   ...rest 
 }, ref) => {
   // Определяем класс сетки в зависимости от количества элементов
@@ -130,10 +134,16 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
             )}
           </div>
 
-          {channelStatus === 'transferring' && (
+          {channelStatus === 'transferring' && transferringEndAt && (
             <div className={e('transferring-badge')}>
               <span>
-                Transferring
+                <CountdownTimer 
+                  endTime={transferringEndAt} 
+                  onExpire={() => {
+                    // Optionally refresh the data when timer expires
+                    console.log('Transfer timer expired');
+                  }}
+                />
               </span>
             </div>
           )}
