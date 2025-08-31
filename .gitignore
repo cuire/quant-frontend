@@ -23,5 +23,6 @@ old-frontend
 *.njsproj
 *.sln
 *.sw?
+.tanstack
 
 *.pem
