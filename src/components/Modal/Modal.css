@@ -319,8 +319,9 @@ body.modal-open {
 
 .product-sheet__list {
     margin-bottom: 16px;
+    flex: 1;
+    min-height: 0; /* важно для корректного расчёта высоты внутри flex-контейнера */
     overflow-y: auto;
-    max-height: 200px;
 }
 
 .product-sheet__row {
