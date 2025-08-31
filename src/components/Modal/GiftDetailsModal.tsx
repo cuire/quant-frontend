@@ -1,4 +1,5 @@
 import { useModal } from '@/contexts/ModalContext';
+import { Link } from '../Link/Link';
 
 interface GiftDetailsModalProps {
   data: any;
@@ -55,9 +56,37 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
     return parts.join("");
   };
 
+  // Generate enhanced share text with gifts and price information
+  const generateShareText = () => {
+    let shareText = `Listed on Quant now\nChannel #${channel.id}`;
+
+    if (items && items.length > 0) {
+      const giftsList = items
+        .map((item: any) => {
+          const giftName = item.name || "Unknown";
+          return `${giftName} x${item.quantity}`;
+        })
+        .join(", ");
+
+      shareText += `\nGifts: ${giftsList}`;
+    }
+
+    if (channel.price) {
+      // Format price without unnecessary decimals
+      const formattedPrice =
+        parseFloat(channel.price) % 1 === 0
+          ? Math.floor(channel.price).toString()
+          : channel.price.toString();
+      shareText += `\nPrice: ${formattedPrice} TON`;
+    }
+
+    return encodeURIComponent(shareText);
+  };
+
   const title = generateChannelTitle(items, true);
   const giftNumber = `#${channel.id}`;
   const price = Math.round(channel.price);
+  const shareText = generateShareText();
 
   return (
     <div className="market-header__sheet">
@@ -100,18 +129,18 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
         ))}
       </div>
       <div style={{borderTop: '0'}} className="product-sheet__actions">
-        <button className="product-sheet__btn" type="button">
+        <Link className="product-sheet__btn" href={`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/QuantMarketRobot/market?startapp=channel${channel.id}`)}&text=${shareText}`}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9.05056 11.514L5.64389 9.65599C5.31689 9.98059 4.9011 10.2011 4.44895 10.2897C3.9968 10.3784 3.52853 10.3312 3.10317 10.1541C2.67782 9.97695 2.31442 9.67787 2.05879 9.29453C1.80316 8.91119 1.66675 8.46075 1.66675 7.99999C1.66675 7.53924 1.80316 7.08879 2.05879 6.70545C2.31442 6.32211 2.67782 6.02304 3.10317 5.84593C3.52853 5.66882 3.9968 5.6216 4.44895 5.71024C4.9011 5.79888 5.31689 6.01939 5.64389 6.34399L9.05056 4.48599C8.93372 3.93782 9.01811 3.3659 9.28829 2.87483C9.55847 2.38376 9.99638 2.00635 10.522 1.81161C11.0475 1.61688 11.6256 1.61784 12.1506 1.81432C12.6755 2.01079 13.1121 2.38965 13.3807 2.88162C13.6492 3.37358 13.7317 3.94578 13.6131 4.49356C13.4944 5.04135 13.1826 5.52812 12.7345 5.86486C12.2864 6.2016 11.7321 6.36581 11.173 6.32746C10.6138 6.2891 10.0871 6.05075 9.68922 5.65599L6.28256 7.51399C6.3507 7.83419 6.3507 8.16513 6.28256 8.48533L9.68922 10.344C10.0871 9.94923 10.6138 9.71088 11.173 9.67253C11.7321 9.63418 12.2864 9.79838 12.7345 10.1351C13.1826 10.4719 13.4944 10.9586 13.6131 11.5064C13.7317 12.0542 13.6492 12.6264 13.3807 13.1184C13.1121 13.6103 12.6755 13.9892 12.1506 14.1857C11.6256 14.3821 11.0475 14.3831 10.522 14.1884C9.99638 13.9936 9.55847 13.6162 9.28829 13.1252C9.01811 12.6341 8.93372 12.0622 9.05056 11.514Z" fill="currentColor"/>
           </svg>
           Share Channel
-        </button>
-        <button className="product-sheet__btn product-sheet__btn--primary" type="button">
+        </Link>
+        <Link className="product-sheet__btn product-sheet__btn--primary" href={channel.url}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.81481 14.6667L1.33333 5.77778H14.6667L13.1852 14.6667H2.81481ZM6.51852 10.2222H9.48148C9.69136 10.2222 9.86741 10.1511 10.0096 10.0089C10.1519 9.86667 10.2226 9.69136 10.2222 9.48148C10.2217 9.27161 10.1506 9.09629 10.0089 8.95407C9.86716 8.81185 9.69136 8.74074 9.48148 8.74074H6.51852C6.30864 8.74074 6.13321 8.81185 5.99111 8.95407C5.84901 9.09629 5.77827 9.27161 5.77778 9.48148C5.77728 9.69136 5.84839 9.86692 5.99111 10.0096C6.13383 10.1523 6.30963 10.2232 6.51852 10.2222ZM3.55556 5.03704C3.34568 5.03704 3.16988 4.96593 3.02778 4.8237C2.88568 4.68148 2.81531 4.50568 2.81481 4.2963C2.81432 4.08691 2.88543 3.91111 3.02778 3.76889C3.17012 3.62667 3.34568 3.55556 3.55556 3.55556H12.4444C12.6543 3.55556 12.8304 3.62667 12.9726 3.76889C13.1148 3.91111 13.1856 4.08691 13.1852 4.2963C13.1847 4.50568 13.1136 4.68173 12.9715 4.82444C12.8294 4.96716 12.6543 5.03802 12.4444 5.03704H3.55556ZM5.03704 2.81481C4.82716 2.81481 4.65136 2.7437 4.50926 2.60148C4.36716 2.45926 4.29679 2.28346 4.2963 2.07407C4.2958 1.86469 4.36691 1.68889 4.50926 1.54667C4.65161 1.40444 4.82716 1.33333 5.03704 1.33333H10.9629C10.9629 1.33333 11.1562 1.40444 11.2978 1.54667C11.4393 1.68889 11.5099 1.86469 11.5096 2.07407C11.5093 2.28346 11.4382 2.45951 11.296 2.60222C11.1538 2.74494 10.9778 2.81579 10.7681 2.81481H5.03704Z" fill="currentColor"/>
           </svg>
           Open Channel
-        </button>
+        </Link>
       </div>
       <div className="product-sheet__actions">
         <button className="product-sheet__btn" type="button" onClick={handleMakeOffer}>Make Offer</button>
