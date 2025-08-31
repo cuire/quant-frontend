@@ -294,22 +294,22 @@ function MarketPage() {
                     const ref = isLastElement ? lastElementRef : undefined;
 
                     return (
-                      <div key={channel.id} ref={ref}>
-                        <Gift
-                          items={channelGiftsArray.slice(0, 4).map((gift) => ({
-                            id: gift.id.toString(),
-                            name: gift.name,
-                            icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
-                            quantity: 1,
-                            type: undefined
-                          }))}
-                          title={title}
-                          giftNumber={`#${channel.id}`}
-                          price={Math.round(channel.price)}
-                          isFastSale={channel.type === 'fast'}
-                          onClick={() => handleGiftClick(channel)}
-                        />
-                      </div>
+                      <Gift
+                        key={channel.id}
+                        ref={ref}
+                        items={channelGiftsArray.slice(0, 4).map((gift) => ({
+                          id: gift.id.toString(),
+                          name: gift.name,
+                          icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
+                          quantity: 1,
+                          type: undefined
+                        }))}
+                        title={title}
+                        giftNumber={`#${channel.id}`}
+                        price={Math.round(channel.price)}
+                        isFastSale={channel.type === 'fast'}
+                        onClick={() => handleGiftClick(channel)}
+                      />
                     );
                   })}
                 </div>

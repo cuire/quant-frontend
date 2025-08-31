@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { forwardRef } from 'react';
 
 import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
@@ -41,7 +41,7 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   storageAction?: 'sell' | 'remove';
 }
 
-export const Gift: FC<GiftProps> = ({ 
+export const Gift = forwardRef<HTMLDivElement, GiftProps>(({ 
   items, 
   title, 
   giftNumber, 
@@ -57,7 +57,7 @@ export const Gift: FC<GiftProps> = ({
   onDecline,
   storageAction = 'sell',
   ...rest 
-}) => {
+}, ref) => {
   // Определяем класс сетки в зависимости от количества элементов
   const getGridClass = () => {
     if (items.length === 1) return 'single';
@@ -74,7 +74,7 @@ export const Gift: FC<GiftProps> = ({
   const isStorage = variant === 'storage-offer';
 
   return (
-    <div {...rest} className={classNames(b(isStorage ? 'storage' : undefined), rest.className)}>
+    <div {...rest} ref={ref} className={classNames(b(isStorage ? 'storage' : undefined), rest.className)}>
       {isFastSale && (
         <div className={e('fast-sale-banner')}>
           Fast sale
@@ -186,4 +186,4 @@ export const Gift: FC<GiftProps> = ({
       </div>
     </div>
   );
-};
+});
