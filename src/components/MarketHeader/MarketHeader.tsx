@@ -1,7 +1,9 @@
 import type { FC } from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { bem } from '@/css/bem.ts';
+import type { Gift } from '@/lib/api';
+import { GiftIcon } from '@/components/GiftIcon';
 
 import './MarketHeader.css';
 
@@ -14,21 +16,66 @@ export interface MarketHeaderProps {
     channelType: string;
     sorting: string;
   }) => void;
+  currentFilters?: {
+    gift: string;
+    channelType: string;
+    sorting: string;
+  };
+  gifts?: Gift[];
 }
 
 export const MarketHeader: FC<MarketHeaderProps> = ({ 
   balance = 243.16, 
-  onFilterChange 
+  onFilterChange,
+  currentFilters,
+  gifts = []
 }) => {
-  const [giftFilter, setGiftFilter] = useState('All');
-  const [channelTypeFilter, setChannelTypeFilter] = useState('All');
-  const [sortingFilter, setSortingFilter] = useState('All');
+  const [giftFilter, setGiftFilter] = useState(currentFilters?.gift || 'All');
+  const [channelTypeFilter, setChannelTypeFilter] = useState(currentFilters?.channelType || 'All');
+  const [sortingFilter, setSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
   const [openSheet, setOpenSheet] = useState<null | 'gift' | 'channelType' | 'sorting' | 'filters'>(null);
-  const [selectedGifts, setSelectedGifts] = useState<string[]>([]);
+  const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1500]);
   const [qtyRange, setQtyRange] = useState<[number, number]>([0, 100]);
   const [onlyExactGift, setOnlyExactGift] = useState(false);
   const [showUpgraded, setShowUpgraded] = useState(true);
+
+  // Update filter states when currentFilters change
+  useEffect(() => {
+    if (currentFilters) {
+      setGiftFilter(currentFilters.gift);
+      setChannelTypeFilter(currentFilters.channelType);
+      setSortingFilter(currentFilters.sorting);
+    }
+  }, [currentFilters]);
+
+  // Helper function to get gift name by ID
+  const getGiftNameById = (giftId: string): string => {
+    if (giftId === 'All') return 'All';
+    const gift = gifts.find(g => g.id === giftId);
+    return gift ? (gift.short_name || gift.full_name) : 'All';
+  };
+
+  // Helper function to convert backend channel type to frontend display
+  const getChannelTypeDisplay = (backendType: string): string => {
+    if (backendType === 'fast') return 'Instant';
+    if (backendType === 'waiting') return 'With Waiting';
+    return 'All';
+  };
+
+  // Helper function to convert backend sorting to frontend display
+  const getSortingDisplay = (backendSorting: string): string => {
+    const mapping: Record<string, string> = {
+      'date_new_to_old': 'Date: New to Old',
+      'date_old_to_new': 'Date: Old to New',
+      'price_low_to_high': 'Price: Low to High',
+      'price_high_to_low': 'Price: High to Low',
+      'price_per_unit': 'Price per unit',
+      'quantity_low_to_high': 'Quantity: Low to High',
+      'quantity_high_to_low': 'Quantity: High to Low',
+    };
+    return mapping[backendSorting] || 'Date: New to Old';
+  };
 
   const handleFilterChange = (type: string, value: string) => {
     const newFilters = {
@@ -81,7 +128,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
         <div className={e('filter-chip')} onClick={() => setOpenSheet('gift')} role="button" tabIndex={0}>
           <span className={e('chip-label')}>Gift</span>
           <div className={e('chip-control')}>
-            <span className={e('chip-value')}>{giftFilter}</span>
+            <span className={e('chip-value')}>{getGiftNameById(giftFilter)}</span>
             <div className={e('chip-select')} />
           </div>
         </div>
@@ -98,7 +145,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
         <div className={e('filter-chip')} onClick={() => setOpenSheet('channelType')} role="button" tabIndex={0}>
           <span className={e('chip-label')}>Channel Type</span>
           <div className={e('chip-control')}>
-            <span className={e('chip-value')}>{channelTypeFilter}</span>
+            <span className={e('chip-value')}>{getChannelTypeDisplay(channelTypeFilter)}</span>
             <div className={e('chip-select')} />
           </div>
         </div>
@@ -115,7 +162,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
         <div className={e('filter-chip')} onClick={() => setOpenSheet('sorting')} role="button" tabIndex={0}>
           <span className={e('chip-label')}>Sorting</span>
           <div className={e('chip-control')}>
-            <span className={e('chip-value')}>{sortingFilter}</span>
+            <span className={e('chip-value')}>{getSortingDisplay(sortingFilter)}</span>
             <div className={e('chip-select')} />
           </div>
         </div>
@@ -159,23 +206,19 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                   <input placeholder="Name Gifts" />
                 </div>
                 <div className={e('panel')}>
-                  {[
-                    {name:'Redo Woof', price:91.67},
-                    {name:'Plush Pepe', price:1100},
-                    {name:'Heart Charm', price:51.55},
-                    {name:'Fly Paper', price:91.67},
-                    {name:'Snoop Doogy', price:2.1},
-                    {name:'Heart Locked', price:800},
-                    {name:'Brick', price:981},
-                  ].map(({name, price}) => {
-                    const checked = selectedGifts.includes(name);
+                  {gifts.map((gift) => {
+                    const checked = selectedGiftIds.includes(gift.id);
                     return (
-                      <label key={name} className={e('row')}>
+                      <label key={gift.id} className={e('row')}>
                         <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
-                          setSelectedGifts(prev => ev.target.checked ? [...prev, name] : prev.filter(v => v!==name));
+                          setSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
                         }} />
+                        <GiftIcon giftId={gift.id} size={40} />
+                        
                         <div className={e('row-main')}>
-                          <div className={e('row-title')}>{name}</div>
+                          <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>{gift.short_name || gift.full_name}</span>
+                          </div>
                           <div className={e('row-note')}>channels on sale</div>
                         </div>
                         <div className={e('row-right')}>
@@ -183,7 +226,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                             <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
                             </svg>
-                            <span>{price}</span>
+                            <span>{gift.floor_price}</span>
                           </div>
                           <div className={e('row-min')}>Min. Price</div>
                         </div>
@@ -192,8 +235,8 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                   })}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => { setSelectedGifts([]); }}>Restart</button>
-                  <button className={e('btn-primary')} onClick={() => { handleFilterChange('gift', selectedGifts[0] ?? 'All'); setOpenSheet(null); }}>Search</button>
+                  <button className={e('btn-secondary')} onClick={() => { setSelectedGiftIds([]); }}>Restart</button>
+                  <button className={e('btn-primary')} onClick={() => { handleFilterChange('gift', selectedGiftIds[0] ?? 'All'); setOpenSheet(null); }}>Search</button>
                 </div>
               </div>
             )}
@@ -201,20 +244,24 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
             {openSheet === 'channelType' && (
               <div className={e('sheet-content')}>
                 <div className={e('panel')}>
-                {['All','Instant','With Waiting'].map(v => (
-                  <label key={v} className={e('row')}>
-                    <input type="radio" className={e('radio')} name="channelType" checked={channelTypeFilter===v} onChange={() => handleFilterChange('channelType', v)} />
+                {[
+                  {value: 'All', label: 'All'},
+                  {value: 'fast', label: 'Instant'},
+                  {value: 'waiting', label: 'With Waiting'}
+                ].map(({value, label}) => (
+                  <label key={value} className={e('row')}>
+                    <input type="radio" className={e('radio')} name="channelType" checked={channelTypeFilter===value} onChange={() => handleFilterChange('channelType', value)} />
                     <div className={e('row-main')}>
                       <div className={e('row-title')}>
-                        {v === 'Instant' && (
+                        {label === 'Instant' && (
                           <svg style={{marginRight: '4px', marginBottom: '-1px'}} width="12" height="12" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fillRule="evenodd" clipRule="evenodd" d="M5.83338 0.833322C5.83342 0.741725 5.80328 0.652665 5.74763 0.579919C5.69197 0.507173 5.61389 0.454795 5.52546 0.430887C5.43704 0.406979 5.34321 0.412873 5.25847 0.447659C5.17374 0.482444 5.10283 0.544182 5.05671 0.623322L2.14004 5.62332C2.10309 5.68664 2.0835 5.75859 2.08325 5.83191C2.08301 5.90522 2.1021 5.9773 2.13862 6.04087C2.17514 6.10444 2.22779 6.15725 2.29125 6.19397C2.35471 6.23069 2.42673 6.25001 2.50004 6.24999H4.16671V9.16666C4.16666 9.25825 4.1968 9.34731 4.25246 9.42006C4.30812 9.4928 4.3862 9.54518 4.47462 9.56909C4.56304 9.593 4.65688 9.5871 4.74161 9.55232C4.82635 9.51753 4.89726 9.4558 4.94338 9.37666L7.86004 4.37665C7.89699 4.31333 7.91658 4.24138 7.91683 4.16807C7.91708 4.09476 7.89798 4.02267 7.86146 3.9591C7.82494 3.89553 7.77229 3.84272 7.70884 3.80601C7.64538 3.76929 7.57336 3.74997 7.50004 3.74999H5.83338V0.833322Z" fill="#E7EEF7"/>
                           </svg>
                         )}
-                        {v === 'With Waiting' && (
+                        {label === 'With Waiting' && (
                           <svg style={{marginRight: '4px', marginBottom: '-1px'}} width="12" height="12" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clipPath="url(#clip0_clock)">
-                              <path d="M5.00002 2.70831C5.00002 2.60831 5.00002 2.55873 5.03335 2.5279C5.06752 2.49706 5.11418 2.50081 5.20835 2.50873C5.62809 2.54379 6.03216 2.68433 6.38306 2.9173C6.73396 3.15027 7.02031 3.46812 7.21553 3.84135C7.41075 4.21458 7.50851 4.63108 7.49972 5.05218C7.49094 5.47329 7.37591 5.88535 7.1653 6.25011C6.95469 6.61488 6.65534 6.92051 6.29503 7.13865C5.93472 7.35679 5.52513 7.48036 5.1043 7.49789C4.68347 7.51542 4.26503 7.42634 3.88783 7.23891C3.51063 7.05149 3.18689 6.7718 2.94668 6.42581C2.89252 6.34831 2.86585 6.30956 2.87585 6.26498C2.88585 6.2204 2.92918 6.19581 3.01543 6.14581L4.89585 5.05998C4.94668 5.03081 4.9721 5.01623 4.98585 4.99206C5.00002 4.9679 5.00002 4.93831 5.00002 4.87956V2.70831Z" fill="#E7EEF7"/>
+                              <path d="M5.00002 2.70831C5.00002 2.60831C5.00002 2.55873 5.03335 2.5279C5.06752 2.49706 5.11418 2.50081 5.20835 2.50873C5.62809 2.54379 6.03216 2.68433 6.38306 2.9173C6.73396 3.15027 7.02031 3.46812 7.21553 3.84135C7.41075 4.21458 7.50851 4.63108 7.49972 5.05218C7.49094 5.47329 7.37591 5.88535 7.1653 6.25011C6.95469 6.61488 6.65534 6.92051 6.29503 7.13865C5.93472 7.35679 5.52513 7.48036 5.1043 7.49789C4.68347 7.51542 4.26503 7.42634 3.88783 7.23891C3.51063 7.05149 3.18689 6.7718 2.94668 6.42581C2.89252 6.34831 2.86585 6.30956 2.87585 6.26498C2.88585 6.2204 2.92918 6.19581 3.01543 6.14581L4.89585 5.05998C4.94668 5.03081 4.9721 5.01623 4.98585 4.99206C5.00002 4.9679 5.00002 4.93831 5.00002 4.87956V2.70831Z" fill="#E7EEF7"/>
                               <path d="M5 8.75C7.07107 8.75 8.75 7.07107 8.75 5C8.75 2.92893 7.07107 1.25 5 1.25C2.92893 1.25 1.25 2.92893 1.25 5C1.25 7.07107 2.92893 8.75 5 8.75Z" stroke="#E7EEF7" strokeWidth="0.833333"/>
                             </g>
                             <defs>
@@ -224,7 +271,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                             </defs>
                           </svg>
                         )}
-                        {v}
+                        {label}
                       </div>
                     </div>
                   </label>
@@ -240,17 +287,25 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
             {openSheet === 'sorting' && (
               <div className={e('sheet-content')}>
                 <div className={e('panel')}>
-                {['Date: New to Old','Date: Old to New','Price: Low to High','Price: High to Low','Price per unit','Quantity: Low to High','Quantity: High to Low'].map(v => (
-                  <label key={v} className={e('row')}>
-                    <input type="radio" className={e('radio')} name="sorting" checked={sortingFilter===v} onChange={() => handleFilterChange('sorting', v)} />
+                {[
+                  {value: 'date_new_to_old', label: 'Date: New to Old'},
+                  {value: 'date_old_to_new', label: 'Date: Old to New'},
+                  {value: 'price_low_to_high', label: 'Price: Low to High'},
+                  {value: 'price_high_to_low', label: 'Price: High to Low'},
+                  {value: 'price_per_unit', label: 'Price per unit'},
+                  {value: 'quantity_low_to_high', label: 'Quantity: Low to High'},
+                  {value: 'quantity_high_to_low', label: 'Quantity: High to Low'}
+                ].map(({value, label}) => (
+                  <label key={value} className={e('row')}>
+                    <input type="radio" className={e('radio')} name="sorting" checked={sortingFilter===value} onChange={() => handleFilterChange('sorting', value)} />
                     <div className={e('row-main')}>
-                      <div className={e('row-title')}>{v}</div>
+                      <div className={e('row-title')}>{label}</div>
                     </div>
                   </label>
                 ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => handleFilterChange('sorting', 'Date: New to Old')}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => handleFilterChange('sorting', 'date_new_to_old')}>Restart</button>
                   <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>Search</button>
                 </div>
               </div>
