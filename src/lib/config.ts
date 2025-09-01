@@ -11,6 +11,6 @@ export const config = {
   },
 
   debug: {
-    mockAuthData: import.meta.env.MOCK_AUTH_DATA || undefined,
+    mockAuthData: import.meta.env.VITE_MOCK_AUTH_DATA || undefined,
   },
 } as const;

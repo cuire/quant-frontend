@@ -85,18 +85,41 @@ function MarketPage() {
   // Use regular query for gifts
   const { data: gifts = [] } = useGifts();
 
+  // Flatten all pages of channels data
+  const channels = channelsData?.pages.flat() || [];
+
+  // Reset scroll when search params change (sorting, filters, etc.)
+  useEffect(() => {
+    if (channels.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [search.sort_by, search.gift_id, search.type, search.min_price, search.max_price, search.min_qty, search.max_qty]);
+
+  // Wrapped fetchNextPage with logging
+  const wrappedFetchNextPage = useCallback(async () => {
+    try {
+      const result = await fetchNextPage();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, channelsData]);
+
   // Intersection Observer for infinite scroll
   const lastElementRef = useCallback((node: HTMLDivElement | null) => {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
     
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
     
     observerRef.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
+      const entry = entries[0];
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        wrappedFetchNextPage();
+      };
     }, {
       threshold: 0.1, // Trigger when 10% of the element is visible
       rootMargin: '100px', // Start loading 100px before the element comes into view
@@ -104,10 +127,21 @@ function MarketPage() {
     
     if (node && observerRef.current) {
       observerRef.current.observe(node);
+      
+      // Immediate check if element is already in viewport
+      setTimeout(() => {
+        const rect = node.getBoundingClientRect();
+        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        
+        // If element is already visible and should trigger, force trigger
+        if (isInViewport && hasNextPage && !isFetchingNextPage) {
+          wrappedFetchNextPage();
+        }
+      }, 100);
     }
-  }, [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [isLoading, hasNextPage, isFetchingNextPage, wrappedFetchNextPage, channels.length]);
 
-  // Cleanup observer on unmount
+  // Cleanup observer on unmount + reset scroll position
   useEffect(() => {
     return () => {
       if (observerRef.current) {
@@ -116,8 +150,86 @@ function MarketPage() {
     };
   }, []);
 
-  // Flatten all pages of channels data
-  const channels = channelsData?.pages.flat() || [];
+  // Debug scroll position + fallback infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset;
+      const documentHeight = document.documentElement.scrollHeight;
+      const windowHeight = window.innerHeight;
+      const scrollPercentage = (scrollTop / (documentHeight - windowHeight)) * 100;
+      
+      if (scrollPercentage > 80) { // Only log when near bottom
+        // Fallback: if we're at 95%+ and should load more, trigger manually
+        if (scrollPercentage > 95 && hasNextPage && !isFetchingNextPage) {
+          wrappedFetchNextPage();
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasNextPage, isFetchingNextPage, wrappedFetchNextPage]);
+
+  // Force check intersection after page changes (debugging tool)
+  useEffect(() => {
+    const checkIntersection = () => {
+      if (observerRef.current && channels.length > 0) {
+        console.log('🔍 Force checking intersection state');
+        // Get all observed elements
+        const observedElements = document.querySelectorAll('.gift:last-child');
+        observedElements.forEach((element, index) => {
+          const rect = element.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          console.log(`Element ${index}:`, {
+            isVisible,
+            rect: {
+              top: Math.round(rect.top),
+              bottom: Math.round(rect.bottom),
+              height: Math.round(rect.height)
+            },
+            windowHeight: window.innerHeight
+          });
+        });
+      }
+    };
+
+    // Check after a short delay to ensure DOM is ready
+    const timer = setTimeout(checkIntersection, 1000);
+    return () => clearTimeout(timer);
+  }, [channels.length]);
+
+  // Global debugging function (can be called from console)
+  useEffect(() => {
+    (window as any).debugInfiniteScroll = () => {
+      const lastElement = document.querySelector('.gift:last-child') as HTMLElement;
+      const rect = lastElement?.getBoundingClientRect();
+      
+      console.log('🔧 Debug info:', {
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        channelsCount: channels.length,
+        pagesCount: channelsData?.pages?.length || 0,
+        observerActive: !!observerRef.current,
+        lastElement: !!lastElement,
+        lastElementRect: rect ? {
+          top: Math.round(rect.top),
+          bottom: Math.round(rect.bottom),
+          height: Math.round(rect.height),
+          isVisible: rect.top < window.innerHeight && rect.bottom > 0
+        } : null,
+        windowHeight: window.innerHeight
+      });
+      
+      if (hasNextPage && !isFetchingNextPage) {
+        wrappedFetchNextPage();
+      }
+    };
+
+    return () => {
+      delete (window as any).debugInfiniteScroll;
+    };
+  }, [hasNextPage, isFetchingNextPage, isLoading, channels.length, channelsData, wrappedFetchNextPage]);
 
   const handleFilterChange = (newFilters: {
     gift: string[]; // array of gift IDs
@@ -161,6 +273,9 @@ function MarketPage() {
     
     // Navigate to new search params - this will automatically trigger a new infinite query
     navigate({ search: updatedSearch });
+    
+    // Reset scroll position when filters change
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleGiftClick = (channel: any) => {
@@ -245,8 +360,6 @@ function MarketPage() {
                   {channels.map((channel, index) => {
                     // Generate gift display data
                     const channelGifts = channel.gifts || {};
-                    console.log('Channel gifts:', channelGifts);
-                    console.log('Available gifts:', gifts);
                     
                     const channelGiftsArray = Object.entries(channelGifts).map(([gift_id, quantity]) => {
                       const foundGift = gifts.find((gift) => gift.id === gift_id);
@@ -291,7 +404,7 @@ function MarketPage() {
                     // Add ref to last element for infinite scroll
                     const isLastElement = index === channels.length - 1;
                     const ref = isLastElement ? lastElementRef : undefined;
-
+                    
                     return (
                       <Gift
                         key={channel.id}
