@@ -29,7 +29,6 @@ function WalletPage() {
   }, [tonConnectUI]);
 
   const connect = () => tonConnectUI.openModal();
-  const disconnect = () => tonConnectUI.disconnect();
 
   if (isLoading) {
     return (
