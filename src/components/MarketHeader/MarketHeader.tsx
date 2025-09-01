@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { bem } from '@/css/bem.ts';
 import type { Gift } from '@/lib/api';
 import { GiftIcon } from '@/components/GiftIcon';
+import { useUser } from '@/lib/api-hooks';
 
 import './MarketHeader.css';
 import { Link } from '../Link/Link';
@@ -30,7 +31,7 @@ export interface MarketHeaderProps {
 }
 
 export const MarketHeader: FC<MarketHeaderProps> = ({ 
-  balance = 243.16, 
+  balance: propBalance, 
   onFilterChange,
   currentFilters,
   gifts = [],
@@ -38,6 +39,8 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
   showAddChannel = false,
   onAddChannel
 }) => {
+  const { data: user } = useUser();
+  const balance = propBalance ?? user?.balance ?? 0;
   // Parse current gift filter to get selected gift IDs
   const getInitialGiftIds = (): string[] => {
     if (!currentFilters?.gift || currentFilters.gift.length === 0) return [];
@@ -160,7 +163,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
               </svg>
             </div>
             <span className={e('balance-amount')}>{balance}</span>
-            <button className={e('add-button')}><span style={{fontSize: '18px', marginBottom: '3px'}}>+</span></button>
+            <Link className={e('add-button')} to="/wallet"><span style={{fontSize: '18px', marginBottom: '3px'}}>+</span></Link>
           </div>
         </div>
       </div>

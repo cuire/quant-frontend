@@ -1,5 +1,7 @@
 {
-  "url": "https://ton.vote",
-  "name": "TON Vote",
-  "iconUrl": "https://ton.vote/logo.png"
+  "url": "https://quant-marketplace.com",
+  "name": "QuantMarket",
+  "iconUrl": "https://quant-marketplace.com/assets/icon-512.png",
+  "termsOfUseUrl": "https://quant-marketplace.com/terms",
+  "privacyPolicyUrl": "https://quant-marketplace.com/privacy"
 }

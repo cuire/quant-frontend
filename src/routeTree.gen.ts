@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StorageIndexRouteImport } from './routes/storage/index'
 import { Route as StorageChannelsRouteImport } from './routes/storage/channels'
 import { Route as StorageActivityRouteImport } from './routes/storage/activity'
+import { Route as walletWalletRouteImport } from './routes/(wallet)/wallet'
 import { Route as StorageOffersReceivedRouteImport } from './routes/storage/offers/received'
 import { Route as StorageOffersPlacedRouteImport } from './routes/storage/offers/placed'
 
@@ -48,6 +49,11 @@ const StorageActivityRoute = StorageActivityRouteImport.update({
   path: '/activity',
   getParentRoute: () => StorageRoute,
 } as any)
+const walletWalletRoute = walletWalletRouteImport.update({
+  id: '/(wallet)/wallet',
+  path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StorageOffersReceivedRoute = StorageOffersReceivedRouteImport.update({
   id: '/offers/received',
   path: '/offers/received',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/storage': typeof StorageRouteWithChildren
+  '/wallet': typeof walletWalletRoute
   '/storage/activity': typeof StorageActivityRoute
   '/storage/channels': typeof StorageChannelsRoute
   '/storage/': typeof StorageIndexRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/wallet': typeof walletWalletRoute
   '/storage/activity': typeof StorageActivityRoute
   '/storage/channels': typeof StorageChannelsRoute
   '/storage': typeof StorageIndexRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/storage': typeof StorageRouteWithChildren
+  '/(wallet)/wallet': typeof walletWalletRoute
   '/storage/activity': typeof StorageActivityRoute
   '/storage/channels': typeof StorageChannelsRoute
   '/storage/': typeof StorageIndexRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/storage'
+    | '/wallet'
     | '/storage/activity'
     | '/storage/channels'
     | '/storage/'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/activity'
+    | '/wallet'
     | '/storage/activity'
     | '/storage/channels'
     | '/storage'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/storage'
+    | '/(wallet)/wallet'
     | '/storage/activity'
     | '/storage/channels'
     | '/storage/'
@@ -125,6 +137,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   StorageRoute: typeof StorageRouteWithChildren
+  walletWalletRoute: typeof walletWalletRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StorageActivityRouteImport
       parentRoute: typeof StorageRoute
     }
+    '/(wallet)/wallet': {
+      id: '/(wallet)/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof walletWalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/storage/offers/received': {
       id: '/storage/offers/received'
       path: '/offers/received'
@@ -211,6 +231,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   StorageRoute: StorageRouteWithChildren,
+  walletWalletRoute: walletWalletRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

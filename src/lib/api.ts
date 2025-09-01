@@ -5,13 +5,29 @@ import { config } from './config.ts';
 // Basic types
 export interface User {
   user_id: number;
+  photo_url: string;
   first_name: string;
   last_name: string;
-  username: string;
-  photo_url: string;
-  balance: number;
   lang: string;
+  username: string;
+  is_premium: boolean;
+  referral_code: string;
+  balance: number;
+  total_volume: number;
+  total_purchases: number;
+  total_sales: number;
+  channel_waiting_id: number | null;
+  channel_waiting_started_at: string | null;
+  channel_waiting_username: string | null;
+  referrals_count: number;
+  referrals_amount: number;
   theme: string;
+  filters: {
+    sort_by: string;
+    only_exact_gift: boolean;
+    show_upgraded_gifts: boolean;
+  };
+  joined_main_channel: boolean;
 }
 
 export interface Channel {

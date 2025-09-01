@@ -177,7 +177,6 @@ function ActivityPage() {
         paddingBottom: '80px'
       }}>
         <MarketHeader 
-          balance={243.16}
           onFilterChange={handleFilterChange}
           currentFilters={{
             gift: search.gift_id || [],
@@ -200,7 +199,6 @@ function ActivityPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#1A2026', color: '#E7EEF7', paddingBottom: 80 }}>
       <MarketHeader 
-        balance={243.16} 
         onFilterChange={handleFilterChange}
         currentFilters={{
           gift: search.gift_id || [],

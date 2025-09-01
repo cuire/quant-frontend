@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useRef, useCallback, useMemo } from 'react';
-import { useOffersInfinite, useGifts, useAcceptOffer, useRejectOffer } from '@/lib/api-hooks';
+import { useCallback, useMemo } from 'react';
+import { useOffersInfinite, useGifts } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
 
@@ -12,10 +12,6 @@ function ReceivedOffersPage() {
   const { openModal } = useModal();
   const { data: giftsData } = useGifts();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useOffersInfinite(20);
-  const acceptOfferMutation = useAcceptOffer();
-  const rejectOfferMutation = useRejectOffer();
-
-  const lastElementRef = useRef<HTMLDivElement>(null);
 
   const giftsMap = useMemo(() => {
     if (!giftsData) return new Map();
@@ -49,13 +45,7 @@ function ReceivedOffersPage() {
     return parts.join("");
   };
 
-  const handleAcceptOffer = (offerId: number) => {
-    acceptOfferMutation.mutate(offerId);
-  };
 
-  const handleRejectOffer = (offerId: number) => {
-    rejectOfferMutation.mutate(offerId);
-  };
 
   // Extract received offers from all pages
   const allOffers = data?.pages.flatMap(page => page.received) || [];

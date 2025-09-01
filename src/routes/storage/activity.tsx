@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useRef, useCallback, useMemo, useState, useEffect } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { useUserActivityInfinite, useGifts } from '@/lib/api-hooks';
 import { createPortal } from 'react-dom';
 

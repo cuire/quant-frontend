@@ -22,13 +22,16 @@ function Root() {
   // Show back button if we're not on the root path
   const canGoBack = location.pathname !== '/';
 
+  // Hide BottomNav for wallet routes
+  const isWalletRoute = location.pathname.startsWith('/wallet');
+
   return (
     <ModalProvider>
       <div style={{ minHeight: '100vh', position: 'relative' }}>
         <Page back={canGoBack}>
           <Outlet />
         </Page>
-        <BottomNav />
+        {!isWalletRoute && <BottomNav />}
         <Modal />
       </div>
     </ModalProvider>

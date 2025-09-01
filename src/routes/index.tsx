@@ -176,7 +176,6 @@ function MarketPage() {
         paddingBottom: '80px'
       }}>
         <MarketHeader 
-          balance={243.16}
           onFilterChange={handleFilterChange}
           currentFilters={{
             gift: search.gift_id || [],
@@ -204,7 +203,6 @@ function MarketPage() {
       paddingBottom: '80px'
     }}>
       <MarketHeader 
-        balance={243.16}
         onFilterChange={handleFilterChange}
         currentFilters={{
           gift: search.gift_id || [],

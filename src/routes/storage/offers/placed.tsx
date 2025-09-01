@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useRef, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useOffersInfinite, useGifts, useCancelOffer } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
@@ -14,7 +14,7 @@ function PlacedOffersPage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useOffersInfinite(20);
   const cancelOfferMutation = useCancelOffer();
 
-  const lastElementRef = useRef<HTMLDivElement>(null);
+
 
   const giftsMap = useMemo(() => {
     if (!giftsData) return new Map();
