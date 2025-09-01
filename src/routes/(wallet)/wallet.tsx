@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/lib/api-hooks';
-import { useTonConnectUI } from '@tonconnect/ui-react';
+import { useTonConnectUI, Wallet } from '@tonconnect/ui-react';
 
 export const Route = createFileRoute('/(wallet)/wallet')({
   component: WalletPage,
@@ -11,7 +11,7 @@ function WalletPage() {
   const { data: user, isLoading } = useUser();
   const [tonConnectUI] = useTonConnectUI();
   const [connected, setConnected] = useState(false);
-  const [account, setAccount] = useState<any>(null);
+  const [account, setAccount] = useState<Wallet | null>(null);
 
   useEffect(() => {
     const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
@@ -87,7 +87,7 @@ function WalletPage() {
             fontFamily: 'monospace'
           }}>
             {connected && account ? 
-              formatWalletAddress(account.address) : 
+              formatWalletAddress(account.account.address) : 
               'Wallet not connected'
             }
           </div>
