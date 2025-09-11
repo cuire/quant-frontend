@@ -74,12 +74,7 @@ function ChannelsPage() {
         </div>
       )}
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '12px',
-        padding: '16px'
-      }}>
+      <div className="gifts-grid">
           {allChannels.map((channel, index) => {
            // Convert channel gifts to items format for Gift component
            const items = Object.entries(channel.gifts).map(([giftId, quantity]) => {
