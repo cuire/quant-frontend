@@ -6,6 +6,7 @@ import { useModal } from '@/contexts/ModalContext';
 import { useChannelsInfinite, useGifts } from '@/lib/api-hooks';
 import { z } from 'zod';
 import { useEffect, useRef, useCallback } from 'react';
+import './index.css';
 
 // Search params schema using backend format directly
 const searchSchema = z.object({
@@ -331,12 +332,7 @@ function MarketPage() {
       <div className="px-4 py-6">
         {/* Loading state */}
         {isLoading && channels.length === 0 ? (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '12px',
-            marginBottom: '20px'
-          }}>
+          <div className="gifts-grid">
             <Skeleton count={8} />
           </div>
         ) : (
@@ -350,13 +346,7 @@ function MarketPage() {
               </div>
             ) : (
               <>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '12px',
-                  marginBottom: '20px',
-                  padding: '12px', 
-                }}>
+                <div className="gifts-grid">
                   {channels.map((channel, index) => {
                     // Generate gift display data
                     const channelGifts = channel.gifts || {};
@@ -428,13 +418,7 @@ function MarketPage() {
 
                 {/* Loading indicator for next page */}
                 {isFetchingNextPage && (
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '12px',
-                    marginBottom: '20px',
-                    padding: '12px',
-                  }}>
+                  <div className="gifts-grid">
                     <Skeleton count={4} />
                   </div>
                 )}
