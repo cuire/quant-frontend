@@ -7,27 +7,30 @@ export const Route = createFileRoute('/market')({
 
 function MarketIndexPage() {
   const location = useLocation();
+  const isCart = location.pathname.startsWith('/market/cart');
 
   return (
     <> 
       <MarketTopBar />
-      <div className="storage-tabs">
-        <div className="storage-segment">
-          {[
-            { path: '/market/gifts', label: 'Gifts', disabled: false },
-            { path: '/market/channels', label: 'Channels', disabled: false },
-            { path: '/market/stickers', label: 'Stickers', disabled: true },
-          ].map(({ path, label, disabled }) => (
-              <Link 
-                to={path}
-                className={`storage-tab-link ${location.pathname === path ? 'is-active' : ''}`}
-                disabled={disabled}
-              >
-                {label}
-              </Link>
-          ))}
+      {!isCart && (
+        <div className="storage-tabs">
+          <div className="storage-segment">
+            {[
+              { path: '/market/gifts', label: 'Gifts', disabled: false },
+              { path: '/market/channels', label: 'Channels', disabled: false },
+              { path: '/market/stickers', label: 'Stickers', disabled: true },
+            ].map(({ path, label, disabled }) => (
+                <Link 
+                  to={path}
+                  className={`storage-tab-link ${location.pathname === path ? 'is-active' : ''}`}
+                  disabled={disabled}
+                >
+                  {label}
+                </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
       <Outlet />
     </>
   );

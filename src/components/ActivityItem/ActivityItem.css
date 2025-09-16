@@ -1,0 +1,129 @@
+.activity-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px 10px 16px;
+  background: #1A2026;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.activity-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 67px;
+  right: 67px;
+  height: 1px;
+  background: #2A3541;
+}
+
+.activity-item:hover {
+  background: #2A3541;
+}
+
+.activity-item__icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.activity-item__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.activity-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-item__title {
+  font-weight: 600;
+  color: #E7EEF7;
+  font-size: 14px;
+}
+
+.activity-item__subtitle {
+  color: #54677E;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.activity-item__subtitle-text {
+  flex-shrink: 0;
+}
+
+.activity-item__labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.activity-label {
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.activity-label--blue {
+  background: rgba(36, 139, 218, 0.1);
+  color: #248BDA;
+}
+
+.activity-label--yellow {
+  background: rgba(218, 139, 36, 0.1);
+  color: #DA8E24;
+}
+
+.activity-label--orange {
+  background: rgba(218, 139, 36, 0.1);
+  color: #DA8E24;
+}
+
+.activity-label--teal {
+  background: rgba(36, 200, 218, 0.1);
+  color: #24DACB;
+}
+
+.activity-label--green {
+  background: rgba(36, 218, 82, 0.1);
+  color: #24DA61;
+}
+
+.activity-item__price {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.activity-price {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.activity-price--green {
+  color: #7EFF6D;
+}
+
+.activity-price--red {
+  color: #FF6161;
+}
+
+.activity-price--white {
+  color: #E7EEF7;
+}
+
+.activity-price__label {
+  color: #54677E;
+  font-size: 12px;
+}

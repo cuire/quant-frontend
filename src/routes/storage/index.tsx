@@ -1,4 +1,5 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { StorageTabs } from '@/components/StorageTabs';
 
 export const Route = createFileRoute('/storage/')({
   beforeLoad: () => {
@@ -10,19 +11,5 @@ export const Route = createFileRoute('/storage/')({
 });
 
 function StorageIndexPage() {
-  return (
-    <div className="storage-tabs">
-      <div className="storage-segment">
-        <Link to="/storage/channels" className="storage-tab-link">
-          Channels
-        </Link>
-        <Link to="/storage/offers/received" className="storage-tab-link">
-          Offers
-        </Link>
-        <Link to="/storage/activity"  disabled className="storage-tab-link">
-          Activity
-        </Link>
-      </div>
-    </div>
-  );
+  return <StorageTabs activeTab="offers" />;
 }

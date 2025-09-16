@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
 import { useOffersInfinite, useGifts, useCancelOffer } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
+import { StorageTabs } from '@/components/StorageTabs';
 
 export const Route = createFileRoute('/storage/offers/placed')({
   component: PlacedOffersPage,
@@ -70,28 +71,7 @@ function PlacedOffersPage() {
 
   return (
     <>
-      <div className="storage-tabs">
-        <div className="storage-segment">
-          <Link to="/storage/channels" className="storage-tab-link">
-            Channels
-          </Link>
-          <Link to="/storage/offers/received" className="storage-tab-link is-active">
-            Offers
-          </Link>
-          <Link to="/storage/activity"  disabled className="storage-tab-link">
-            Activity
-          </Link>
-        </div>
-
-        <div className="storage-subsegment">
-          <Link to="/storage/offers/received" className="storage-tab-link">
-            Received
-          </Link>
-          <Link to="/storage/offers/placed" className="storage-tab-link is-active">
-            Placed
-          </Link>
-        </div>
-      </div>
+      <StorageTabs activeTab="offers" showSubTabs={true} activeSubTab="placed" />
 
       {isLoading && (
         <div style={{ textAlign: 'center', padding: '20px' }}>

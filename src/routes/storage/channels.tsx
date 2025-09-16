@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useRef, useCallback, useMemo } from 'react';
 import { useMeChannelsInfinite, useGifts } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
+import { StorageTabs } from '@/components/StorageTabs';
 
 export const Route = createFileRoute('/storage/channels')({
   component: ChannelsPage,
@@ -42,19 +43,7 @@ function ChannelsPage() {
 
   return (
     <>
-      <div className="storage-tabs">
-        <div className="storage-segment">
-          <Link to="/storage/channels" className="storage-tab-link is-active">
-            Channels
-          </Link>
-          <Link to="/storage/offers/received" className="storage-tab-link">
-            Offers
-          </Link>
-          <Link to="/storage/activity"  disabled className="storage-tab-link">
-            Activity
-          </Link>
-        </div>
-      </div>
+      <StorageTabs activeTab="channels" />
 
       {isLoading && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
