@@ -9,6 +9,7 @@ import { useUser } from '@/lib/api-hooks';
 import './MarketHeader.css';
 import { Link } from '../Link/Link';
 import { config } from '@/lib/config';
+import { useModal } from '@/contexts/ModalContext';
 
 const [b, e] = bem('market-header');
 
@@ -40,6 +41,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
   onAddChannel
 }) => {
   const { data: user } = useUser();
+  const { openModal } = useModal();
   const balance = propBalance ?? user?.balance ?? 0;
   // Parse current gift filter to get selected gift IDs
   const getInitialGiftIds = (): string[] => {
@@ -156,6 +158,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
         )}
 
         <div className={e('right-section')}>
+          
           <div className={e('btn-group')}>
             <div className={e('balance-icon')}>
               <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -227,6 +230,57 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
             <path d="M12.8333 11V18.2233C12.87 18.4983 12.7783 18.7917 12.5675 18.9842C12.4827 19.0691 12.382 19.1366 12.2711 19.1826C12.1602 19.2286 12.0413 19.2522 11.9212 19.2522C11.8012 19.2522 11.6823 19.2286 11.5714 19.1826C11.4605 19.1366 11.3598 19.0691 11.275 18.9842L9.4325 17.1417C9.33258 17.0439 9.2566 16.9244 9.21049 16.7924C9.16438 16.6604 9.14938 16.5196 9.16667 16.3808V11H9.13917L3.85916 4.235C3.71031 4.0439 3.64314 3.80165 3.67234 3.56119C3.70154 3.32072 3.82473 3.10158 4.015 2.95167C4.18916 2.82333 4.38166 2.75 4.58333 2.75H17.4167C17.6183 2.75 17.8108 2.82333 17.985 2.95167C18.1753 3.10158 18.2985 3.32072 18.3277 3.56119C18.3569 3.80165 18.2897 4.0439 18.1408 4.235L12.8608 11H12.8333Z" fill="#5C6874"/>
           </svg>
         </button>
+        <button 
+            className={e('test-subscription-btn')}
+            onClick={() => openModal('subscription')}
+            style={{
+              background: '#248BDA',
+              border: 'none',
+              color: '#FFFFFF',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              marginRight: '8px'
+            }}
+          >
+            1
+          </button>
+          <button 
+            className={e('test-error-btn')}
+            onClick={() => openModal('error')}
+            style={{
+              background: '#E53E3E',
+              border: 'none',
+              color: '#FFFFFF',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              marginRight: '8px'
+            }}
+          >
+            2
+          </button>
+          <button 
+            className={e('test-participating-btn')}
+            onClick={() => openModal('participating', { ticketCount: 25 })}
+            style={{
+              background: '#38A169',
+              border: 'none',
+              color: '#FFFFFF',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              marginRight: '8px'
+            }}
+          >
+            3
+          </button>
       </div>
       )}
       {openSheet && createPortal(
