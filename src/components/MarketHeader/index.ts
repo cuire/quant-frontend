@@ -1,3 +1,5 @@
-export { MarketHeader } from './MarketHeader';
-export type { MarketHeaderProps } from './MarketHeader';
+export { MarketTopBar } from './MarketTopBar';
+export type { MarketTopBarProps } from './MarketTopBar';
+export { MarketFilters } from './MarketFilters';
+export type { MarketFiltersProps } from './MarketFilters';
 

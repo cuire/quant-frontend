@@ -4,16 +4,11 @@ import { createPortal } from 'react-dom';
 import { bem } from '@/css/bem.ts';
 import type { Gift } from '@/lib/api';
 import { GiftIcon } from '@/components/GiftIcon';
-import { useUser } from '@/lib/api-hooks';
-
 import './MarketHeader.css';
-import { Link } from '../Link/Link';
-import { config } from '@/lib/config';
 
-const [b, e] = bem('market-header');
+const [, e] = bem('market-header');
 
-export interface MarketHeaderProps {
-  balance?: number;
+export interface MarketFiltersProps {
   onFilterChange?: (filters: {
     gift: string[]; // array of gift IDs
     channelType: string;
@@ -25,22 +20,13 @@ export interface MarketHeaderProps {
     sorting: string;
   };
   gifts?: Gift[];
-  hideFilters?: boolean;
-  showAddChannel?: boolean;
-  onAddChannel?: () => void;
 }
 
-export const MarketHeader: FC<MarketHeaderProps> = ({ 
-  balance: propBalance, 
+export const MarketFilters: FC<MarketFiltersProps> = ({ 
   onFilterChange,
   currentFilters,
-  gifts = [],
-  hideFilters = false,
-  showAddChannel = false,
-  onAddChannel
+  gifts = []
 }) => {
-  const { data: user } = useUser();
-  const balance = propBalance ?? user?.balance ?? 0;
   // Parse current gift filter to get selected gift IDs
   const getInitialGiftIds = (): string[] => {
     if (!currentFilters?.gift || currentFilters.gift.length === 0) return [];
@@ -120,57 +106,8 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
   };
 
   return (
-    <div className={b()}>
-      <div className={e('second-row')}>
-        {showAddChannel ? (
-          <button 
-            className={e('telegram-badge')} 
-            onClick={onAddChannel}
-          >
-            <div className={e('telegram-icon')}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4.22222 22L2 8.66667H22L19.7778 22H4.22222ZM9.77778 15.3333H14.2222C14.537 15.3333 14.8011 15.2267 15.0144 15.0133C15.2278 14.8 15.3341 14.5363 15.3333 14.2222C15.3326 13.9081 15.2259 13.6444 15.0133 13.4311C14.8007 13.2178 14.537 13.1111 14.2222 13.1111H9.77778C9.46296 13.1111 9.19926 13.2178 8.98667 13.4311C8.77407 13.6444 8.66741 13.9081 8.66667 14.2222C8.66593 14.5363 8.77259 14.8004 8.98667 15.0144C9.20074 15.2285 9.46444 15.3348 9.77778 15.3333ZM5.33333 7.55556C5.01852 7.55556 4.75482 7.44889 4.54222 7.23556C4.32963 7.02222 4.22296 6.75852 4.22222 6.44444C4.22148 6.13037 4.32815 5.86667 4.54222 5.65333C4.7563 5.44 5.02 5.33333 5.33333 5.33333H18.6667C18.9815 5.33333 19.2456 5.44 19.4589 5.65333C19.6722 5.86667 19.7785 6.13037 19.7778 6.44444C19.777 6.75852 19.6704 7.02259 19.4578 7.23667C19.2452 7.45074 18.9815 7.55704 18.6667 7.55556H5.33333ZM7.55556 4.22222C7.24074 4.22222 6.97704 4.11556 6.76444 3.90222C6.55185 3.68889 6.44519 3.42519 6.44444 3.11111C6.4437 2.79704 6.55037 2.53333 6.76444 2.32C6.97852 2.10667 7.24222 2 7.55556 2H16.4444C16.7593 2 17.0233 2.10667 17.2367 2.32C17.45 2.53333 17.5563 2.79704 17.5556 3.11111C17.5548 3.42519 17.4481 3.68926 17.2356 3.90333C17.023 4.11741 16.7593 4.2237 16.4444 4.22222H7.55556Z" fill="currentColor"/>
-            </svg>
-            </div>
-            <span className={e('telegram-text')}>Add Channel</span>
-            <div className={e('arrow')}>
-              <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.99998 11.6667L6.33331 8.33333L2.99998 5" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </button>
-        ) : (
-          <div className={e('telegram-badge')}>
-            <div className={e('telegram-icon')}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14.624 3.44667L12.604 12.9033C12.4533 13.5693 12.0667 13.7193 11.508 13.4187L8.47799 11.184L6.99466 12.602C6.84466 12.7527 6.69399 12.9033 6.34999 12.9033L6.58666 9.78667L12.2387 4.65067C12.4747 4.414 12.174 4.328 11.8733 4.522L4.84599 8.94867L1.81533 8.02467C1.14933 7.81 1.14933 7.358 1.96599 7.058L13.7427 2.48C14.3227 2.308 14.8173 2.60933 14.624 3.44667Z" fill="white"/>
-              </svg>
-            </div>
-            <Link className={e('telegram-text')} href={config.telegramChannelUrl}>Telegram Channel</Link>
-            <div className={e('arrow')}>
-              <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.99998 11.6667L6.33331 8.33333L2.99998 5" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        )}
-
-        <div className={e('right-section')}>
-          <div className={e('btn-group')}>
-            <div className={e('balance-icon')}>
-              <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
-              </svg>
-            </div>
-            <span className={e('balance-amount')}>{balance}</span>
-            <Link className={e('add-button')} to="/wallet"><span style={{fontSize: '18px', marginBottom: '3px'}}>+</span></Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      {!hideFilters && (
-        <div className={e('filters')}>
+    <>
+      <div className={e('filters')}>
         {/* Gift chip */}
         <div  style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
         <div className={e('filter-chip')} onClick={() => setOpenSheet('gift')} role="button" tabIndex={0}>
@@ -228,7 +165,6 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
           </svg>
         </button>
       </div>
-      )}
       {openSheet && createPortal(
         <div className={e('sheet-overlay')} onClick={() => setOpenSheet(null)}>
           <div className={e('sheet')} onClick={(ev) => ev.stopPropagation()}>
@@ -315,7 +251,7 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
                         {label === 'With Waiting' && (
                           <svg style={{marginRight: '4px', marginBottom: '-1px'}} width="12" height="12" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clipPath="url(#clip0_clock)">
-                              <path d="M5.00002 2.70831C5.00002 2.60831C5.00002 2.55873 5.03335 2.5279C5.06752 2.49706 5.11418 2.50081 5.20835 2.50873C5.62809 2.54379 6.03216 2.68433 6.38306 2.9173C6.73396 3.15027 7.02031 3.46812 7.21553 3.84135C7.41075 4.21458 7.50851 4.63108 7.49972 5.05218C7.49094 5.47329 7.37591 5.88535 7.1653 6.25011C6.95469 6.61488 6.65534 6.92051 6.29503 7.13865C5.93472 7.35679 5.52513 7.48036 5.1043 7.49789C4.68347 7.51542 4.26503 7.42634 3.88783 7.23891C3.51063 7.05149 3.18689 6.7718 2.94668 6.42581C2.89252 6.34831 2.86585 6.30956 2.87585 6.26498C2.88585 6.2204 2.92918 6.19581 3.01543 6.14581L4.89585 5.05998C4.94668 5.03081 4.9721 5.01623 4.98585 4.99206C5.00002 4.9679 5.00002 4.93831 5.00002 4.87956V2.70831Z" fill="#E7EEF7"/>
+                              <path d="M5.00002 2.70831C5.00002 2.60831C5.00002 2.55873C5.03335 2.5279C5.06752 2.49706C5.11418 2.50081C5.20835 2.50873C5.62809 2.54379 6.03216 2.68433 6.38306 2.9173C6.73396 3.15027 7.02031 3.46812 7.21553 3.84135C7.41075 4.21458 7.50851 4.63108 7.49972 5.05218C7.49094 5.47329 7.37591 5.88535 7.1653 6.25011C6.95469 6.61488 6.65534 6.92051 6.29503 7.13865C5.93472 7.35679 5.52513 7.48036 5.1043 7.49789C4.68347 7.51542 4.26503 7.42634 3.88783 7.23891C3.51063 7.05149 3.18689 6.7718 2.94668 6.42581C2.89252 6.34831 2.86585 6.30956 2.87585 6.26498C2.88585 6.2204 2.92918 6.19581 3.01543 6.14581L4.89585 5.05998C4.94668 5.03081 4.9721 5.01623 4.98585 4.99206C5.00002 4.9679 5.00002 4.93831 5.00002 4.87956V2.70831Z" fill="#E7EEF7"/>
                               <path d="M5 8.75C7.07107 8.75 8.75 7.07107 8.75 5C8.75 2.92893 7.07107 1.25 5 1.25C2.92893 1.25 1.25 2.92893 1.25 5C1.25 7.07107 2.92893 8.75 5 8.75Z" stroke="#E7EEF7" strokeWidth="0.833333"/>
                             </g>
                             <defs>
@@ -499,6 +435,6 @@ export const MarketHeader: FC<MarketHeaderProps> = ({
         </div>,
         document.body
       )}
-    </div>
+    </>
   );
 };

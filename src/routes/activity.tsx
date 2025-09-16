@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { MarketHeader } from '@/components/MarketHeader';
+import { MarketTopBar } from '@/components/MarketHeader';
 import { useActivityInfinite, useGifts } from '@/lib/api-hooks';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/activity')({
 
 function ActivityPage() {
   const search = Route.useSearch();
-  const navigate = Route.useNavigate();
+  // const navigate = Route.useNavigate(); // Removed as it's no longer needed
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Add shimmer animation styles
@@ -100,42 +100,7 @@ function ActivityPage() {
   // Flatten all pages of activity data
   const activities = activityData?.pages.flat() || [];
 
-  const handleFilterChange = (newFilters: {
-    gift: string[]; // array of gift IDs
-    channelType: string; // 'fast' | 'waiting' | 'all'
-    sorting: string; // sorting values
-  }) => {
-    const backendFilters: Partial<z.infer<typeof searchSchema>> = {};
-    
-    // Gift IDs are already in backend format
-    if (newFilters.gift && newFilters.gift.length > 0) {
-      backendFilters.gift_id = newFilters.gift;
-    }
-
-    if (newFilters.channelType && newFilters.channelType !== 'All') {
-      backendFilters.type = newFilters.channelType as z.infer<typeof searchSchema>['type'];
-    }
-
-    if (newFilters.channelType === 'All') {
-      backendFilters.type = undefined;
-    }
-    
-    const updatedSearch = {
-      ...search,
-      ...backendFilters,
-    };
-    
-    // Remove empty values
-    Object.keys(updatedSearch).forEach(key => {
-      if (updatedSearch[key as keyof typeof updatedSearch] === '' || 
-          updatedSearch[key as keyof typeof updatedSearch] === undefined) {
-        delete updatedSearch[key as keyof typeof updatedSearch];
-      }
-    });
-    
-    // Navigate to new search params - this will automatically trigger a new infinite query
-    navigate({ search: updatedSearch });
-  };
+  // Removed handleFilterChange as it's no longer needed
 
   const [selected, setSelected] = useState<null | {
     title: string;
@@ -176,15 +141,7 @@ function ActivityPage() {
         color: '#ffffff',
         paddingBottom: '80px'
       }}>
-        <MarketHeader 
-          onFilterChange={handleFilterChange}
-          currentFilters={{
-            gift: search.gift_id || [],
-            channelType: search.type || 'All',
-            sorting: 'date_new_to_old'
-          }}
-          gifts={gifts}
-        />
+        <MarketTopBar />
         <div className="px-4 py-6">
           <div className="text-center py-16">
             <div className="text-6xl mb-4">😔</div>
@@ -198,16 +155,7 @@ function ActivityPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#1A2026', color: '#E7EEF7', paddingBottom: 80 }}>
-      <MarketHeader 
-        onFilterChange={handleFilterChange}
-        currentFilters={{
-          gift: search.gift_id || [],
-          channelType: search.type || 'All',
-          sorting: 'date_new_to_old'
-        }}
-        gifts={gifts}
-        hideFilters={true}
-      />
+      <MarketTopBar />
 
       {/* Activity Content */}
       <div className="px-4 py-6">

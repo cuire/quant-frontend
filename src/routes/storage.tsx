@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useLocation } from '@tanstack/react-router';
-import { MarketHeader } from '@/components/MarketHeader';
+import { MarketTopBar } from '@/components/MarketHeader';
 import { useModal } from '@/contexts/ModalContext';
 
 export const Route = createFileRoute('/storage')({
@@ -20,9 +20,7 @@ function StorageLayout() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#1A2026', color: '#E7EEF7', paddingBottom: 80 }}>
-      <MarketHeader 
-        onFilterChange={() => {}} 
-        hideFilters={true}
+      <MarketTopBar 
         showAddChannel={isOnChannelsPage}
         onAddChannel={handleAddChannel}
       />
