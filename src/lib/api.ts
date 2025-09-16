@@ -214,6 +214,9 @@ export interface Activity {
   amount: number;
   channel_id: number;
   created_at: string;
+  hold_time?: string;
+  transfer_time?: string;
+  channel_type?: string;
 }
 
 export interface UserActivityResponse {
@@ -226,6 +229,13 @@ export async function getActivity(
   onlyExactGift = false,
   showUpgradedGifts = true
 ): Promise<Activity[]> {
+  // Check if we should use mock data
+  const { shouldUseMock } = await import('./mockConfig');
+  if (shouldUseMock('useMockActivity')) {
+    const { loadActivity } = await import('./mockActivity');
+    return loadActivity(limit, offset, onlyExactGift, showUpgradedGifts);
+  }
+
   const params = new URLSearchParams();
   params.append('limit', limit.toString());
   params.append('offset', offset.toString());
@@ -240,6 +250,13 @@ export async function getUserActivity(
   page = 1,
   limit = 20
 ): Promise<UserActivityResponse> {
+  // Check if we should use mock data
+  const { shouldUseMock } = await import('./mockConfig');
+  if (shouldUseMock('useMockActivity')) {
+    const { loadUserActivity } = await import('./mockActivity');
+    return loadUserActivity(page, limit);
+  }
+
   const params = new URLSearchParams();
   params.append('page', page.toString());
   params.append('limit', limit.toString());

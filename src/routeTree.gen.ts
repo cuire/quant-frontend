@@ -20,6 +20,7 @@ import { Route as StorageActivityRouteImport } from './routes/storage/activity'
 import { Route as MarketStickersRouteImport } from './routes/market/stickers'
 import { Route as MarketGiftsRouteImport } from './routes/market/gifts'
 import { Route as MarketChannelsRouteImport } from './routes/market/channels'
+import { Route as MarketCartRouteImport } from './routes/market/cart'
 import { Route as walletWalletRouteImport } from './routes/(wallet)/wallet'
 import { Route as StorageOffersReceivedRouteImport } from './routes/storage/offers/received'
 import { Route as StorageOffersPlacedRouteImport } from './routes/storage/offers/placed'
@@ -79,6 +80,11 @@ const MarketChannelsRoute = MarketChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => MarketRouteRoute,
 } as any)
+const MarketCartRoute = MarketCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => MarketRouteRoute,
+} as any)
 const walletWalletRoute = walletWalletRouteImport.update({
   id: '/(wallet)/wallet',
   path: '/wallet',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/storage': typeof StorageRouteWithChildren
   '/wallet': typeof walletWalletRoute
+  '/market/cart': typeof MarketCartRoute
   '/market/channels': typeof MarketChannelsRoute
   '/market/gifts': typeof MarketGiftsRoute
   '/market/stickers': typeof MarketStickersRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/activity': typeof ActivityRoute
   '/profile': typeof ProfileRoute
   '/wallet': typeof walletWalletRoute
+  '/market/cart': typeof MarketCartRoute
   '/market/channels': typeof MarketChannelsRoute
   '/market/gifts': typeof MarketGiftsRoute
   '/market/stickers': typeof MarketStickersRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/storage': typeof StorageRouteWithChildren
   '/(wallet)/wallet': typeof walletWalletRoute
+  '/market/cart': typeof MarketCartRoute
   '/market/channels': typeof MarketChannelsRoute
   '/market/gifts': typeof MarketGiftsRoute
   '/market/stickers': typeof MarketStickersRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/storage'
     | '/wallet'
+    | '/market/cart'
     | '/market/channels'
     | '/market/gifts'
     | '/market/stickers'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/profile'
     | '/wallet'
+    | '/market/cart'
     | '/market/channels'
     | '/market/gifts'
     | '/market/stickers'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/storage'
     | '/(wallet)/wallet'
+    | '/market/cart'
     | '/market/channels'
     | '/market/gifts'
     | '/market/stickers'
@@ -281,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketChannelsRouteImport
       parentRoute: typeof MarketRouteRoute
     }
+    '/market/cart': {
+      id: '/market/cart'
+      path: '/cart'
+      fullPath: '/market/cart'
+      preLoaderRoute: typeof MarketCartRouteImport
+      parentRoute: typeof MarketRouteRoute
+    }
     '/(wallet)/wallet': {
       id: '/(wallet)/wallet'
       path: '/wallet'
@@ -306,12 +325,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface MarketRouteRouteChildren {
+  MarketCartRoute: typeof MarketCartRoute
   MarketChannelsRoute: typeof MarketChannelsRoute
   MarketGiftsRoute: typeof MarketGiftsRoute
   MarketStickersRoute: typeof MarketStickersRoute
 }
 
 const MarketRouteRouteChildren: MarketRouteRouteChildren = {
+  MarketCartRoute: MarketCartRoute,
   MarketChannelsRoute: MarketChannelsRoute,
   MarketGiftsRoute: MarketGiftsRoute,
   MarketStickersRoute: MarketStickersRoute,

@@ -44,11 +44,12 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
         ) : (
           <div className={e('telegram-badge')}>
             <div className={e('telegram-icon')}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14.624 3.44667L12.604 12.9033C12.4533 13.5693 12.0667 13.7193 11.508 13.4187L8.47799 11.184L6.99466 12.602C6.84466 12.7527 6.69399 12.9033 6.34999 12.9033L6.58666 9.78667L12.2387 4.65067C12.4747 4.414 12.174 4.328 11.8733 4.522L4.84599 8.94867L1.81533 8.02467C1.14933 7.81 1.14933 7.358 1.96599 7.058L13.7427 2.48C14.3227 2.308 14.8173 2.60933 14.624 3.44667Z" fill="white"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 3C5.89543 3 5 3.89543 5 5V17C5 18.1046 5.89543 19 7 19H16C17.1046 19 18 18.1046 18 17V6C18 4.89543 17.1046 4 16 4H8.5L7 3Z" fill="white" opacity="0.9"/>
+                <path d="M9 7H15" stroke="#FF9F26" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </div>
-            <Link className={e('telegram-text')} href={config.telegramChannelUrl}>Telegram Channel</Link>
+            <Link className={e('telegram-text')} href={'/market/cart'}>Guide</Link>
             <div className={e('arrow')}>
               <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2.99998 11.6667L6.33331 8.33333L2.99998 5" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>

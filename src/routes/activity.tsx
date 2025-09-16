@@ -202,7 +202,7 @@ function ActivityPage() {
                        <div 
                          key={activity.id} 
                          ref={ref}
-                         className="activity-item" 
+                         className="activity-item"
                          onClick={() => {
                            // Create items array from gifts_data
                            let items: { id: string; name: string; icon: string; quantity: number }[] = [];

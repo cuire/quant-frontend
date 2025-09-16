@@ -1,0 +1,15 @@
+.activity-group {
+  margin-bottom: 8px;
+}
+
+.activity-group__date {
+  padding: 12px 16px 0;
+  color: #4E6276;
+  font-size: 12px;
+  font-weight: 500;
+  background: #1A2026;
+}
+
+.activity-group__items {
+  background: #1A2026;
+}
