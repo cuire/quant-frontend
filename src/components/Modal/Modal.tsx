@@ -8,10 +8,14 @@ import { AcceptOfferConfirmModal } from './OfferAcceptConfirmModal';
 import { CancelOfferModal } from './OfferCancelModal';
 import { AddChannelModal } from './AddChannelModal';
 import { PurchaseConfirmModal } from './PurchaseConfirmModal';
+import { SubscriptionModal } from './SubscriptionModal';
+import { SuccessModal } from './SuccessModal';
+import { ErrorModal } from './ErrorModal';
+import { ParticipatingModal } from './ParticipatingModal';
 import './Modal.css';
 
 export const Modal = () => {
-  const { modalType, modalData, closeModal } = useModal();
+  const { modalType, modalData, closeModal, openModal } = useModal();
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -59,6 +63,42 @@ export const Modal = () => {
         return <AddChannelModal onClose={closeModal} />;
       case 'purchase-confirm':
         return <PurchaseConfirmModal data={modalData} onClose={closeModal} />;
+      
+      case 'subscription':
+        return (
+          <SubscriptionModal 
+            onClose={closeModal} 
+            onNext={() => {
+              // Handle next action - open success modal
+              openModal('success', { ticketCount: 25 });
+            }}
+            onSubscribe={(subscriptionId) => {
+              // Handle subscribe action
+              console.log('Subscribe to:', subscriptionId);
+            }}
+            subscriptions={modalData?.subscriptions}
+          />
+        );
+      case 'success':
+        return (
+          <SuccessModal 
+            onClose={closeModal}
+            ticketCount={modalData?.ticketCount}
+          />
+        );
+      case 'error':
+        return (
+          <ErrorModal 
+            onClose={closeModal}
+          />
+        );
+      case 'participating':
+        return (
+          <ParticipatingModal 
+            onClose={closeModal}
+            ticketCount={modalData?.ticketCount}
+          />
+        );
       default:
         return null;
     }
