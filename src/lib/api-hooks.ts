@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
+import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -9,6 +9,8 @@ export const queryKeys = {
     ['channels', page, limit, filters] as const,
   channelsInfinite: (limit: number, filters?: Record<string, any>) => 
     ['channelsInfinite', limit, filters] as const,
+  channelsBounds: (filters?: Record<string, any>) => 
+    ['channelsBounds', filters] as const,
   userChannels: ['userChannels'] as const,
   meChannels: (page: number, limit: number) => 
     ['meChannels', page, limit] as const,
@@ -27,8 +29,10 @@ export const queryKeys = {
     ['userActivity', page, limit] as const,
   userActivityInfinite: (limit: number) => 
     ['userActivityInfinite', limit] as const,
-  marketGifts: ['marketGifts'] as const,
-  marketGiftsInfinite: ['marketGiftsInfinite'] as const,
+  marketGifts: (page: number, limit: number, filters?: Record<string, any>) => 
+    ['marketGifts', page, limit, filters] as const,
+  marketGiftsInfinite: (limit: number, filters?: Record<string, any>) => 
+    ['marketGiftsInfinite', limit, filters] as const,
 };
 
 // User hooks
@@ -78,6 +82,16 @@ export const useChannelsInfinite = (
       return allPages.length + 1;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+export const useChannelsBounds = (
+  filters: Record<string, any> = {}
+) => {
+  return useQuery({
+    queryKey: queryKeys.channelsBounds(filters),
+    queryFn: () => getChannelsWithBounds(1, 1, filters),
+    staleTime: 1000 * 60 * 10, // 10 minutes - bounds don't change often
   });
 };
 
@@ -141,21 +155,22 @@ export const useMarketGifts = (
   filters: Record<string, any> = {}
 ) => {
   return useQuery({
-    queryKey: queryKeys.marketGifts,
-    queryFn: marketGetGifts,
+    queryKey: queryKeys.marketGifts(page, limit, filters),
+    queryFn: () => marketGetGifts(page, limit, filters),
   });
 };
 
 export const useMarketGiftsInfinite = (
   limit = 20,
+  filters: Record<string, any> = {}
 ) => {
   return useInfiniteQuery({
-    queryKey: queryKeys.marketGiftsInfinite,
-    queryFn: ({ pageParam = 1 }) => marketGetGifts(pageParam),
+    queryKey: queryKeys.marketGiftsInfinite(limit, filters),
+    queryFn: ({ pageParam = 1 }) => marketGetGifts(pageParam, limit, filters),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       // If we got fewer items than the limit, we've reached the end
-      if (lastPage.length < limit) {
+      if (lastPage.length < limit || lastPage.length === 0) {
         return undefined;
       }
       return allPages.length + 1;

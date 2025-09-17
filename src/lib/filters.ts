@@ -24,15 +24,62 @@ export const channelFiltersSearchSchema = z.object({
 
 export type ChannelFiltersSearchParams = z.infer<typeof channelFiltersSearchSchema>;
 
+// Gifts filters schema for API calls
+export const giftFiltersSearchSchema = z.object({
+  page: z.number().default(1),
+  limit: z.number().default(20),
+  sort_by: z.enum([
+    'date_new_to_old',
+    'date_old_to_new', 
+    'price_low_to_high',
+    'price_high_to_low',
+    'name_a_to_z',
+    'name_z_to_a'
+  ]).default('date_new_to_old'),
+  collection: z.string().optional(),
+  model: z.string().optional(),
+  background: z.string().optional(),
+  min_price: z.string().optional(),
+  max_price: z.string().optional(),
+});
+
+export type GiftFiltersSearchParams = z.infer<typeof giftFiltersSearchSchema>;
+
 export type FilterChangeParams = {
   gift: string[]; // array of gift IDs
   channelType: string; // 'fast' | 'waiting' | 'all'
   sorting: string; // sorting values
+  minPrice?: number;
+  maxPrice?: number;
+  minQuantity?: number;
+  maxQuantity?: number;
+  onlyExactGift?: boolean;
+  showUpgraded?: boolean;
 };
 
 export type CurrentFilters = {
   gift: string[];
   channelType: string;
+  sorting: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minQuantity?: number;
+  maxQuantity?: number;
+  onlyExactGift?: boolean;
+  showUpgraded?: boolean;
+};
+
+export type GiftFilterChangeParams = {
+  collection: string;
+  model: string;
+  background: string;
+  sorting: string;
+};
+
+export type GiftCurrentFilters = {
+  collection: string;
+  model: string;
+  background: string;
   sorting: string;
 };
 
@@ -73,6 +120,24 @@ export function convertFiltersToBackendFormat(
   if (newFilters.channelType === 'All') {
     backendFilters.type = undefined;
   }
+
+  // Price filters
+  if (newFilters.minPrice !== undefined) {
+    backendFilters.min_price = newFilters.minPrice.toString();
+  }
+
+  if (newFilters.maxPrice !== undefined) {
+    backendFilters.max_price = newFilters.maxPrice.toString();
+  }
+
+  // Quantity filters
+  if (newFilters.minQuantity !== undefined) {
+    backendFilters.min_qty = newFilters.minQuantity.toString();
+  }
+
+  if (newFilters.maxQuantity !== undefined) {
+    backendFilters.max_qty = newFilters.maxQuantity.toString();
+  }
   
   const updatedSearch = {
     ...currentSearch,
@@ -92,32 +157,116 @@ export function convertFiltersToBackendFormat(
   return updatedSearch;
 }
 
+// Build filters object from search params for gifts
+export function buildGiftFiltersFromSearch(search: GiftFiltersSearchParams): Record<string, any> {
+  const filters: Record<string, any> = {};
+
+  Object.entries(search).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && value !== '') {
+      filters[key] = value;
+    }
+  });
+
+  return filters;
+}
+
+// Convert frontend gift filter changes to backend format
+export function convertGiftFiltersToBackendFormat(
+  newFilters: GiftFilterChangeParams,
+  currentSearch: GiftFiltersSearchParams
+): Partial<GiftFiltersSearchParams> {
+  const backendFilters: Partial<GiftFiltersSearchParams> = {};
+  
+  // Sorting is already in backend format
+  if (newFilters.sorting && newFilters.sorting !== 'All') {
+    backendFilters.sort_by = newFilters.sorting as GiftFiltersSearchParams['sort_by'];
+  }
+  
+  // Collection filter
+  if (newFilters.collection && newFilters.collection !== 'All') {
+    backendFilters.collection = newFilters.collection;
+  }
+
+  // Model filter
+  if (newFilters.model && newFilters.model !== 'All') {
+    backendFilters.model = newFilters.model;
+  }
+
+  // Background filter
+  if (newFilters.background && newFilters.background !== 'All') {
+    backendFilters.background = newFilters.background;
+  }
+  
+  const updatedSearch = {
+    ...currentSearch,
+    ...backendFilters,
+    // Reset page to 1 when filters change
+    page: 1,
+  };
+  
+  // Remove empty values
+  Object.keys(updatedSearch).forEach(key => {
+    if (updatedSearch[key as keyof typeof updatedSearch] === '' || 
+        updatedSearch[key as keyof typeof updatedSearch] === undefined) {
+      delete updatedSearch[key as keyof typeof updatedSearch];
+    }
+  });
+  
+  return updatedSearch;
+}
+
+// Get current gift filters for display
+export function getGiftCurrentFilters(search: GiftFiltersSearchParams): GiftCurrentFilters {
+  return {
+    collection: search.collection || 'All',
+    model: search.model || 'All',
+    background: search.background || 'All',
+    sorting: search.sort_by || 'date_new_to_old'
+  };
+}
+
 // Get current filters for display
 export function getCurrentFilters(search: ChannelFiltersSearchParams): CurrentFilters {
   return {
     gift: search.gift_id || [],
     channelType: search.type || 'All',
-    sorting: search.sort_by || 'date_new_to_old'
+    sorting: search.sort_by || 'date_new_to_old',
+    minPrice: search.min_price ? parseFloat(search.min_price) : undefined,
+    maxPrice: search.max_price ? parseFloat(search.max_price) : undefined,
+    minQuantity: search.min_qty ? parseInt(search.min_qty) : undefined,
+    maxQuantity: search.max_qty ? parseInt(search.max_qty) : undefined,
   };
 }
 
 // Custom hook for managing filters
-export function useFilters<T extends ChannelFiltersSearchParams>(
+export function useFilters<T extends ChannelFiltersSearchParams | GiftFiltersSearchParams>(
   search: T, 
-  navigate: (options: { search: Partial<T> }) => void
+  navigate: (options: { search: Partial<T> }) => void,
+  filterType: 'channel' | 'gift' = 'channel'
 ) {
-  const handleFilterChange = useCallback((newFilters: FilterChangeParams) => {
-    const updatedSearch = convertFiltersToBackendFormat(newFilters, search) as Partial<T>;
+  const handleFilterChange = useCallback((newFilters: FilterChangeParams | GiftFilterChangeParams) => {
+    let updatedSearch: Partial<T>;
+    
+    if (filterType === 'gift') {
+      updatedSearch = convertGiftFiltersToBackendFormat(newFilters as GiftFilterChangeParams, search as GiftFiltersSearchParams) as Partial<T>;
+    } else {
+      updatedSearch = convertFiltersToBackendFormat(newFilters as FilterChangeParams, search as ChannelFiltersSearchParams) as Partial<T>;
+    }
     
     // Navigate to new search params - this will automatically trigger a new infinite query
     navigate({ search: updatedSearch });
     
     // Reset scroll position when filters change
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [search, navigate]);
+  }, [search, navigate, filterType]);
 
-  const currentFilters = getCurrentFilters(search);
-  const apiFilters = buildFiltersFromSearch(search);
+  const currentFilters = filterType === 'gift' 
+    ? getGiftCurrentFilters(search as GiftFiltersSearchParams)
+    : getCurrentFilters(search as ChannelFiltersSearchParams);
+    
+  const apiFilters = filterType === 'gift'
+    ? buildGiftFiltersFromSearch(search as GiftFiltersSearchParams)
+    : buildFiltersFromSearch(search as ChannelFiltersSearchParams);
 
   return {
     handleFilterChange,
@@ -125,3 +274,4 @@ export function useFilters<T extends ChannelFiltersSearchParams>(
     apiFilters,
   };
 }
+

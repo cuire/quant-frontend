@@ -2,16 +2,27 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useMarketGiftsInfinite } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
+import { GiftFilters } from '@/components/MarketHeader';
+import { GiftCurrentFilters, giftFiltersSearchSchema, useFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback } from 'react';
 
+// Search schema for gifts page
+const searchSchema = giftFiltersSearchSchema;
+
 export const Route = createFileRoute('/market/gifts')({
+  validateSearch: searchSchema,
   component: GiftsPage,
 });
 
 function GiftsPage() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   
-  // Use infinite query for gifts
+  // Use the filters hook
+  const { handleFilterChange, currentFilters, apiFilters } = useFilters(search, navigate, 'gift');
+  
+  // Use infinite query for gifts with filters
   const {
     data: giftsData,
     fetchNextPage,
@@ -80,9 +91,17 @@ function GiftsPage() {
   }, []);
 
   return (
-    <div className="px-4 py-6">
-      {/* Loading state */}
-      {isLoading && gifts.length === 0 ? (
+    <>
+      <GiftFilters 
+        onFilterChange={handleFilterChange}
+        currentFilters={currentFilters as GiftCurrentFilters}
+        gifts={gifts}
+      />
+
+      {/* Market Content */}
+      <div className="px-4 py-6">
+        {/* Loading state */}
+        {isLoading && gifts.length === 0 ? (
         <div className="gifts-grid">
           <Skeleton count={8} />
         </div>
@@ -120,7 +139,7 @@ function GiftsPage() {
                   ]}
                   title={gift.full_name || gift.short_name || 'Unknown Gift'}
                   giftNumber={`#${gift.id}`}
-                  price={Math.round(gift.floor_price || 0)}
+                  price={Math.round(Number(gift.floor_price) || 0)}
                   action="buy-or-cart"
                 />
               );
@@ -135,6 +154,7 @@ function GiftsPage() {
           )}
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }

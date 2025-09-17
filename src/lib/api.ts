@@ -165,6 +165,19 @@ const filtersToUrlParams = (filters: Record<string, any>): URLSearchParams => {
 
 
 
+// Bounds interface for channels API response
+export interface ChannelBounds {
+  min_price: number;
+  max_price: number;
+  min_count: number;
+  max_count: number;
+}
+
+export interface ChannelsResponse {
+  channels: Channel[];
+  bounds: ChannelBounds;
+}
+
 // Channel functions
 export async function getChannels(
   page = 1, 
@@ -178,6 +191,21 @@ export async function getChannels(
   
   const data = await request<{channels: Channel[]}>(`/channels?${params.toString()}`);
   return data.channels || [];
+}
+
+// Get channels with bounds data
+export async function getChannelsWithBounds(
+  page = 1, 
+  limit = 20, 
+  filters: Record<string, any> = {}
+): Promise<ChannelsResponse> {
+  let params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  params = new URLSearchParams([...filtersToUrlParams(filters), ...params]);
+  
+  const data = await request<ChannelsResponse>(`/channels?${params.toString()}`);
+  return data;
 }
 
 export async function marketGetGifts(

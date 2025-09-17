@@ -14,7 +14,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'market', label: 'Market', path: '/', icon: 'market' },
+  { id: 'market', label: 'Market', path: '/market', icon: 'market' },
   { id: 'activity', label: 'Activity', path: '/activity', icon: 'activity' },
   { id: 'storage', label: 'Storage', path: '/storage', icon: 'storage' },
   { id: 'profile', label: 'Profile', path: '/profile', icon: 'profile' },
@@ -54,14 +54,23 @@ export const BottomNav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  // Get the market path dynamically based on last opened tab
+  const getMarketPath = () => {
+    const lastTab = localStorage.getItem('market-last-tab') || 'channels';
+    return `/market/${lastTab}`;
+  };
+
   return (
     <nav className={b()}>
       {navItems.map((item) => {
+        // Use dynamic path for market, static path for others
+        const itemPath = item.id === 'market' ? getMarketPath() : item.path;
         const isActive = item.path !== '/' ? currentPath.startsWith(item.path) : currentPath === item.path;
+        
         return (
           <Link
             key={item.id}
-            to={item.path}
+            to={itemPath}
             className={classNames(e('item'), { active: isActive })}
             style={{ textDecoration: 'none', color: 'inherit' }}
           >

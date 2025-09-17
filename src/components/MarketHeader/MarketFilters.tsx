@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { bem } from '@/css/bem.ts';
 import type { Gift } from '@/lib/api';
 import { GiftIcon } from '@/components/GiftIcon';
+import { useChannelsBounds } from '@/lib/api-hooks';
 import './MarketHeader.css';
 
 const [, e] = bem('market-header');
@@ -13,11 +14,23 @@ export interface MarketFiltersProps {
     gift: string[]; // array of gift IDs
     channelType: string;
     sorting: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minQuantity?: number;
+    maxQuantity?: number;
+    onlyExactGift?: boolean;
+    showUpgraded?: boolean;
   }) => void;
   currentFilters?: {
     gift: string[]; // array of gift IDs
     channelType: string;
     sorting: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minQuantity?: number;
+    maxQuantity?: number;
+    onlyExactGift?: boolean;
+    showUpgraded?: boolean;
   };
   gifts?: Gift[];
 }
@@ -27,6 +40,9 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
   currentFilters,
   gifts = []
 }) => {
+  // Fetch bounds data for price and quantity ranges
+  const { data: boundsData } = useChannelsBounds();
+  
   // Parse current gift filter to get selected gift IDs
   const getInitialGiftIds = (): string[] => {
     if (!currentFilters?.gift || currentFilters.gift.length === 0) return [];
@@ -37,10 +53,32 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
   const [sortingFilter, setSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
   const [openSheet, setOpenSheet] = useState<null | 'gift' | 'channelType' | 'sorting' | 'filters'>(null);
   const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>(getInitialGiftIds());
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1500]);
-  const [qtyRange, setQtyRange] = useState<[number, number]>([0, 100]);
-  const [onlyExactGift, setOnlyExactGift] = useState(false);
-  const [showUpgraded, setShowUpgraded] = useState(true);
+  
+  // Initialize price and quantity ranges from bounds or current filters
+  const getInitialPriceRange = (): [number, number] => {
+    if (currentFilters?.minPrice !== undefined && currentFilters?.maxPrice !== undefined) {
+      return [currentFilters.minPrice, currentFilters.maxPrice];
+    }
+    if (boundsData?.bounds) {
+      return [boundsData.bounds.min_price, boundsData.bounds.max_price];
+    }
+    return [0, 1500]; // fallback
+  };
+
+  const getInitialQtyRange = (): [number, number] => {
+    if (currentFilters?.minQuantity !== undefined && currentFilters?.maxQuantity !== undefined) {
+      return [currentFilters.minQuantity, currentFilters.maxQuantity];
+    }
+    if (boundsData?.bounds) {
+      return [boundsData.bounds.min_count, boundsData.bounds.max_count];
+    }
+    return [0, 100]; // fallback
+  };
+
+  const [priceRange, setPriceRange] = useState<[number, number]>(getInitialPriceRange());
+  const [qtyRange, setQtyRange] = useState<[number, number]>(getInitialQtyRange());
+  const [onlyExactGift, setOnlyExactGift] = useState(currentFilters?.onlyExactGift || false);
+  const [showUpgraded, setShowUpgraded] = useState(currentFilters?.showUpgraded ?? true);
 
   // Update filter states when currentFilters change
   useEffect(() => {
@@ -54,8 +92,28 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
       } else {
         setSelectedGiftIds([]);
       }
+
+      // Update price and quantity ranges
+      if (currentFilters.minPrice !== undefined && currentFilters.maxPrice !== undefined) {
+        setPriceRange([currentFilters.minPrice, currentFilters.maxPrice]);
+      }
+      if (currentFilters.minQuantity !== undefined && currentFilters.maxQuantity !== undefined) {
+        setQtyRange([currentFilters.minQuantity, currentFilters.maxQuantity]);
+      }
+      setOnlyExactGift(currentFilters.onlyExactGift || false);
+      setShowUpgraded(currentFilters.showUpgraded ?? true);
     }
   }, [currentFilters]);
+
+  // Update ranges when bounds data is loaded
+  useEffect(() => {
+    if (boundsData?.bounds && !currentFilters?.minPrice && !currentFilters?.maxPrice) {
+      setPriceRange([boundsData.bounds.min_price, boundsData.bounds.max_price]);
+    }
+    if (boundsData?.bounds && !currentFilters?.minQuantity && !currentFilters?.maxQuantity) {
+      setQtyRange([boundsData.bounds.min_count, boundsData.bounds.max_count]);
+    }
+  }, [boundsData, currentFilters]);
 
   // Helper function to get gift name by ID
   const getGiftNameById = (giftIds: string[]): string => {
@@ -93,6 +151,12 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
       gift: type === 'gift' ? selectedGiftIds : selectedGiftIds,
       channelType: type === 'channelType' ? value : channelTypeFilter,
       sorting: type === 'sorting' ? value : sortingFilter,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      minQuantity: qtyRange[0],
+      maxQuantity: qtyRange[1],
+      onlyExactGift,
+      showUpgraded,
     };
 
     if (type === 'gift') {
@@ -101,6 +165,22 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
     }
     if (type === 'channelType') setChannelTypeFilter(value);
     if (type === 'sorting') setSortingFilter(value);
+
+    onFilterChange?.(newFilters);
+  };
+
+  const handleAdvancedFilterChange = () => {
+    const newFilters = {
+      gift: selectedGiftIds,
+      channelType: channelTypeFilter,
+      sorting: sortingFilter,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      minQuantity: qtyRange[0],
+      maxQuantity: qtyRange[1],
+      onlyExactGift,
+      showUpgraded,
+    };
 
     onFilterChange?.(newFilters);
   };
@@ -314,13 +394,16 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                     <div className={e('range-track')} />
                     <div
                       className={e('range-progress')}
-                      style={{ left: `${(priceRange[0] / 2000) * 100}%`, right: `${100 - (priceRange[1] / 2000) * 100}%` }}
+                      style={{ 
+                        left: `${((priceRange[0] - (boundsData?.bounds?.min_price || 0)) / ((boundsData?.bounds?.max_price || 2000) - (boundsData?.bounds?.min_price || 0))) * 100}%`, 
+                        right: `${100 - ((priceRange[1] - (boundsData?.bounds?.min_price || 0)) / ((boundsData?.bounds?.max_price || 2000) - (boundsData?.bounds?.min_price || 0))) * 100}%` 
+                      }}
                     />
                     <input
                       className={e('range')}
                       type="range"
-                      min={0}
-                      max={2000}
+                      min={boundsData?.bounds?.min_price || 0}
+                      max={boundsData?.bounds?.max_price || 2000}
                       value={priceRange[0]}
                       onChange={(e)=> {
                         const nextMin = Math.min(Number(e.target.value), priceRange[1] - 1);
@@ -334,8 +417,8 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                     <input
                       className={e('range')}
                       type="range"
-                      min={0}
-                      max={2000}
+                      min={boundsData?.bounds?.min_price || 0}
+                      max={boundsData?.bounds?.max_price || 2000}
                       value={priceRange[1]}
                       onChange={(e)=> {
                         const nextMax = Math.max(Number(e.target.value), priceRange[0] + 1);
@@ -349,11 +432,15 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                   </div>
                   <div className={e('inputs-inline')}>
                     <input value={priceRange[0]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(2000, Number(e.target.value)));
+                      const minPrice = boundsData?.bounds?.min_price || 0;
+                      const maxPrice = boundsData?.bounds?.max_price || 2000;
+                      const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
                       setPriceRange([Math.min(val, priceRange[1] - 1), priceRange[1]]);
                     }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
                     <input value={priceRange[1]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(2000, Number(e.target.value)));
+                      const minPrice = boundsData?.bounds?.min_price || 0;
+                      const maxPrice = boundsData?.bounds?.max_price || 2000;
+                      const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
                       setPriceRange([priceRange[0], Math.max(val, priceRange[0] + 1)]);
                     }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
                   </div>
@@ -369,13 +456,16 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                     <div className={e('range-track')} />
                     <div
                       className={e('range-progress')}
-                      style={{ left: `${(qtyRange[0] / 200) * 100}%`, right: `${100 - (qtyRange[1] / 200) * 100}%` }}
+                      style={{ 
+                        left: `${((qtyRange[0] - (boundsData?.bounds?.min_count || 0)) / ((boundsData?.bounds?.max_count || 200) - (boundsData?.bounds?.min_count || 0))) * 100}%`, 
+                        right: `${100 - ((qtyRange[1] - (boundsData?.bounds?.min_count || 0)) / ((boundsData?.bounds?.max_count || 200) - (boundsData?.bounds?.min_count || 0))) * 100}%` 
+                      }}
                     />
                     <input
                       className={e('range')}
                       type="range"
-                      min={0}
-                      max={200}
+                      min={boundsData?.bounds?.min_count || 0}
+                      max={boundsData?.bounds?.max_count || 200}
                       value={qtyRange[0]}
                       onChange={(e)=> {
                         const nextMin = Math.min(Number(e.target.value), qtyRange[1] - 1);
@@ -389,8 +479,8 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                     <input
                       className={e('range')}
                       type="range"
-                      min={0}
-                      max={200}
+                      min={boundsData?.bounds?.min_count || 0}
+                      max={boundsData?.bounds?.max_count || 200}
                       value={qtyRange[1]}
                       onChange={(e)=> {
                         const nextMax = Math.max(Number(e.target.value), qtyRange[0] + 1);
@@ -404,17 +494,21 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                   </div>
                   <div className={e('inputs-inline')}>
                     <input value={qtyRange[0]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(200, Number(e.target.value)));
+                      const minCount = boundsData?.bounds?.min_count || 0;
+                      const maxCount = boundsData?.bounds?.max_count || 200;
+                      const val = Math.max(minCount, Math.min(maxCount, Number(e.target.value)));
                       setQtyRange([Math.min(val, qtyRange[1] - 1), qtyRange[1]]);
                     }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
                     <input value={qtyRange[1]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(200, Number(e.target.value)));
+                      const minCount = boundsData?.bounds?.min_count || 0;
+                      const maxCount = boundsData?.bounds?.max_count || 200;
+                      const val = Math.max(minCount, Math.min(maxCount, Number(e.target.value)));
                       setQtyRange([qtyRange[0], Math.max(val, qtyRange[0] + 1)]);
                     }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
                   </div>
                 </div>
 
-                <div className={e('panel')}>
+                <div className={e('card')}>
                   <label className={e('toggle-row')}>
                     <span style={{color: '#fff'}}>Only exact gift</span>
                     <input className={e('switch')} type="checkbox" checked={onlyExactGift} onChange={(e)=> setOnlyExactGift(e.target.checked)} />
@@ -426,8 +520,19 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                 </div>
 
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')}>Restart</button>
-                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>Search</button>
+                  <button className={e('btn-secondary')} onClick={() => {
+                    // Reset to bounds values
+                    if (boundsData?.bounds) {
+                      setPriceRange([boundsData.bounds.min_price, boundsData.bounds.max_price]);
+                      setQtyRange([boundsData.bounds.min_count, boundsData.bounds.max_count]);
+                    }
+                    setOnlyExactGift(false);
+                    setShowUpgraded(true);
+                  }}>Restart</button>
+                  <button className={e('btn-primary')} onClick={() => {
+                    handleAdvancedFilterChange();
+                    setOpenSheet(null);
+                  }}>Search</button>
                 </div>
               </div>
             )}

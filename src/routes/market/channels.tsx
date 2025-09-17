@@ -190,7 +190,7 @@ function ChannelsPage() {
     <>
       <MarketFilters 
         onFilterChange={handleFilterChange}
-        currentFilters={currentFilters}
+        currentFilters={currentFilters as any}
         gifts={gifts}
       />
 
