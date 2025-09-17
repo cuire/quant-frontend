@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer } from './api';
+import { getUser, updateLanguage, getChannels, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -27,6 +27,8 @@ export const queryKeys = {
     ['userActivity', page, limit] as const,
   userActivityInfinite: (limit: number) => 
     ['userActivityInfinite', limit] as const,
+  marketGifts: ['marketGifts'] as const,
+  marketGiftsInfinite: ['marketGiftsInfinite'] as const,
 };
 
 // User hooks
@@ -130,6 +132,35 @@ export const useGifts = () => {
   return useQuery({
     queryKey: queryKeys.gifts,
     queryFn: getGifts,
+  });
+};
+
+export const useMarketGifts = (
+  page = 1, 
+  limit = 20, 
+  filters: Record<string, any> = {}
+) => {
+  return useQuery({
+    queryKey: queryKeys.marketGifts,
+    queryFn: marketGetGifts,
+  });
+};
+
+export const useMarketGiftsInfinite = (
+  limit = 20,
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.marketGiftsInfinite,
+    queryFn: ({ pageParam = 1 }) => marketGetGifts(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than the limit, we've reached the end
+      if (lastPage.length < limit) {
+        return undefined;
+      }
+      return allPages.length + 1;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 

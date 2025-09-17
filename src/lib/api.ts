@@ -146,17 +146,8 @@ export async function updateLanguage(language: string): Promise<User> {
   });
 }
 
-// Channel functions
-export async function getChannels(
-  page = 1, 
-  limit = 20, 
-  filters: Record<string, any> = {}
-): Promise<Channel[]> {
+const filtersToUrlParams = (filters: Record<string, any>): URLSearchParams => {
   const params = new URLSearchParams();
-  params.append('page', page.toString());
-  params.append('limit', limit.toString());
-  
-  // Add filters
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== null && value !== undefined && value !== '') {
       if (Array.isArray(value)) {
@@ -169,9 +160,38 @@ export async function getChannels(
       }
     }
   });
+  return params;
+};
+
+
+
+// Channel functions
+export async function getChannels(
+  page = 1, 
+  limit = 20, 
+  filters: Record<string, any> = {}
+): Promise<Channel[]> {
+  let params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  params = new URLSearchParams([...filtersToUrlParams(filters), ...params]);
   
   const data = await request<{channels: Channel[]}>(`/channels?${params.toString()}`);
   return data.channels || [];
+}
+
+export async function marketGetGifts(
+  page = 1, 
+  limit = 20, 
+  filters: Record<string, any> = {}
+): Promise<Gift[]> {
+  let params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  params = new URLSearchParams([...filtersToUrlParams(filters), ...params]);
+
+  const data = await request<{gifts: Gift[]}>(`/market/gifts?${params.toString()}`);
+  return data.gifts || [];
 }
 
 export async function getUserChannels(): Promise<Channel[]> {

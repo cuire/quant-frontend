@@ -1,42 +1,88 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useGifts } from '@/lib/api-hooks';
+import { useMarketGiftsInfinite } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
+import { useEffect, useRef, useCallback } from 'react';
 
 export const Route = createFileRoute('/market/gifts')({
   component: GiftsPage,
 });
 
 function GiftsPage() {
-  const { data: gifts = [], isLoading, isError, error } = useGifts();
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  
+  // Use infinite query for gifts
+  const {
+    data: giftsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+  } = useMarketGiftsInfinite();
+
+  // Flatten all pages of gifts data
+  const gifts = giftsData?.pages.flat() || [];
+
+  // Wrapped fetchNextPage with logging
+  const wrappedFetchNextPage = useCallback(async () => {
+    try {
+      const result = await fetchNextPage();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, giftsData]);
+
+  // Intersection Observer for infinite scroll
+  const lastElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (isLoading) {
+      return;
+    }
+    
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+    
+    observerRef.current = new IntersectionObserver(entries => {
+      const entry = entries[0];
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        wrappedFetchNextPage();
+      };
+    }, {
+      threshold: 0.1,
+      rootMargin: '100px',
+    });
+    
+    if (node && observerRef.current) {
+      observerRef.current.observe(node);
+      
+      // Immediate check if element is already in viewport
+      setTimeout(() => {
+        const rect = node.getBoundingClientRect();
+        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        
+        if (isInViewport && hasNextPage && !isFetchingNextPage) {
+          wrappedFetchNextPage();
+        }
+      }, 100);
+    }
+  }, [isLoading, hasNextPage, isFetchingNextPage, wrappedFetchNextPage, gifts.length]);
+
+  // Cleanup observer on unmount
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
 
   return (
-    <div>
-      <div className="gifts-grid">
-      <Gift
-          key={1}
-          // items={channelGiftsArray.slice(0, 4).map((gift) => ({
-          //   id: gift.id.toString(),
-          //   name: gift.name,
-          //   icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
-          //   quantity: 1,
-          //   type: undefined
-          // }))}
-          items={[
-            {
-              id: '5170145012310081615',
-              name: 'Heart Locket',
-              icon: `https://FlowersRestricted.github.io/gifts/5170145012310081615/default.png`
-            }
-          ]}
-          title={"Heart Locket"}
-          price={Math.round(675)}
-          giftNumber='1'
-          action='buy-or-cart'
-        />
-      </div>
+    <div className="px-4 py-6">
       {/* Loading state */}
-      {isLoading ? (
+      {isLoading && gifts.length === 0 ? (
         <div className="gifts-grid">
           <Skeleton count={8} />
         </div>
@@ -53,26 +99,41 @@ function GiftsPage() {
           <p className="text-gray-400">Check back later for new gifts</p>
         </div>
       ) : (
-        <div className="gifts-grid">
-          {gifts.map((gift) => (
-            <div key={gift.id} className="gift-card">
-              <div className="gift-image">
-                <img 
-                  src={gift.image_url || '/placeholder-gift.svg'} 
-                  alt={gift.full_name}
-                  className="w-full h-full object-cover rounded-lg"
+        <>
+          <div className="gifts-grid">
+            {gifts.map((gift, index) => {
+              // Add ref to last element for infinite scroll
+              const isLastElement = index === gifts.length - 1;
+              const ref = isLastElement ? lastElementRef : undefined;
+              
+              return (
+                <Gift
+                  key={gift.id}
+                  ref={ref}
+                  items={[
+                    {
+                      id: gift.id.toString(),
+                      name: gift.full_name || gift.short_name || 'Unknown Gift',
+                      icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
+                      type: undefined
+                    }
+                  ]}
+                  title={gift.full_name || gift.short_name || 'Unknown Gift'}
+                  giftNumber={`#${gift.id}`}
+                  price={Math.round(gift.floor_price || 0)}
+                  action="buy-or-cart"
                 />
-              </div>
-              <div className="gift-info p-3">
-                <h3 className="font-semibold text-white mb-1">{gift.full_name}</h3>
-                <p className="text-sm text-gray-400">{gift.short_name}</p>
-                {gift.floor_price && (
-                  <p className="text-sm text-blue-400 mt-2">${gift.floor_price}</p>
-                )}
-              </div>
+              );
+            })}
+          </div>
+
+          {/* Loading indicator for next page */}
+          {isFetchingNextPage && (
+            <div className="gifts-grid">
+              <Skeleton count={4} />
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
