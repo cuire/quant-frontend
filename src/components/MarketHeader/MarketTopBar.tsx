@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { bem } from '@/css/bem.ts';
 import { useUser } from '@/lib/api-hooks';
 import { Link } from '../Link/Link';
-import { config } from '@/lib/config';
 import './MarketHeader.css';
+import guideIcon from '@/icons/fluent_style-guide-20-filled.svg';
 
 const [b, e] = bem('market-header');
 
@@ -44,10 +44,7 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
         ) : (
           <div className={e('telegram-badge')}>
             <div className={e('telegram-icon')}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 3C5.89543 3 5 3.89543 5 5V17C5 18.1046 5.89543 19 7 19H16C17.1046 19 18 18.1046 18 17V6C18 4.89543 17.1046 4 16 4H8.5L7 3Z" fill="white" opacity="0.9"/>
-                <path d="M9 7H15" stroke="#FF9F26" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
+              <img src={guideIcon} width={16} height={16} alt="" style={{marginTop: 4}} />
             </div>
             <Link className={e('telegram-text')} href={'/market/cart'}>Guide</Link>
             <div className={e('arrow')}>

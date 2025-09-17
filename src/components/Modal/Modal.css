@@ -141,7 +141,7 @@ body.modal-open {
 .market-header__row {
     display: flex;
     gap: 12px;
-    padding: 10px 16px;
+    padding: 10px 6px;
     align-items: center;
 }
 
@@ -158,7 +158,7 @@ body.modal-open {
 .market-header__row-title {
     color: #E7EEF7;
     font-weight: 590;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .market-header__row-note {
@@ -356,14 +356,12 @@ body.modal-open {
     flex-direction: row;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 2px;
 }
 
 .product-sheet__hold-time-icon {
-    width: 20px;
-    height: 20px;
-    background: #248BDA;
-    border-radius: 50%;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;

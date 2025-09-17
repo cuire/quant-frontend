@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import '@/components/MarketHeader/MarketHeader.css';
+import deleteIcon from '@/icons/fluent_delete-16-filled.svg';
 
 type CartItem = {
   id: string;
@@ -88,9 +89,7 @@ function CartPage() {
                 )}
               </button>
               <button className="cart-trash" onClick={() => setItems(prev => prev.filter(i => i.id !== item.id))} aria-label="Remove">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 7H18M9 7V5C9 4.44772 9.44772 4 10 4H14C14.5523 4 15 4.44772 15 5V7M19 7L18 19C17.9471 19.5304 17.5304 19.9471 17 20H7C6.46957 19.9471 6.05286 19.5304 6 19L5 7" stroke="#7F94AE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <img src={deleteIcon} width={16} height={16} alt="" />
               </button>
             </div>
           </div>

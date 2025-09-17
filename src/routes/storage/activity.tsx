@@ -8,6 +8,7 @@ import { StorageTabs } from '@/components/StorageTabs';
 import { MarketFilters } from '@/components/MarketHeader/MarketFilters';
 import { ActivityGroup } from '@/components/ActivityGroup';
 import { Activity } from '@/lib/api';
+import timeFill from '@/icons/time-fill.svg';
 import { useFilters } from '@/lib/filters';
 import './activity.css';
 
@@ -268,6 +269,7 @@ function ActivityPage() {
           onFilterChange={handleFilterChange}
           currentFilters={currentFilters}
           gifts={giftsData || []}
+          variant="activity"
         />
 
       {/* Activity Content */}
@@ -381,10 +383,7 @@ function ActivityPage() {
                 <div className="product-sheet__title-hold-time">
                   <span className="product-sheet__hold-time-label">Time to unhold:</span>
                   <span className="product-sheet__hold-time-value">{selected.holdTime}<div className="product-sheet__hold-time-icon">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
+                    <img src={timeFill} width={18} height={18} alt="" />
                   </div></span>
                 </div>
               )}

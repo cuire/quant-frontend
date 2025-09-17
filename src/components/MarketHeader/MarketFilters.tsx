@@ -2,6 +2,9 @@ import type { FC } from 'react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { bem } from '@/css/bem.ts';
+import dateFillIcon from '@/icons/date-fill.svg';
+import searchIcon from '@/icons/ic_outline-search.svg';
+import resetIcon from '@/icons/solar_restart-linear.svg';
 import type { Gift } from '@/lib/api';
 import { GiftIcon } from '@/components/GiftIcon';
 import './MarketHeader.css';
@@ -20,12 +23,19 @@ export interface MarketFiltersProps {
     sorting: string;
   };
   gifts?: Gift[];
+  /**
+   * When set to 'activity', the Filters sheet renders a simplified UI
+   * specific to the storage/activity page (Price + Date + View).
+   * Defaults to 'default' for all other pages.
+   */
+  variant?: 'default' | 'activity';
 }
 
 export const MarketFilters: FC<MarketFiltersProps> = ({ 
   onFilterChange,
   currentFilters,
-  gifts = []
+  gifts = [],
+  variant = 'default'
 }) => {
   // Parse current gift filter to get selected gift IDs
   const getInitialGiftIds = (): string[] => {
@@ -41,6 +51,9 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
   const [qtyRange, setQtyRange] = useState<[number, number]>([0, 100]);
   const [onlyExactGift, setOnlyExactGift] = useState(false);
   const [showUpgraded, setShowUpgraded] = useState(true);
+  // Activity variant local state (UI-only)
+  const [datePreset, setDatePreset] = useState<'7' | '14' | '30'>('7');
+  const [viewType, setViewType] = useState<'sell' | 'buy' | null>(null);
 
   // Update filter states when currentFilters change
   useEffect(() => {
@@ -222,11 +235,17 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                   })}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => { setSelectedGiftIds([]); }}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => { setSelectedGiftIds([]); }}>
+                    <img src={resetIcon} width={16} height={16} alt="" style={{ marginRight: 8 }} />
+                    Restart
+                  </button>
                   <button className={e('btn-primary')} onClick={() => { 
                     handleFilterChange('gift', selectedGiftIds.join(',')); 
                     setOpenSheet(null); 
-                  }}>Search</button>
+                  }}>
+                    <img src={searchIcon} width={16} height={16} alt="" style={{ marginRight: 8 }} />
+                    Search
+                  </button>
                 </div>
               </div>
             )}
@@ -268,8 +287,14 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                 ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => handleFilterChange('channelType', 'All')}>Restart</button>
-                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>Search</button>
+                  <button className={e('btn-secondary')} onClick={() => handleFilterChange('channelType', 'All')}>
+                    <img src={resetIcon} width={16} height={16} alt="" style={{ marginRight: 8 }} />
+                    Restart
+                  </button>
+                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>
+                    <img src={searchIcon} width={16} height={16} alt="" style={{ marginRight: 8 }} />
+                    Search
+                  </button>
                 </div>
               </div>
             )}
@@ -295,141 +320,250 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                 ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => handleFilterChange('sorting', 'date_new_to_old')}>Restart</button>
-                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>Search</button>
+                  <button className={e('btn-secondary')} onClick={() => handleFilterChange('sorting', 'date_new_to_old')}>
+                    <img src={resetIcon} width={16} height={16} alt="" style={{ marginRight: 8 }} />
+                    Restart
+                  </button>
+                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>
+                    <img src={searchIcon} width={16} height={16} alt="" style={{ marginRight: 8 }} />
+                    Search
+                  </button>
                 </div>
               </div>
             )}
 
             {openSheet === 'filters' && (
-              <div className={e('sheet-content')}>
-                <div className={e('card')}>
-                  <div className={e('card-header')}>
-                    <span className={e('card-icon')}>
-                      <svg width="14" height="14" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="#AFC0D4"/></svg>
-                    </span>
-                    <span className={e('card-title')}>Price</span>
+              variant === 'activity' ? (
+                <div className={e('sheet-content')}>
+                  <div className={e('card')}>
+                    <div className={e('card-header')}>
+                      <span className={e('card-icon')}>
+                        <svg width="14" height="14" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="#AFC0D4"/></svg>
+                      </span>
+                      <span className={e('card-title')}>Price</span>
+                    </div>
+                    <div className={e('range-wrap')}>
+                      <div className={e('range-track')} />
+                      <div
+                        className={e('range-progress')}
+                        style={{ left: `${(priceRange[0] / 2000) * 100}%`, right: `${100 - (priceRange[1] / 2000) * 100}%` }}
+                      />
+                      <input
+                        className={e('range')}
+                        type="range"
+                        min={0}
+                        max={2000}
+                        value={priceRange[0]}
+                        onChange={(ev)=> {
+                          const nextMin = Math.min(Number(ev.target.value), priceRange[1] - 1);
+                          setPriceRange([nextMin, priceRange[1]]);
+                        }}
+                      />
+                      <input
+                        className={e('range')}
+                        type="range"
+                        min={0}
+                        max={2000}
+                        value={priceRange[1]}
+                        onChange={(ev)=> {
+                          const nextMax = Math.max(Number(ev.target.value), priceRange[0] + 1);
+                          setPriceRange([priceRange[0], nextMax]);
+                        }}
+                      />
+                    </div>
+                    <div className={e('inputs-inline')}>
+                      <input value={priceRange[0]} onChange={(ev)=> {
+                        const val = Math.max(0, Math.min(2000, Number(ev.target.value)));
+                        setPriceRange([Math.min(val, priceRange[1] - 1), priceRange[1]]);
+                      }} placeholder="From" />
+                      <input value={priceRange[1]} onChange={(ev)=> {
+                        const val = Math.max(0, Math.min(2000, Number(ev.target.value)));
+                        setPriceRange([priceRange[0], Math.max(val, priceRange[0] + 1)]);
+                      }} placeholder="To" />
+                    </div>
                   </div>
-                  <div className={e('range-wrap')}>
-                    <div className={e('range-track')} />
-                    <div
-                      className={e('range-progress')}
-                      style={{ left: `${(priceRange[0] / 2000) * 100}%`, right: `${100 - (priceRange[1] / 2000) * 100}%` }}
-                    />
-                    <input
-                      className={e('range')}
-                      type="range"
-                      min={0}
-                      max={2000}
-                      value={priceRange[0]}
-                      onChange={(e)=> {
-                        const nextMin = Math.min(Number(e.target.value), priceRange[1] - 1);
-                        setPriceRange([nextMin, priceRange[1]]);
-                      }}
-                      onInput={(e)=> {
-                        const nextMin = Math.min(Number((e.target as HTMLInputElement).value), priceRange[1] - 1);
-                        setPriceRange([nextMin, priceRange[1]]);
-                      }}
-                    />
-                    <input
-                      className={e('range')}
-                      type="range"
-                      min={0}
-                      max={2000}
-                      value={priceRange[1]}
-                      onChange={(e)=> {
-                        const nextMax = Math.max(Number(e.target.value), priceRange[0] + 1);
-                        setPriceRange([priceRange[0], nextMax]);
-                      }}
-                      onInput={(e)=> {
-                        const nextMax = Math.max(Number((e.target as HTMLInputElement).value), priceRange[0] + 1);
-                        setPriceRange([priceRange[0], nextMax]);
-                      }}
-                    />
-                  </div>
-                  <div className={e('inputs-inline')}>
-                    <input value={priceRange[0]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(2000, Number(e.target.value)));
-                      setPriceRange([Math.min(val, priceRange[1] - 1), priceRange[1]]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
-                    <input value={priceRange[1]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(2000, Number(e.target.value)));
-                      setPriceRange([priceRange[0], Math.max(val, priceRange[0] + 1)]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
-                  </div>
-                </div>
-                <div className={e('card')}>
-                  <div className={e('card-header')}>
-                    <span className={e('card-icon')}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v2H4V7zm0 5h16v2H4v-2zm0 5h16v2H4v-2z" fill="#AFC0D4"/></svg>
-                    </span>
-                    <span className={e('card-title')}>Quantity</span>
-                  </div>
-                  <div className={e('range-wrap')}>
-                    <div className={e('range-track')} />
-                    <div
-                      className={e('range-progress')}
-                      style={{ left: `${(qtyRange[0] / 200) * 100}%`, right: `${100 - (qtyRange[1] / 200) * 100}%` }}
-                    />
-                    <input
-                      className={e('range')}
-                      type="range"
-                      min={0}
-                      max={200}
-                      value={qtyRange[0]}
-                      onChange={(e)=> {
-                        const nextMin = Math.min(Number(e.target.value), qtyRange[1] - 1);
-                        setQtyRange([nextMin, qtyRange[1]]);
-                      }}
-                      onInput={(e)=> {
-                        const nextMin = Math.min(Number((e.target as HTMLInputElement).value), qtyRange[1] - 1);
-                        setQtyRange([nextMin, qtyRange[1]]);
-                      }}
-                    />
-                    <input
-                      className={e('range')}
-                      type="range"
-                      min={0}
-                      max={200}
-                      value={qtyRange[1]}
-                      onChange={(e)=> {
-                        const nextMax = Math.max(Number(e.target.value), qtyRange[0] + 1);
-                        setQtyRange([qtyRange[0], nextMax]);
-                      }}
-                      onInput={(e)=> {
-                        const nextMax = Math.max(Number((e.target as HTMLInputElement).value), qtyRange[0] + 1);
-                        setQtyRange([qtyRange[0], nextMax]);
-                      }}
-                    />
-                  </div>
-                  <div className={e('inputs-inline')}>
-                    <input value={qtyRange[0]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(200, Number(e.target.value)));
-                      setQtyRange([Math.min(val, qtyRange[1] - 1), qtyRange[1]]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
-                    <input value={qtyRange[1]} onChange={(e)=> {
-                      const val = Math.max(0, Math.min(200, Number(e.target.value)));
-                      setQtyRange([qtyRange[0], Math.max(val, qtyRange[0] + 1)]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
-                  </div>
-                </div>
 
-                <div className={e('panel')}>
-                  <label className={e('toggle-row')}>
-                    <span style={{color: '#fff'}}>Only exact gift</span>
-                    <input className={e('switch')} type="checkbox" checked={onlyExactGift} onChange={(e)=> setOnlyExactGift(e.target.checked)} />
-                  </label>
-                  <label className={e('toggle-row')}>
-                    <span style={{color: '#fff'}}>Show with upgraded gifts</span>
-                    <input className={e('switch')} type="checkbox" checked={showUpgraded} onChange={(e)=> setShowUpgraded(e.target.checked)} />
-                  </label>
-                </div>
+                  <div className={e('card')}>
+                    <div className={e('card-header')}>
+                      <span className={e('card-icon')}>
+                        <img src={dateFillIcon} width={14} height={14} alt="" />
+                      </span>
+                      <span className={e('card-title')}>Date</span>
+                    </div>
+                    {[{v:'7', l:'Last 7 days'}, {v:'14', l:'Last 14 days'}, {v:'30', l:'Last 30 days'}].map(opt => (
+                      <label key={opt.v} className={e('row')}>
+                        <input type="radio" className={e('radio')} name="datePreset" checked={datePreset===opt.v as any} onChange={()=> setDatePreset(opt.v as '7'|'14'|'30')} />
+                        <div className={e('row-main')}>
+                          <div className={e('row-title')}>{opt.l}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
 
-                <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')}>Restart</button>
-                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>Search</button>
+                  <div className={e('card')}>
+                    <div className={e('card-header')}>
+                      <span className={e('card-icon')}>
+                        <img src={dateFillIcon} width={14} height={14} alt="" />
+                      </span>
+                      <span className={e('card-title')}>View</span>
+                    </div>
+                    {[{v:'sell', l:'Sell'}, {v:'buy', l:'Buy'}].map(opt => (
+                      <label key={opt.v} className={e('row')}>
+                        <input type="radio" className={e('radio')} name="viewType" checked={viewType===opt.v} onChange={()=> setViewType(opt.v as 'sell'|'buy')} />
+                        <div className={e('row-main')}>
+                          <div className={e('row-title')}>{opt.l}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className={e('sheet-footer')}>
+                    <button className={e('btn-secondary')} onClick={() => { setPriceRange([0,1500]); setDatePreset('7'); setViewType(null); }}>
+                      <img src={resetIcon} width={16} height={16} alt="" style={{ marginRight: 4 }} />
+                      Reset
+                    </button>
+                    <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>
+                      <img src={searchIcon} width={16} height={16} alt="" style={{ marginRight: 4 }} />
+                      Search
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className={e('sheet-content')}>
+                  <div className={e('card')}>
+                    <div className={e('card-header')}>
+                      <span className={e('card-icon')}>
+                        <svg width="14" height="14" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="#AFC0D4"/></svg>
+                      </span>
+                      <span className={e('card-title')}>Price</span>
+                    </div>
+                    <div className={e('range-wrap')}>
+                      <div className={e('range-track')} />
+                      <div
+                        className={e('range-progress')}
+                        style={{ left: `${(priceRange[0] / 2000) * 100}%`, right: `${100 - (priceRange[1] / 2000) * 100}%` }}
+                      />
+                      <input
+                        className={e('range')}
+                        type="range"
+                        min={0}
+                        max={2000}
+                        value={priceRange[0]}
+                        onChange={(e)=> {
+                          const nextMin = Math.min(Number(e.target.value), priceRange[1] - 1);
+                          setPriceRange([nextMin, priceRange[1]]);
+                        }}
+                        onInput={(e)=> {
+                          const nextMin = Math.min(Number((e.target as HTMLInputElement).value), priceRange[1] - 1);
+                          setPriceRange([nextMin, priceRange[1]]);
+                        }}
+                      />
+                      <input
+                        className={e('range')}
+                        type="range"
+                        min={0}
+                        max={2000}
+                        value={priceRange[1]}
+                        onChange={(e)=> {
+                          const nextMax = Math.max(Number(e.target.value), priceRange[0] + 1);
+                          setPriceRange([priceRange[0], nextMax]);
+                        }}
+                        onInput={(e)=> {
+                          const nextMax = Math.max(Number((e.target as HTMLInputElement).value), priceRange[0] + 1);
+                          setPriceRange([priceRange[0], nextMax]);
+                        }}
+                      />
+                    </div>
+                    <div className={e('inputs-inline')}>
+                      <input value={priceRange[0]} onChange={(e)=> {
+                        const val = Math.max(0, Math.min(2000, Number(e.target.value)));
+                        setPriceRange([Math.min(val, priceRange[1] - 1), priceRange[1]]);
+                      }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
+                      <input value={priceRange[1]} onChange={(e)=> {
+                        const val = Math.max(0, Math.min(2000, Number(e.target.value)));
+                        setPriceRange([priceRange[0], Math.max(val, priceRange[0] + 1)]);
+                      }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
+                    </div>
+                  </div>
+                  <div className={e('card')}>
+                    <div className={e('card-header')}>
+                      <span className={e('card-icon')}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v2H4V7zm0 5h16v2H4v-2zm0 5h16v2H4v-2z" fill="#AFC0D4"/></svg>
+                      </span>
+                      <span className={e('card-title')}>Quantity</span>
+                    </div>
+                    <div className={e('range-wrap')}>
+                      <div className={e('range-track')} />
+                      <div
+                        className={e('range-progress')}
+                        style={{ left: `${(qtyRange[0] / 200) * 100}%`, right: `${100 - (qtyRange[1] / 200) * 100}%` }}
+                      />
+                      <input
+                        className={e('range')}
+                        type="range"
+                        min={0}
+                        max={200}
+                        value={qtyRange[0]}
+                        onChange={(e)=> {
+                          const nextMin = Math.min(Number(e.target.value), qtyRange[1] - 1);
+                          setQtyRange([nextMin, qtyRange[1]]);
+                        }}
+                        onInput={(e)=> {
+                          const nextMin = Math.min(Number((e.target as HTMLInputElement).value), qtyRange[1] - 1);
+                          setQtyRange([nextMin, qtyRange[1]]);
+                        }}
+                      />
+                      <input
+                        className={e('range')}
+                        type="range"
+                        min={0}
+                        max={200}
+                        value={qtyRange[1]}
+                        onChange={(e)=> {
+                          const nextMax = Math.max(Number(e.target.value), qtyRange[0] + 1);
+                          setQtyRange([qtyRange[0], nextMax]);
+                        }}
+                        onInput={(e)=> {
+                          const nextMax = Math.max(Number((e.target as HTMLInputElement).value), qtyRange[0] + 1);
+                          setQtyRange([qtyRange[0], nextMax]);
+                        }}
+                      />
+                    </div>
+                    <div className={e('inputs-inline')}>
+                      <input value={qtyRange[0]} onChange={(e)=> {
+                        const val = Math.max(0, Math.min(200, Number(e.target.value)));
+                        setQtyRange([Math.min(val, qtyRange[1] - 1), qtyRange[1]]);
+                      }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
+                      <input value={qtyRange[1]} onChange={(e)=> {
+                        const val = Math.max(0, Math.min(200, Number(e.target.value)));
+                        setQtyRange([qtyRange[0], Math.max(val, qtyRange[0] + 1)]);
+                      }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
+                    </div>
+                  </div>
+
+                  <div className={e('card')}>
+                    <label className={e('toggle-row')}>
+                      <span style={{color: '#fff'}}>Only exact gift</span>
+                      <input className={e('switch')} type="checkbox" checked={onlyExactGift} onChange={(e)=> setOnlyExactGift(e.target.checked)} />
+                    </label>
+                    <label className={e('toggle-row')}>
+                      <span style={{color: '#fff'}}>Show with upgraded gifts</span>
+                      <input className={e('switch')} type="checkbox" checked={showUpgraded} onChange={(e)=> setShowUpgraded(e.target.checked)} />
+                    </label>
+                  </div>
+
+                  <div className={e('sheet-footer')}>
+                    <button className={e('btn-secondary')}>
+                      <img src={resetIcon} width={16} height={16} alt="" style={{ marginRight: 4 }} />
+                      Restart
+                    </button>
+                    <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>
+                      <img src={searchIcon} width={16} height={16} alt="" style={{ marginRight: 4 }} />
+                      Search
+                    </button>
+                  </div>
+                </div>
+              )
             )}
           </div>
         </div>,

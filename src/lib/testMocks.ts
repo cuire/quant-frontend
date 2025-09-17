@@ -31,3 +31,4 @@ export async function testMockActivity() {
 if (import.meta.env.DEV) {
   testMockActivity();
 }
+
