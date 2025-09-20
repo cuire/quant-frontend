@@ -25,7 +25,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
   const [backgroundFilter, setBackgroundFilter] = useState(currentFilters?.background || 'All');
   const [sortingFilter, setSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
   const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>([]);
-  const [openSheet, setOpenSheet] = useState<null | 'collection' | 'filters'>(null);
+  const [openSheet, setOpenSheet] = useState<null | 'collection' | 'filters' | 'model' | 'background'>(null);
 
   // Update filter states when currentFilters change
   useEffect(() => {
@@ -45,12 +45,6 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
       return gift ? (gift.short_name || gift.full_name) : 'All';
     }
     return `${giftIds.length} gifts selected`;
-  };
-
-  // Helper function to get display name for collection
-  const getCollectionDisplay = (value: string): string => {
-    if (value === 'All') return 'All';
-    return value;
   };
 
   // Helper function to get display name for model

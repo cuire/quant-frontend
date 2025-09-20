@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { Gift } from '@/components/Gift';
 import { Skeleton } from '@/components/Skeleton';
 import { MarketFilters } from '@/components/MarketHeader';
