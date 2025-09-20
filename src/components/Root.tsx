@@ -1,5 +1,6 @@
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { QueryClientProvider } from '@tanstack/react-query';
+// import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import { App } from '@/components/App.tsx';
 import { ErrorBoundary } from '@/components/ErrorBoundary.tsx';
@@ -25,14 +26,17 @@ function ErrorBoundaryError({ error }: { error: unknown }) {
 
 export function Root() {
   return (
-    <ErrorBoundary fallback={ErrorBoundaryError}>
-      <QueryClientProvider client={queryClient}>
-        <TonConnectUIProvider
-          manifestUrl={publicUrl('tonconnect-manifest.json')}
-        >
-          <App/>
-        </TonConnectUIProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <>
+      <ErrorBoundary fallback={ErrorBoundaryError}>
+        <QueryClientProvider client={queryClient}>
+          <TonConnectUIProvider
+            manifestUrl={publicUrl('tonconnect-manifest.json')}
+          >
+            <App/>
+          </TonConnectUIProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+      {/* <TanStackDevtools /> */}
+    </>
   );
 }

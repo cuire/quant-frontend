@@ -13,6 +13,8 @@
     "predeploy": "npm run build"
   },
   "dependencies": {
+    "@tanstack/devtools-vite": "^0.3.3",
+    "@tanstack/react-devtools": "^0.7.0",
     "@tanstack/react-query": "^5.85.5",
     "@tanstack/react-router": "^1.131.28",
     "@tanstack/router-vite-plugin": "^1.131.28",

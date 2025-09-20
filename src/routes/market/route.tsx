@@ -3,13 +3,16 @@ import { createFileRoute, Link, Outlet, useLocation, redirect } from '@tanstack/
 import { useEffect } from 'react';
 
 export const Route = createFileRoute('/market')({
-  beforeLoad: () => {
-    // Get the last opened tab from localStorage, default to channels
-    const lastTab = localStorage.getItem('market-last-tab') || 'channels';
-    const defaultPath = `/market/${lastTab}`;
-    
-    // Redirect to the last opened tab or channels by default
-    throw redirect({ to: defaultPath });
+  beforeLoad: ({ location }) => {
+    // Only redirect if we're exactly on /market (not on a sub-route)
+    if (location.pathname === '/market') {
+      // Get the last opened tab from localStorage, default to channels
+      const lastTab = localStorage.getItem('market-last-tab') || 'channels';
+      const defaultPath = `/market/${lastTab}`;
+      
+      // Redirect to the last opened tab or channels by default
+      throw redirect({ to: defaultPath });
+    }
   },
   component: MarketIndexPage,
 });
