@@ -64,9 +64,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
     }
     return `${giftIds.length} gifts selected`;
   };
-
   // removed unused getCollectionDisplay
-
   // Helper function to get display name for model
   const getModelDisplay = (value: string): string => {
     if (value === 'All') return 'All';
