@@ -119,15 +119,38 @@ function PlacedOffersPage() {
       }}>
         {allOffers.map((offer, index) => {
           // Convert gifts_data to items format for Gift component
-          const items = Object.entries(offer.gifts_data || {}).map(([giftId, quantity]) => {
-            const giftData = giftsMap.get(giftId);
-            return {
-              id: giftId,
-              name: giftData?.full_name || `Gift ${giftId}`,
-              icon: giftData?.image_url || '/placeholder-gift.svg',
-              quantity: quantity as number
-            };
-          });
+          const items = [];
+          
+          if (offer.gifts_data) {
+            // Check if gifts_data has upgraded structure at root level
+            if ('upgraded' in offer.gifts_data && typeof offer.gifts_data === 'object') {
+              // Structure: { upgraded: { modelId: [backdropIds] } }
+              for (const [modelId, backdropIds] of Object.entries(offer.gifts_data.upgraded || {})) {
+                const gift = giftsMap.get(modelId);
+                items.push({
+                  id: modelId,
+                  name: gift?.full_name || `Gift ${modelId}`,
+                  icon: gift?.image_url || '/placeholder-gift.svg',
+                  quantity: backdropIds.length,
+                  type: 'nft' as const // Add NFT tag for upgraded gifts
+                });
+              }
+            } else {
+              // Simple structure: { giftId: quantity }
+              for (const [giftId, quantity] of Object.entries(offer.gifts_data)) {
+                if (typeof quantity === 'number') {
+                  const gift = giftsMap.get(giftId);
+                  items.push({
+                    id: giftId,
+                    name: gift?.full_name || `Gift ${giftId}`,
+                    icon: gift?.image_url || '/placeholder-gift.svg',
+                    quantity: quantity,
+                    type: 'item' as const
+                  });
+                }
+              }
+            }
+          }
 
           const title = generateChannelTitle(items);
           const timeEnd = offer.expires_at ? new Date(offer.expires_at).toLocaleTimeString('en-US', { 

@@ -72,10 +72,30 @@ export interface Gift {
   count: number;
 }
 
+export interface MarketGift {
+  slug: string;
+  gift_id: string;
+  model_id: number;
+  backdrop_id: number;
+  symbol_id: number;
+  price: number;
+  my_gift: boolean;
+  pre_market_until: string | null;
+  gift_frozen_until: string | null;
+  type: string;
+  model_floor: number;
+  backdrop_floor: number;
+  symbol_floor: number;
+  model_backdrops_floor: Record<string, any>;
+  model_symbols_floor: Record<string, any>;
+}
+
 export interface Offer {
   id: number;
   channel_id: number;
-  gifts_data?: Record<string, number>;
+  gifts_data?: Record<string, number> | {
+    upgraded?: Record<string, string[]>;
+  };
   channel_price: number;
   channel_stars: number;
   price: number;
@@ -212,13 +232,13 @@ export async function marketGetGifts(
   page = 1, 
   limit = 20, 
   filters: Record<string, any> = {}
-): Promise<Gift[]> {
+): Promise<MarketGift[]> {
   let params = new URLSearchParams();
   params.append('page', page.toString());
   params.append('limit', limit.toString());
   params = new URLSearchParams([...filtersToUrlParams(filters), ...params]);
 
-  const data = await request<{gifts: Gift[]}>(`/market/gifts?${params.toString()}`);
+  const data = await request<{gifts: MarketGift[]}>(`/market/gifts?${params.toString()}`);
   return data.gifts || [];
 }
 

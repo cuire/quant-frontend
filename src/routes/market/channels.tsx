@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { Gift } from '@/components/Gift';
 import { Skeleton } from '@/components/Skeleton';
 import { MarketFilters } from '@/components/MarketHeader';
@@ -216,15 +216,37 @@ function ChannelsPage() {
                   {channels.map((channel, index) => {
                     const channelGifts = channel.gifts || {};
                     
-                    const channelGiftsArray = Object.entries(channelGifts).map(([gift_id, quantity]) => {
-                      const foundGift = gifts.find((gift) => gift.id === gift_id);
-                      
-                      return {
-                        id: gift_id,
-                        name: foundGift?.short_name || foundGift?.full_name || 'Unknown',
-                        quantity: quantity
-                      };
-                    });
+                    // Convert gifts to array format, handling both simple and upgraded structures
+                    const channelGiftsArray = [];
+                    
+                    if (channelGifts) {
+                      // Check if gifts has upgraded structure at root level
+                      if ('upgraded' in channelGifts && typeof channelGifts === 'object') {
+                        // Structure: { upgraded: { modelId: [backdropIds] } }
+                        for (const [modelId, backdropIds] of Object.entries(channelGifts.upgraded || {})) {
+                          const foundGift = gifts.find((gift) => gift.id === modelId);
+                          channelGiftsArray.push({
+                            id: modelId,
+                            name: foundGift?.short_name || foundGift?.full_name || 'Unknown',
+                            quantity: backdropIds.length,
+                            type: 'nft' as const
+                          });
+                        }
+                      } else {
+                        // Simple structure: { giftId: quantity }
+                        for (const [gift_id, quantity] of Object.entries(channelGifts)) {
+                          if (typeof quantity === 'number') {
+                            const foundGift = gifts.find((gift) => gift.id === gift_id);
+                            channelGiftsArray.push({
+                              id: gift_id,
+                              name: foundGift?.short_name || foundGift?.full_name || 'Unknown',
+                              quantity: quantity,
+                              type: 'item' as const
+                            });
+                          }
+                        }
+                      }
+                    }
 
                     const generateChannelTitle = (gifts: any[], isModal = false) => {
                       if (!gifts || gifts.length === 0) return "Empty Channel";
@@ -267,8 +289,8 @@ function ChannelsPage() {
                           id: gift.id.toString(),
                           name: gift.name,
                           icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
-                          quantity: 1,
-                          type: undefined
+                          quantity: gift.quantity,
+                          type: gift.type
                         }))}
                         title={title}
                         giftNumber={`#${channel.id}`}

@@ -127,19 +127,19 @@ function GiftsPage() {
               
               return (
                 <Gift
-                  key={gift.id}
+                  key={gift.gift_id}
                   ref={ref}
                   items={[
                     {
-                      id: gift.id.toString(),
-                      name: gift.full_name || gift.short_name || 'Unknown Gift',
-                      icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
+                      id: gift.gift_id.toString(),
+                      name: gift.slug || 'Unknown Gift',
+                      icon: `https://FlowersRestricted.github.io/gifts/${gift.gift_id}/default.png`,
                       type: undefined
                     }
                   ]}
-                  title={gift.full_name || gift.short_name || 'Unknown Gift'}
-                  giftNumber={`#${gift.id}`}
-                  price={Math.round(Number(gift.floor_price) || 0)}
+                  title={gift.slug || 'Unknown Gift'}
+                  giftNumber={`#${gift.gift_id}`}
+                  price={Math.round(Number(gift.price) || 0)}
                   action="buy-or-cart"
                 />
               );
