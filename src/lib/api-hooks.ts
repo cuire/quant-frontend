@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
+import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -33,6 +33,14 @@ export const queryKeys = {
     ['marketGifts', page, limit, filters] as const,
   marketGiftsInfinite: (limit: number, filters?: Record<string, any>) => 
     ['marketGiftsInfinite', limit, filters] as const,
+  activityGifts: (page: number, limit: number, filters?: Record<string, any>) => 
+    ['activityGifts', page, limit, filters] as const,
+  activityGiftsInfinite: (limit: number, filters?: Record<string, any>) => 
+    ['activityGiftsInfinite', limit, filters] as const,
+  activityChannels: (page: number, limit: number, filters?: Record<string, any>) => 
+    ['activityChannels', page, limit, filters] as const,
+  activityChannelsInfinite: (limit: number, filters?: Record<string, any>) => 
+    ['activityChannelsInfinite', limit, filters] as const,
 };
 
 // User hooks
@@ -295,6 +303,67 @@ export const useUserActivityInfinite = (
     getNextPageParam: (lastPage, allPages) => {
       // If we got fewer items than the limit, we've reached the end
       if (lastPage.activities.length < limit) {
+        return undefined;
+      }
+      return allPages.length + 1;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// New activity hooks for split backend
+export const useActivityGifts = (
+  page = 1, 
+  limit = 20, 
+  filters: Record<string, any> = {}
+) => {
+  return useQuery({
+    queryKey: queryKeys.activityGifts(page, limit, filters),
+    queryFn: () => getActivityGifts(page, limit, filters),
+  });
+};
+
+export const useActivityGiftsInfinite = (
+  limit = 20,
+  filters: Record<string, any> = {}
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.activityGiftsInfinite(limit, filters),
+    queryFn: ({ pageParam = 1 }) => getActivityGifts(pageParam, limit, filters),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than the limit, we've reached the end
+      if (lastPage.length < limit || lastPage.length === 0) {
+        return undefined;
+      }
+      return allPages.length + 1;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+export const useActivityChannels = (
+  page = 1, 
+  limit = 20, 
+  filters: Record<string, any> = {}
+) => {
+  return useQuery({
+    queryKey: queryKeys.activityChannels(page, limit, filters),
+    queryFn: () => getActivityChannels(page, limit, filters),
+  });
+};
+
+export const useActivityChannelsInfinite = (
+  limit = 20,
+  filters: Record<string, any> = {}
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.activityChannelsInfinite(limit, filters),
+    queryFn: ({ pageParam = 1 }) => getActivityChannels(pageParam, limit, filters),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than the limit, we've reached the end
+      if (lastPage.length < limit || lastPage.length === 0) {
         return undefined;
       }
       return allPages.length + 1;

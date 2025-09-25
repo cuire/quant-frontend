@@ -1,6 +1,7 @@
 import { MarketTopBar } from '@/components/MarketHeader';
 import { createFileRoute, Link, Outlet, useLocation, redirect } from '@tanstack/react-router';
 import { useEffect } from 'react';
+import { useLastTab } from '@/hooks/useLastTab';
 
 export const Route = createFileRoute('/market')({
   beforeLoad: ({ location }) => {
@@ -19,14 +20,15 @@ export const Route = createFileRoute('/market')({
 
 function MarketIndexPage() {
   const location = useLocation();
+  const [, setLastTab] = useLastTab('market-last-tab', 'channels');
 
   // Save the current tab to localStorage when it changes
   useEffect(() => {
     const currentTab = location.pathname.split('/').pop();
     if (currentTab && ['gifts', 'channels', 'stickers'].includes(currentTab)) {
-      localStorage.setItem('market-last-tab', currentTab);
+      setLastTab(currentTab);
     }
-  }, [location.pathname]);
+  }, [location.pathname, setLastTab]);
 
   return (
     <> 

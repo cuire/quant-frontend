@@ -1,106 +1,38 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { MarketTopBar } from '@/components/MarketHeader';
-import { useActivityInfinite, useGifts } from '@/lib/api-hooks';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useActivityChannelsInfinite, useGifts } from '@/lib/api-hooks';
+import { channelFiltersSearchSchema, useFilters } from '@/lib/filters';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { z } from 'zod';
 
-// Search params schema for activity page
-const searchSchema = z.object({
-  limit: z.number().default(20),
-  only_exact_gift: z.boolean().default(false),
-  show_upgraded_gifts: z.boolean().default(true),
-  gift_id: z.array(z.string()).optional(),
-  type: z.enum(['fast', 'waiting']).optional(),
-  min_price: z.string().optional(),
-  max_price: z.string().optional(),
-  min_qty: z.string().optional(),
-  max_qty: z.string().optional(),
-});
+// Reuse market channels search schema
+const searchSchema = channelFiltersSearchSchema;
 
-export const Route = createFileRoute('/activity')({
+export const Route = createFileRoute('/activity/channels')({
   validateSearch: searchSchema,
-  component: ActivityPage,
+  component: ActivityChannelsPage,
 });
 
-function ActivityPage() {
+function ActivityChannelsPage() {
   const search = Route.useSearch();
-  // const navigate = Route.useNavigate(); // Removed as it's no longer needed
+  const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
+  
+  const { apiFilters } = useFilters(search, navigate);
 
-  // Add shimmer animation styles
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes shimmer {
-        0% {
-          left: -100%;
-        }
-        100% {
-          left: 100%;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-  // Use infinite query for activity
   const {
-    data: activityData,
+    data: activitiesData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isLoading,
     isError,
-    error
-  } = useActivityInfinite(
-    search.limit,
-    search.only_exact_gift,
-    search.show_upgraded_gifts
-  );
+    error,
+  } = useActivityChannelsInfinite(search.limit, apiFilters);
 
-  // Use regular query for gifts
   const { data: gifts = [] } = useGifts();
 
-  // Intersection Observer for infinite scroll
-  const lastElementRef = useCallback((node: HTMLDivElement | null) => {
-    if (isLoading) return;
-    
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-    
-    observerRef.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    }, {
-      threshold: 0.1, // Trigger when 10% of the element is visible
-      rootMargin: '100px', // Start loading 100px before the element comes into view
-    });
-    
-    if (node && observerRef.current) {
-      observerRef.current.observe(node);
-    }
-  }, [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  // Cleanup observer on unmount
-  useEffect(() => {
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, []);
-
-  // Flatten all pages of activity data
-  const activities = activityData?.pages.flat() || [];
-
-  // Removed handleFilterChange as it's no longer needed
+  const activities = activitiesData?.pages.flat() || [];
 
   const [selected, setSelected] = useState<null | {
     title: string;
@@ -108,6 +40,60 @@ function ActivityPage() {
     price: number;
     items: { id: string; name: string; icon: string; quantity: number }[];
   }>(null);
+
+  useEffect(() => {
+    if (activities.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [search.sort_by, search.gift_id, search.type, search.min_price, search.max_price, search.min_qty, search.max_qty]);
+
+  const wrappedFetchNextPage = useCallback(async () => {
+    try {
+      const result = await fetchNextPage();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, activitiesData]);
+
+  const lastElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (isLoading) {
+      return;
+    }
+    
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+    
+    observerRef.current = new IntersectionObserver(entries => {
+      const entry = entries[0];
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        wrappedFetchNextPage();
+      }
+    }, {
+      threshold: 0.1,
+      rootMargin: '100px',
+    });
+    
+    if (node && observerRef.current) {
+      observerRef.current.observe(node);
+      setTimeout(() => {
+        const rect = node.getBoundingClientRect();
+        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        if (isInViewport && hasNextPage && !isFetchingNextPage) {
+          wrappedFetchNextPage();
+        }
+      }, 100);
+    }
+  }, [isLoading, hasNextPage, isFetchingNextPage, wrappedFetchNextPage, activities.length]);
+
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
 
   // Helper function to format date
   const formatDate = (dateString: string) => {
@@ -145,7 +131,7 @@ function ActivityPage() {
         <div className="px-4 py-6">
           <div className="text-center py-16">
             <div className="text-6xl mb-4">😔</div>
-            <h3 className="text-xl font-semibold mb-2">Error loading activity</h3>
+            <h3 className="text-xl font-semibold mb-2">Error loading activity channels</h3>
             <p className="text-gray-400">{error?.message || 'Something went wrong'}</p>
           </div>
         </div>
@@ -157,7 +143,7 @@ function ActivityPage() {
     <div style={{ minHeight: '100vh', background: '#1A2026', color: '#E7EEF7', paddingBottom: 80 }}>
       <MarketTopBar />
 
-      {/* Activity Content */}
+      {/* Activity Channels Content */}
       <div className="px-4 py-6">
         {/* Loading state */}
         {isLoading && activities.length === 0 ? (
@@ -187,7 +173,7 @@ function ActivityPage() {
             {activities.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">😔</div>
-                <h3 className="text-xl font-semibold mb-2">No activity found</h3>
+                <h3 className="text-xl font-semibold mb-2">No activity channels found</h3>
                 <p className="text-gray-400">Try adjusting your filters</p>
               </div>
             ) : (
@@ -198,71 +184,71 @@ function ActivityPage() {
                     const isLastElement = index === activities.length - 1;
                     const ref = isLastElement ? lastElementRef : undefined;
 
-                                         return (
-                       <div 
-                         key={activity.id} 
-                         ref={ref}
-                         className="activity-item" 
-                         onClick={() => {
-                           // Create items array from gifts_data
-                           let items: { id: string; name: string; icon: string; quantity: number }[] = [];
-                           if (activity.gifts_data?.upgraded) {
-                            items = Object.entries(activity.gifts_data.upgraded).map(([giftId, channelIds]) => ({
-                              id: giftId,
-                              name: getGiftNameById(giftId),
-                              icon: getGiftIconById(giftId),
-                              quantity: channelIds.length
-                            }));
-                          } else {
-                            items = Object.entries(activity.gifts_data ?? {}).map(([giftId, quantity]) => ({
-                              id: giftId,
-                              name: getGiftNameById(giftId),
-                              icon: getGiftIconById(giftId),
-                              quantity: quantity as any,
-                            }));
+                    return (
+                      <div 
+                        key={activity.id} 
+                        ref={ref}
+                        className="activity-item" 
+                        onClick={() => {
+                          // Create items array from gifts_data
+                          let items: { id: string; name: string; icon: string; quantity: number }[] = [];
+                          if (activity.gifts_data?.upgraded) {
+                           items = Object.entries(activity.gifts_data.upgraded).map(([giftId, channelIds]) => ({
+                             id: giftId,
+                             name: getGiftNameById(giftId),
+                             icon: getGiftIconById(giftId),
+                             quantity: channelIds.length
+                           }));
+                         } else {
+                           items = Object.entries(activity.gifts_data ?? {}).map(([giftId, quantity]) => ({
+                             id: giftId,
+                             name: getGiftNameById(giftId),
+                             icon: getGiftIconById(giftId),
+                             quantity: quantity as any,
+                           }));
+                         }
+                          
+                          if (items.length > 0) {
+                            setSelected({ 
+                              title: getGiftNameById(activity.gift_id), 
+                              giftNumber: `#${activity.channel_id}`, 
+                              price: activity.amount, 
+                              items: items 
+                            });
                           }
-                           
-                           if (items.length > 0) {
-                             setSelected({ 
-                               title: getGiftNameById(activity.gift_id), 
-                               giftNumber: `#${activity.channel_id}`, 
-                               price: activity.amount, 
-                               items: items 
-                             });
-                           }
-                         }}
-                       >
-                         <div className="activity-icon">
-                           <img 
-                             src={getGiftIconById(activity.gift_id)} 
-                             alt={getGiftNameById(activity.gift_id)} 
-                             onError={(e) => {
-                               (e.currentTarget as HTMLImageElement).src = '/placeholder-gift.svg';
-                             }} 
-                           />
-                         </div>
-                         <div className="activity-main">
-                           <div className="activity-title-row">
-                             <div className="activity-title">{getGiftNameById(activity.gift_id)}</div>
-                           </div>
-                           <div className="activity-sub">Channel #{activity.channel_id}</div>
-                         </div>
-                         <div className="activity-center">
-                           {activity.is_upgraded && (
-                            <span className="activity-badge activity-badge--nft">NFTs</span>
-                           )}
-                           {activity.type === 'purchase' && (
-                            <span className="activity-badge activity-badge--purchase">{activity.type}</span>
-                           )}
-                         </div>
-                         <div className="activity-right">
-                           <div className="activity-price">
-                              {activity.amount} TON
-                           </div>
-                           <div className="activity-time">{formatDate(activity.created_at)}</div>
-                         </div>
-                       </div>
-                     );
+                        }}
+                      >
+                        <div className="activity-icon">
+                          <img 
+                            src={getGiftIconById(activity.gift_id)} 
+                            alt={getGiftNameById(activity.gift_id)} 
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = '/placeholder-gift.svg';
+                            }} 
+                          />
+                        </div>
+                        <div className="activity-main">
+                          <div className="activity-title-row">
+                            <div className="activity-title">{getGiftNameById(activity.gift_id)}</div>
+                          </div>
+                          <div className="activity-sub">Channel #{activity.channel_id}</div>
+                        </div>
+                        <div className="activity-center">
+                          {activity.is_upgraded && (
+                           <span className="activity-badge activity-badge--nft">NFTs</span>
+                          )}
+                          {activity.type === 'purchase' && (
+                           <span className="activity-badge activity-badge--purchase">{activity.type}</span>
+                          )}
+                        </div>
+                        <div className="activity-right">
+                          <div className="activity-price">
+                             {activity.amount} TON
+                          </div>
+                          <div className="activity-time">{formatDate(activity.created_at)}</div>
+                        </div>
+                      </div>
+                    );
                   })}
                 </div>
 
@@ -345,4 +331,5 @@ function ActivityPage() {
     </div>
   );
 }
+
 

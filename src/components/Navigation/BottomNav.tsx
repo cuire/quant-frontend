@@ -1,6 +1,7 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
+import { useLastTab } from '@/hooks/useLastTab';
 
 import './BottomNav.css';
 
@@ -11,14 +12,9 @@ interface NavItem {
   label: string;
   path: string;
   icon: 'market' | 'activity' | 'storage' | 'profile';
+  dynamicPath?: () => string;
 }
 
-const navItems: NavItem[] = [
-  { id: 'market', label: 'Market', path: '/market', icon: 'market' },
-  { id: 'activity', label: 'Activity', path: '/activity', icon: 'activity' },
-  { id: 'storage', label: 'Storage', path: '/storage', icon: 'storage' },
-  { id: 'profile', label: 'Profile', path: '/profile', icon: 'profile' },
-];
 
 function Icon({ name, active }: { name: NavItem['icon']; active: boolean }) {
   const fill = active ? '#248BDA' : '#47515C';
@@ -53,18 +49,32 @@ function Icon({ name, active }: { name: NavItem['icon']; active: boolean }) {
 export const BottomNav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  
+  // Use the custom hook to track localStorage changes
+  const [lastTab] = useLastTab('market-last-tab', 'channels');
 
   // Get the market path dynamically based on last opened tab
   const getMarketPath = () => {
-    const lastTab = localStorage.getItem('market-last-tab') || 'channels';
     return `/market/${lastTab}`;
   };
+
+  // Get the activity path dynamically based on last opened tab
+  const getActivityPath = () => {
+    return `/activity/${lastTab}`;
+  };
+
+  const navItems: NavItem[] = [
+    { id: 'market', label: 'Market', path: '/market', icon: 'market', dynamicPath: getMarketPath },
+    { id: 'activity', label: 'Activity', path: '/activity', icon: 'activity', dynamicPath: getActivityPath },
+    { id: 'storage', label: 'Storage', path: '/storage', icon: 'storage' },
+    { id: 'profile', label: 'Profile', path: '/profile', icon: 'profile' },
+  ];
 
   return (
     <nav className={b()}>
       {navItems.map((item) => {
-        // Use dynamic path for market, static path for others
-        const itemPath = item.id === 'market' ? getMarketPath() : item.path;
+        // Use dynamic path for market and activity, static path for others
+        const itemPath = item.dynamicPath ? item.dynamicPath() : item.path;
         const isActive = item.path !== '/' ? currentPath.startsWith(item.path) : currentPath === item.path;
         
         return (

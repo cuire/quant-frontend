@@ -304,6 +304,35 @@ export async function getActivity(
   return data || [];
 }
 
+// New activity endpoints for split backend
+export async function getActivityGifts(
+  page = 1,
+  limit = 20,
+  filters: Record<string, any> = {}
+): Promise<Activity[]> {
+  let params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  params = new URLSearchParams([...filtersToUrlParams(filters), ...params]);
+  
+  const data = await request<Activity[]>(`/activity/gifts?${params.toString()}`);
+  return data || [];
+}
+
+export async function getActivityChannels(
+  page = 1,
+  limit = 20,
+  filters: Record<string, any> = {}
+): Promise<Activity[]> {
+  let params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  params = new URLSearchParams([...filtersToUrlParams(filters), ...params]);
+  
+  const data = await request<Activity[]>(`/activity/channels?${params.toString()}`);
+  return data || [];
+}
+
 export async function getUserActivity(
   page = 1,
   limit = 20
