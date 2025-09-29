@@ -3,7 +3,7 @@ import { useMarketGiftsInfinite } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
 import { GiftFilters } from '@/components/MarketHeader';
-import { GiftCurrentFilters, giftFiltersSearchSchema, useFilters } from '@/lib/filters';
+import { GiftCurrentFilters, giftFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback } from 'react';
 
 // Search schema for gifts page
@@ -19,8 +19,8 @@ function GiftsPage() {
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   
-  // Use the filters hook
-  const { handleFilterChange, currentFilters } = useFilters(search, navigate, 'gift');
+  // Use the global filters hook
+  const { handleFilterChange, currentFilters, apiFilters } = useGlobalFilters(search, navigate, 'gift');
   
   // Use infinite query for gifts with filters
   const {
@@ -31,7 +31,7 @@ function GiftsPage() {
     isLoading,
     isError,
     error,
-  } = useMarketGiftsInfinite();
+  } = useMarketGiftsInfinite(search.limit, apiFilters);
 
   // Flatten all pages of gifts data
   const gifts = giftsData?.pages.flat() || [];

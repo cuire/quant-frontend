@@ -155,7 +155,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
         <div className={e('footer')}>
           <div className={e('info', isStorage && 'storage')}>
             <h3 className={e('title')}>{title}</h3>
-            <span className={e('number')}>#{giftNumber}</span>
+            <span className={e('number')}>{giftNumber.slice(0, 6)}...</span>
           </div>
 
           {isStorage ? (

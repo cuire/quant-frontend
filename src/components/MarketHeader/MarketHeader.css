@@ -238,6 +238,31 @@
     width: 100%;
 }
 
+/* Ensure filter chips can shrink and truncate text without wrapping */
+.market-header__filters > .market-header__filter-chip-container {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* Priority shrinking: Sorting first, then Channel Type, Gift last */
+.market-header__filters > .market-header__filter-chip-container:first-of-type {
+    /* Gift */
+    flex: 1 1 160px; /* give a healthier base so it doesn't over-shrink */
+    min-width: 75px;
+}
+
+.market-header__filters > .market-header__filter-chip-container:nth-of-type(2) {
+    /* Channel Type */
+    flex: 0 1 180px;
+    min-width: 0;
+}
+
+.market-header__filters > .market-header__filter-chip-container:nth-of-type(3) {
+    /* Sorting */
+    flex: 0 1 160px;
+    min-width: 0;
+}
+
 .market-header__filter-chip-container {
     border: 1px solid #242E37;
     border-radius: 8px;
@@ -287,6 +312,10 @@
 
 .market-header__chevrons svg {
     display: block;
+}
+
+.market-header__chevrons {
+    flex: 0 0 auto; /* do not shrink chevrons */
 }
 
 
@@ -398,7 +427,6 @@
 .market-header__panel {
     margin: 8px 3px;
     background: rgba(33, 42, 51, 1);
-    border: 1px solid rgba(62, 76, 93, 1);
     border-radius: 12px;
     overflow: hidden;
 }
@@ -1061,7 +1089,7 @@
 
 @media (max-width: 768px) {
     .market-header__filters {
-        flex-wrap: wrap;
+        flex-wrap: nowrap; /* keep on one line; rely on truncation */
         gap: 8px;
     }
 

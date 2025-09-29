@@ -3,7 +3,7 @@ import { useActivityGiftsInfinite, useGifts } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
 import { GiftFilters } from '@/components/MarketHeader';
-import { GiftCurrentFilters, giftFiltersSearchSchema, useFilters } from '@/lib/filters';
+import { GiftCurrentFilters, giftFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback } from 'react';
 
 // Search schema for activity gifts page (reuse market gifts filters)
@@ -20,7 +20,7 @@ function ActivityGiftsPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   
   // Filters
-  const { handleFilterChange, currentFilters, apiFilters } = useFilters(search, navigate, 'gift');
+  const { handleFilterChange, currentFilters, apiFilters } = useGlobalFilters(search, navigate, 'gift');
   
   // Infinite activity gifts
   const {
@@ -86,10 +86,6 @@ function ActivityGiftsPage() {
     };
   }, []);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-  };
 
   const getGiftNameById = (giftId: string) => {
     const gift = gifts.find(g => g.id === giftId);
@@ -105,7 +101,6 @@ function ActivityGiftsPage() {
       <GiftFilters 
         onFilterChange={handleFilterChange}
         currentFilters={currentFilters as GiftCurrentFilters}
-        gifts={gifts}
       />
 
       <div className="px-4 py-6">
@@ -145,9 +140,7 @@ function ActivityGiftsPage() {
                     title={getGiftNameById(activity.gift_id)}
                     giftNumber={`#${activity.channel_id}`}
                     price={Math.round(activity.amount)}
-                    action="activity"
-                    subtitle={formatDate(activity.created_at)}
-                    isUpgraded={activity.is_upgraded}
+                    action="buy-or-cart"
                   />
                 );
               })}

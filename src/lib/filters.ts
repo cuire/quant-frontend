@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useChannelFilters, useGiftFilters } from '@/contexts/FilterContext'; 
 
 // Channels filters schema for API calls
 export const channelFiltersSearchSchema = z.object({
@@ -113,6 +114,9 @@ export function convertFiltersToBackendFormat(
   // Gift IDs are already in backend format
   if (newFilters.gift && newFilters.gift.length > 0) {
     backendFilters.gift_id = newFilters.gift;
+  } else {
+    // Ensure gift_id is cleared from the URL when no gifts are selected
+    backendFilters.gift_id = undefined;
   }
 
   if (newFilters.channelType && newFilters.channelType !== 'All') {
@@ -252,7 +256,7 @@ export function getCurrentFilters(search: ChannelFiltersSearchParams): CurrentFi
   };
 }
 
-// Custom hook for managing filters
+// Custom hook for managing filters with global state
 export function useFilters<T extends ChannelFiltersSearchParams | GiftFiltersSearchParams>(
   search: T, 
   navigate: (options: { search: Partial<T> }) => void,
@@ -286,6 +290,99 @@ export function useFilters<T extends ChannelFiltersSearchParams | GiftFiltersSea
     handleFilterChange,
     currentFilters,
     apiFilters,
+  };
+}
+
+// New hook that integrates with global filter state
+export function useGlobalFilters<T extends ChannelFiltersSearchParams | GiftFiltersSearchParams>(
+  search: T, 
+  navigate: (options: { search: Partial<T> }) => void,
+  filterType: 'channel' | 'gift' = 'channel'
+) {
+  const channelFilters = useChannelFilters();
+  const giftFilters = useGiftFilters();
+  
+  const globalFilters = filterType === 'gift' ? giftFilters : channelFilters;
+
+  const handleFilterChange = useCallback((newFilters: FilterChangeParams | GiftFilterChangeParams) => {
+    // Update global state first
+    globalFilters.updateFilters(newFilters);
+    
+    // Then update URL search params
+    let updatedSearch: Partial<T>;
+    
+    if (filterType === 'gift') {
+      updatedSearch = convertGiftFiltersToBackendFormat(newFilters as GiftFilterChangeParams, search as GiftFiltersSearchParams) as Partial<T>;
+    } else {
+      updatedSearch = convertFiltersToBackendFormat(newFilters as FilterChangeParams, search as ChannelFiltersSearchParams) as Partial<T>;
+    }
+    
+    // Navigate to new search params
+    navigate({ search: updatedSearch });
+    
+    // Reset scroll position when filters change
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [search, navigate, filterType, globalFilters]);
+
+  // Use global filters as current filters - don't sync with URL params
+  // This prevents navigation from resetting our global state
+  const currentFilters = globalFilters.filters;
+    
+  // Build API filters from global state instead of URL params
+  const apiFilters = useMemo(() => {
+    if (filterType === 'gift') {
+      const giftFilters = currentFilters as GiftCurrentFilters;
+      const filters: Record<string, any> = {
+        sort_by: giftFilters.sorting,
+      };
+
+      // Map frontend filter names to backend API parameter names
+      if (giftFilters.collection && giftFilters.collection !== 'All') {
+        // Collection filter contains comma-separated gift IDs, convert to array of integers
+        const giftIds = giftFilters.collection.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+        if (giftIds.length > 0) {
+          filters.gift_id = giftIds;
+        }
+      }
+
+      if (giftFilters.model && giftFilters.model !== 'All') {
+        // Model value is now the model ID (string), convert to int
+        const modelId = parseInt(giftFilters.model);
+        if (!isNaN(modelId)) {
+          filters.model_id = modelId;
+        }
+      }
+
+      if (giftFilters.background && giftFilters.background !== 'All') {
+        // Background value is the backdrop ID (string), convert to int
+        const backdropId = parseInt(giftFilters.background);
+        if (!isNaN(backdropId)) {
+          filters.backdrop_id = backdropId;
+        }
+      }
+
+      return filters;
+    } else {
+      const channelFilters = currentFilters as CurrentFilters;
+      return {
+        sort_by: channelFilters.sorting,
+        gift_id: channelFilters.gift.length > 0 ? channelFilters.gift : undefined,
+        channel_type: channelFilters.channelType === 'All' ? undefined : channelFilters.channelType,
+        price_min: channelFilters.minPrice?.toString(),
+        price_max: channelFilters.maxPrice?.toString(),
+        quantity_min: channelFilters.minQuantity?.toString(),
+        quantity_max: channelFilters.maxQuantity?.toString(),
+        show_upgraded_gifts: channelFilters.showUpgraded,
+        only_exact_gift: channelFilters.onlyExactGift,
+      };
+    }
+  }, [currentFilters, filterType]);
+
+  return {
+    handleFilterChange,
+    currentFilters,
+    apiFilters,
+    resetFilters: globalFilters.resetFilters,
   };
 }
 

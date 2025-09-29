@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { MarketFilters } from '@/components/MarketHeader';
 import { useModal } from '@/contexts/ModalContext';
 import { useChannelsInfinite, useGifts } from '@/lib/api-hooks';
-import { channelFiltersSearchSchema, useFilters } from '@/lib/filters';
+import { channelFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { getChannelPrice } from '@/helpers/priceUtils';
 import { useEffect, useRef, useCallback } from 'react';
 
@@ -22,8 +22,8 @@ function ChannelsPage() {
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   
-  // Use the filters hook
-  const { handleFilterChange, currentFilters, apiFilters } = useFilters(search, navigate);
+  // Use the global filters hook
+  const { handleFilterChange, currentFilters, apiFilters } = useGlobalFilters(search, navigate);
 
   // Use infinite query for channels
   const {

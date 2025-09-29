@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { bem } from '@/css/bem.ts';
 import type { GiftFilterChangeParams, GiftCurrentFilters } from '@/lib/filters';
 import { GiftIcon } from '@/components/GiftIcon';
-import type { GiftWithDetails, GiftBackdrop, GiftSymbol } from '@/lib/api';
+// removed unused api types
 import { useGiftsWithFilters } from '@/lib/api-hooks';
 import './MarketHeader.css';
 
@@ -23,13 +23,13 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
   const { data: giftsData, isLoading, error } = useGiftsWithFilters();
   const gifts = giftsData?.gifts || [];
   const backdrops = giftsData?.backdrops || [];
-  const symbols = giftsData?.symbols || [];
   const [collectionFilter, setCollectionFilter] = useState(currentFilters?.collection || 'All');
   const [modelFilter, setModelFilter] = useState(currentFilters?.model || 'All');
   const [backgroundFilter, setBackgroundFilter] = useState(currentFilters?.background || 'All');
   const [sortingFilter, setSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
   const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>([]);
-  const [openSheet, setOpenSheet] = useState<null | 'collection' | 'filters'>(null);
+  const [openSheet, setOpenSheet] = useState<null | 'collection' | 'model' | 'background' | 'filters'>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Update filter states when currentFilters change
   useEffect(() => {
@@ -38,8 +38,22 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
       setModelFilter(currentFilters.model);
       setBackgroundFilter(currentFilters.background);
       setSortingFilter(currentFilters.sorting);
+      
+      // Update selectedGiftIds from collection filter
+      if (currentFilters.collection && currentFilters.collection !== 'All') {
+        setSelectedGiftIds(currentFilters.collection.split(',').filter(id => id.trim()));
+      } else {
+        setSelectedGiftIds([]);
+      }
     }
   }, [currentFilters]);
+
+  // Clear search when closing/opening sheet
+  useEffect(() => {
+    if (openSheet !== 'collection') {
+      setSearchTerm('');
+    }
+  }, [openSheet]);
 
   // Helper function to get gift name by ID
   const getGiftNameById = (giftIds: string[]): string => {
@@ -51,11 +65,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
     return `${giftIds.length} gifts selected`;
   };
 
-  // Helper function to get display name for collection
-  const getCollectionDisplay = (value: string): string => {
-    if (value === 'All') return 'All';
-    return value;
-  };
+  // removed unused getCollectionDisplay
 
   // Helper function to get display name for model
   const getModelDisplay = (value: string): string => {
@@ -110,9 +120,9 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
     ],
     model: [
       { value: 'All', label: 'All' },
-      ...Array.from(new Set(gifts.flatMap(gift => gift.models.map(model => model.name)))).map(name => ({
-        value: name,
-        label: name
+      ...Array.from(new Set(gifts.flatMap(gift => gift.models.map(model => ({ id: model.id, name: model.name }))))).map(model => ({
+        value: model.id,
+        label: model.name
       }))
     ],
     background: [
@@ -140,7 +150,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
           <div className={e('filter-chip')} onClick={() => setOpenSheet('collection')} role="button" tabIndex={0}>
             <span className={e('chip-label')}>Collection</span>
             <div className={e('chip-control')}>
-              <span className={e('chip-value')}>{getGiftNameById(selectedGiftIds)}</span>
+              <span className={e('chip-value')}>{getGiftNameById(currentFilters?.collection ? currentFilters.collection.split(',') : [])}</span>
               <div className={e('chip-select')} />
             </div>
           </div>
@@ -199,7 +209,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
             <div className={e('sheet-header')}>
               <div>
                 <div className={e('sheet-title')}>
-                  {openSheet === 'collection' && 'Collection'}
+            {openSheet === 'collection' && 'Collection'}
                   {openSheet === 'filters' && 'Filters'}
                 </div>
                 <div className={e('sheet-subtitle')}>Selects the appropriate filter</div>
@@ -213,15 +223,26 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   <svg className={e('search-icon')} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
                   </svg>
-                  <input placeholder="Name Gifts" />
+            <input
+              placeholder="Name Gifts"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
                 </div>
                 <div className={e('panel')}>
-                  {isLoading ? (
+            {isLoading ? (
                     <div className={e('loading')}>Loading gifts...</div>
                   ) : error ? (
                     <div className={e('error')}>Error loading gifts</div>
                   ) : (
-                    gifts.map((gift) => {
+              gifts
+                .filter((gift) => {
+                  const q = searchTerm.trim().toLowerCase();
+                  if (!q) return true;
+                  const name = (gift.short_name || gift.full_name || '').toLowerCase();
+                  return name.includes(q);
+                })
+                .map((gift) => {
                       const checked = selectedGiftIds.includes(gift.id);
                       return (
                         <label key={gift.id} className={e('row')}>
@@ -262,8 +283,8 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                             <div className={e('row-min')}>Min. Price</div>
                           </div>
                         </label>
-                      )
-                    })
+                  )
+                })
                   )}
                 </div>
                 <div className={e('sheet-footer')}>

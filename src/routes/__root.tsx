@@ -2,6 +2,7 @@ import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router';
 import { BottomNav } from '@/components/Navigation';
 import { Modal } from '@/components/Modal';
 import { ModalProvider } from '@/contexts/ModalContext';
+import { FilterProvider } from '@/contexts/FilterContext';
 import { useEffect } from 'react';
 import { miniApp } from '@telegram-apps/sdk-react';
 import { Page } from '@/components/Page';
@@ -26,14 +27,16 @@ function Root() {
   const isWalletRoute = location.pathname.startsWith('/wallet');
 
   return (
-    <ModalProvider>
-      <div style={{ minHeight: '100vh', position: 'relative' }}>
-        <Page back={canGoBack}>
-          <Outlet />
-        </Page>
-        {!isWalletRoute && <BottomNav />}
-        <Modal />
-      </div>
-    </ModalProvider>
+    <FilterProvider>
+      <ModalProvider>
+        <div style={{ minHeight: '100vh', position: 'relative' }}>
+          <Page back={canGoBack}>
+            <Outlet />
+          </Page>
+          {!isWalletRoute && <BottomNav />}
+          <Modal />
+        </div>
+      </ModalProvider>
+    </FilterProvider>
   );
 }

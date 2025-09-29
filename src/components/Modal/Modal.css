@@ -112,7 +112,6 @@ body.modal-open {
 .market-header__panel {
     margin: 8px 12px;
     background: #2A3541;
-    border: 1px solid #242E37;
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
@@ -571,7 +570,7 @@ body.modal-open {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 6px 10px 6px;
+    padding: 6px 6px 1px 6px;
 }
 
 .purchase-confirm-modal__title {
@@ -597,17 +596,46 @@ body.modal-open {
 }
 
 .purchase-confirm-modal__subtitle {
-    color: #E7EEF7;
-    font-size: 16px;
-    font-weight: 500;
+    color: #7F94AE;
+    font-size: 13px;
+    font-weight: regular;
     margin-bottom: 12px;
+    padding: 0 8px;
 }
 
-.purchase-confirm-modal__text {
-    color: #7F94AE;
+.purchase-confirm-modal__subtitle span {
+    color: #248BDA;
+    font-weight: bold;
+}
+
+.purchase-confirm-modal__note {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #5D3E3F;
+}
+
+.purchase-confirm-modal__note-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
     font-size: 14px;
+    font-weight: 600;
+}
+
+.purchase-confirm-modal__note-title svg {
+    width: 24px;
+    height: 24px;
+}
+
+.purchase-confirm-modal__note-text {
+    color: #AE7F80;
+    font-size: 11px;
+    font-weight: regular;
     line-height: 1.4;
-    margin-bottom: 16px;
 }
 
 .purchase-confirm-modal__actions {

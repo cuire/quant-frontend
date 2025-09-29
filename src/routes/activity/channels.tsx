@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { MarketTopBar, MarketFilters } from '@/components/MarketHeader';
 import { useActivityChannelsInfinite, useGifts } from '@/lib/api-hooks';
-import { channelFiltersSearchSchema, useFilters } from '@/lib/filters';
+import { channelFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { shareChannel } from '@/helpers/shareUtils';
@@ -19,7 +19,7 @@ function ActivityChannelsPage() {
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   
-  const { handleFilterChange, currentFilters, apiFilters } = useFilters(search, navigate, 'channel');
+  const { handleFilterChange, currentFilters, apiFilters } = useGlobalFilters(search, navigate, 'channel');
 
   const {
     data: activitiesData,

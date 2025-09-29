@@ -53,6 +53,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
   const [sortingFilter, setSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
   const [openSheet, setOpenSheet] = useState<null | 'gift' | 'channelType' | 'sorting' | 'filters'>(null);
   const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>(getInitialGiftIds());
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Initialize price and quantity ranges from bounds or current filters
   const getInitialPriceRange = (): [number, number] => {
@@ -104,6 +105,13 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
       setShowUpgraded(currentFilters.showUpgraded ?? true);
     }
   }, [currentFilters]);
+
+  // Clear search when closing or switching away from gift sheet
+  useEffect(() => {
+    if (openSheet !== 'gift') {
+      setSearchTerm('');
+    }
+  }, [openSheet]);
 
   // Update ranges when bounds data is loaded
   useEffect(() => {
@@ -267,10 +275,21 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                   <svg className={e('search-icon')} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
                   </svg>
-                  <input placeholder="Name Gifts" />
+                  <input
+                    placeholder="Name Gifts"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
                 <div className={e('panel')}>
-                  {gifts.map((gift) => {
+                  {gifts
+                    .filter((gift) => {
+                      const q = searchTerm.trim().toLowerCase();
+                      if (!q) return true;
+                      const name = (gift.short_name || gift.full_name || '').toLowerCase();
+                      return name.includes(q);
+                    })
+                    .map((gift) => {
                     const checked = selectedGiftIds.includes(gift.id);
                     if (gift.count === 0) {
                       return;
