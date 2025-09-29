@@ -109,7 +109,7 @@ function ActivityPage() {
             <Link to="/storage/offers/received" className="storage-tab-link">
               Offers
             </Link>
-            <Link to="/storage/activity" disabled className="storage-tab-link is-active">
+            <Link to="/storage/activity" className="storage-tab-link is-active">
               Activity
             </Link>
           </div>

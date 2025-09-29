@@ -78,7 +78,7 @@ function PlacedOffersPage() {
           <Link to="/storage/offers/received" className="storage-tab-link is-active">
             Offers
           </Link>
-          <Link to="/storage/activity"  disabled className="storage-tab-link">
+          <Link to="/storage/activity" className="storage-tab-link">
             Activity
           </Link>
         </div>

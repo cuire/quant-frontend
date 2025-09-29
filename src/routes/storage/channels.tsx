@@ -50,7 +50,7 @@ function ChannelsPage() {
           <Link to="/storage/offers/received" className="storage-tab-link">
             Offers
           </Link>
-          <Link to="/storage/activity"  disabled className="storage-tab-link">
+          <Link to="/storage/activity" className="storage-tab-link">
             Activity
           </Link>
         </div>
