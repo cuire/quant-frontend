@@ -24,9 +24,10 @@ export const shareChannel = (channelId: number, channelData?: any) => {
     const shareUrl = `https://t.me/QuantMarketRobot/market?startapp=channel${channelId}`;
 
     // Try Telegram WebApp share first
-    if (window.Telegram?.WebApp?.openTelegramLink) {
+    const tg = (window as any).Telegram as { WebApp?: { openTelegramLink?: (url: string) => void } } | undefined;
+    if (tg?.WebApp?.openTelegramLink) {
       const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-      window.Telegram.WebApp.openTelegramLink(telegramShareUrl);
+      tg.WebApp.openTelegramLink(telegramShareUrl);
     } else if (navigator.share) {
       // Use native Web Share API
       navigator.share({
