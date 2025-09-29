@@ -36,13 +36,8 @@ export const PurchaseConfirmModal = ({ onClose, data }: PurchaseConfirmModalProp
     }
   };
 
-  const handleOpenChannel = () => {
-    if (data?.channel?.username) {
-      window.open(`https://t.me/${data.channel.username}`, '_blank');
-    }
-  };
-
   const channelPrice = data?.channel?.price || 0;
+  const channelInviteLink = data?.channel?.invite_link || '';
 
   return (
     <div className="purchase-confirm-modal">
@@ -70,14 +65,16 @@ export const PurchaseConfirmModal = ({ onClose, data }: PurchaseConfirmModalProp
           </div>
         </div>
         
-        <button 
+        <a 
           className="product-sheet__btn product-sheet__btn--primary" 
           type="button" 
-          onClick={handleOpenChannel}
-          style={{ marginTop: '16px', width: '100%', height: '52px' }}
+          href={channelInviteLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginTop: '16px', width: '100%', height: '52px', textDecoration: 'none' }}
         >
           Open channel
-        </button>
+        </a>
       </div>
       
       <div className="purchase-confirm-modal__actions">
