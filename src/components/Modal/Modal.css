@@ -238,6 +238,21 @@ body.modal-open {
     min-height: 92px;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25);
 }
+
+.product-sheet__nft-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: linear-gradient(45deg, #8b5cf6, #a855f7);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
+}
 .product-sheet__grid--single .product-sheet__cell {
     min-width: 192px;
     min-height: 192px;
@@ -251,6 +266,13 @@ body.modal-open {
     max-width: 64px;
     max-height: 64px;
     object-fit: contain;
+}
+
+/* Reusable overlay helper for inline badges */
+.badge-overlay {
+    position: absolute;
+    top: 6px;
+    left: 6px;
 }
 .product-sheet__grid--triple .product-sheet__cell:nth-child(1) img {
     max-width: 72px;
@@ -366,6 +388,19 @@ body.modal-open {
     font-weight: 500;
     color: #E7EEF7;
     margin-bottom: 2px;
+}
+
+.product-sheet__nft-chip {
+    display: inline-block;
+    margin-left: 8px;
+    background: rgba(139, 92, 246, 0.15);
+    color: #CBB2FF;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 6px;
+    vertical-align: middle;
 }
 
 .product-sheet__row-note {

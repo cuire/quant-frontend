@@ -1,5 +1,6 @@
 import { useModal } from '@/contexts/ModalContext';
 import { Link } from '../Link/Link';
+import { NftBadge } from '@/components/NftBadge/NftBadge';
 import { CountdownTimer } from '../CountdownTimer';
 import { getChannelPrice } from '@/helpers/priceUtils';
 import { shareChannel } from '@/helpers/shareUtils';
@@ -115,6 +116,9 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
                 {visible.map((it: any) => (
                   <div className="product-sheet__cell" key={it.id}>
                     <img src={it.icon} alt={it.name || 'Gift'} />
+                    {it?.type === 'nft' && (
+                      <NftBadge overlay />
+                    )}
                     <span className="product-sheet__q">x{typeof it.quantity === 'number' ? it.quantity : 1}</span>
                   </div>
                 ))}
@@ -159,11 +163,20 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
       <div className="product-sheet__list">
         {items.map((it: any) => (
           <div key={it.id} className="product-sheet__row">
-            <div className="product-sheet__row-icon"><img src={it.icon} alt={it.name} /></div>
+            <div className="product-sheet__row-icon">
+              <img src={it.icon} alt={it.name} />
+            </div>
             <div className="product-sheet__row-main">
-              <div className="product-sheet__row-title">{it.name}</div>
+              <div className="product-sheet__row-title">
+                {it.name}
+              </div>
               <div className="product-sheet__row-note">Quantity: {it.quantity}</div>
             </div>
+            {it?.type === 'nft' && (
+              <div>
+                <NftBadge label="NFT" />
+              </div>
+            )}
           </div>
         ))}
       </div>

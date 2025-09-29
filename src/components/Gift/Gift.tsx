@@ -3,6 +3,7 @@ import { forwardRef } from 'react';
 import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { NftBadge } from '@/components/NftBadge/NftBadge';
 
 import './Gift.css';
 
@@ -125,7 +126,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                       }}
                     />
                     {item.type === 'nft' && (
-                      <span className={e('nft-badge')}>NFTs</span>
+                      <NftBadge overlay />
                     )}
                     {item.quantity && <span className={e('quantity-badge')}>x{item.quantity}</span>}
                   </div>
