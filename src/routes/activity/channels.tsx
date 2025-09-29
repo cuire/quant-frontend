@@ -5,6 +5,7 @@ import { channelFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { shareChannel } from '@/helpers/shareUtils';
+import { NftBadge } from '@/components/NftBadge/NftBadge';
 
 // Reuse market channels search schema
 const searchSchema = channelFiltersSearchSchema;
@@ -39,7 +40,7 @@ function ActivityChannelsPage() {
     title: string;
     giftNumber: string;
     price: number;
-    items: { id: string; name: string; icon: string; quantity: number }[];
+    items: { id: string; name: string; icon: string; quantity: number; type?: 'nft' | 'item' }[];
   }>(null);
 
   useEffect(() => {
@@ -197,13 +198,14 @@ function ActivityChannelsPage() {
                         className="activity-item" 
                         onClick={() => {
                           // Create items array from gifts_data
-                          let items: { id: string; name: string; icon: string; quantity: number }[] = [];
+                          let items: { id: string; name: string; icon: string; quantity: number; type?: 'nft' | 'item' }[] = [];
                           if (activity.gifts_data?.upgraded) {
                            items = Object.entries(activity.gifts_data.upgraded).map(([giftId, channelIds]) => ({
                              id: giftId,
                              name: getGiftNameById(giftId),
                              icon: getGiftIconById(giftId),
-                             quantity: channelIds.length
+                             quantity: (channelIds as any[]).length,
+                             type: 'nft',
                            }));
                          } else {
                            items = Object.entries(activity.gifts_data ?? {}).map(([giftId, quantity]) => ({
@@ -211,6 +213,7 @@ function ActivityChannelsPage() {
                              name: getGiftNameById(giftId),
                              icon: getGiftIconById(giftId),
                              quantity: quantity as any,
+                             type: 'item',
                            }));
                          }
                           
@@ -325,6 +328,11 @@ function ActivityChannelsPage() {
                     <div className="product-sheet__row-title">{it.name}</div>
                     <div className="product-sheet__row-note">Quantity: {it.quantity}</div>
                   </div>
+                  {it?.type === 'nft' && (
+                    <div>
+                      <NftBadge label="NFT" />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
