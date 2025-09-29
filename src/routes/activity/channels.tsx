@@ -237,7 +237,7 @@ function ActivityChannelsPage() {
                           <div className="activity-title-row">
                             <div className="activity-title">{getGiftNameById(activity.gift_id)}</div>
                           </div>
-                          <div className="activity-sub">Channel #{activity.channel_id}</div>
+                          <div className="activity-sub">#{activity.channel_id}</div>
                         </div>
                         <div className="activity-center">
                           {activity.is_upgraded && (

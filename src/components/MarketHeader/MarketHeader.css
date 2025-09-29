@@ -1176,11 +1176,16 @@
     border-radius: 999px;
     font-size: 12px;
     font-weight: 510;
+    display: grid;
+    place-items: center;
 }
 
 .activity-badge--nft {
-    background: linear-gradient(45deg, #8b5cf6, #a855f7);
-    color: #fff;
+    background: #44185A;
+    color: #F86DFF;
+    font-weight: 600;
+    outline: 1px solid #A538E3;
+    outline-offset: -1px;
 }
 
 .activity-badge--purchase {
