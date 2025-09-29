@@ -15,11 +15,13 @@ export const channelFiltersSearchSchema = z.object({
     'quantity_high_to_low'
   ]).default('date_new_to_old'),
   gift_id: z.array(z.string()).optional(),
-  type: z.enum(['fast', 'waiting']).optional(),
-  min_price: z.string().optional(),
-  max_price: z.string().optional(),
-  min_qty: z.string().optional(),
-  max_qty: z.string().optional(),
+  channel_type: z.enum(['fast', 'waiting']).optional(),
+  price_min: z.string().optional(),
+  price_max: z.string().optional(),
+  quantity_min: z.string().optional(),
+  quantity_max: z.string().optional(),
+  show_upgraded_gifts: z.boolean().optional(),
+  only_exact_gift: z.boolean().optional(),
 });
 
 export type ChannelFiltersSearchParams = z.infer<typeof channelFiltersSearchSchema>;
@@ -114,29 +116,39 @@ export function convertFiltersToBackendFormat(
   }
 
   if (newFilters.channelType && newFilters.channelType !== 'All') {
-    backendFilters.type = newFilters.channelType as ChannelFiltersSearchParams['type'];
+    backendFilters.channel_type = newFilters.channelType as ChannelFiltersSearchParams['channel_type'];
   }
 
   if (newFilters.channelType === 'All') {
-    backendFilters.type = undefined;
+    backendFilters.channel_type = undefined;
   }
 
   // Price filters
   if (newFilters.minPrice !== undefined) {
-    backendFilters.min_price = newFilters.minPrice.toString();
+    backendFilters.price_min = newFilters.minPrice.toString();
   }
 
   if (newFilters.maxPrice !== undefined) {
-    backendFilters.max_price = newFilters.maxPrice.toString();
+    backendFilters.price_max = newFilters.maxPrice.toString();
   }
 
   // Quantity filters
   if (newFilters.minQuantity !== undefined) {
-    backendFilters.min_qty = newFilters.minQuantity.toString();
+    backendFilters.quantity_min = newFilters.minQuantity.toString();
   }
 
   if (newFilters.maxQuantity !== undefined) {
-    backendFilters.max_qty = newFilters.maxQuantity.toString();
+    backendFilters.quantity_max = newFilters.maxQuantity.toString();
+  }
+
+  // Show upgraded gifts filter
+  if (newFilters.showUpgraded !== undefined) {
+    backendFilters.show_upgraded_gifts = newFilters.showUpgraded;
+  }
+
+  // Only exact gift filter
+  if (newFilters.onlyExactGift !== undefined) {
+    backendFilters.only_exact_gift = newFilters.onlyExactGift;
   }
   
   const updatedSearch = {
@@ -229,12 +241,14 @@ export function getGiftCurrentFilters(search: GiftFiltersSearchParams): GiftCurr
 export function getCurrentFilters(search: ChannelFiltersSearchParams): CurrentFilters {
   return {
     gift: search.gift_id || [],
-    channelType: search.type || 'All',
+    channelType: search.channel_type || 'All',
     sorting: search.sort_by || 'date_new_to_old',
-    minPrice: search.min_price ? parseFloat(search.min_price) : undefined,
-    maxPrice: search.max_price ? parseFloat(search.max_price) : undefined,
-    minQuantity: search.min_qty ? parseInt(search.min_qty) : undefined,
-    maxQuantity: search.max_qty ? parseInt(search.max_qty) : undefined,
+    minPrice: search.price_min ? parseFloat(search.price_min) : undefined,
+    maxPrice: search.price_max ? parseFloat(search.price_max) : undefined,
+    minQuantity: search.quantity_min ? parseInt(search.quantity_min) : undefined,
+    maxQuantity: search.quantity_max ? parseInt(search.quantity_max) : undefined,
+    onlyExactGift: search.only_exact_gift,
+    showUpgraded: search.show_upgraded_gifts,
   };
 }
 

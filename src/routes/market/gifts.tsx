@@ -20,7 +20,7 @@ function GiftsPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   
   // Use the filters hook
-  const { handleFilterChange, currentFilters, apiFilters } = useFilters(search, navigate, 'gift');
+  const { handleFilterChange, currentFilters } = useFilters(search, navigate, 'gift');
   
   // Use infinite query for gifts with filters
   const {
@@ -95,7 +95,6 @@ function GiftsPage() {
       <GiftFilters 
         onFilterChange={handleFilterChange}
         currentFilters={currentFilters as GiftCurrentFilters}
-        gifts={gifts}
       />
 
       {/* Market Content */}

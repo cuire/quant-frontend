@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
+import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -17,6 +17,7 @@ export const queryKeys = {
   meChannelsInfinite: (limit: number) => 
     ['meChannelsInfinite', limit] as const,
   gifts: ['gifts'] as const,
+  giftsWithFilters: ['giftsWithFilters'] as const,
   activity: (limit: number, offset: number, onlyExactGift: boolean, showUpgradedGifts: boolean) => 
     ['activity', limit, offset, onlyExactGift, showUpgradedGifts] as const,
   activityInfinite: (limit: number, onlyExactGift: boolean, showUpgradedGifts: boolean) => 
@@ -154,6 +155,14 @@ export const useGifts = () => {
   return useQuery({
     queryKey: queryKeys.gifts,
     queryFn: getGifts,
+  });
+};
+
+export const useGiftsWithFilters = () => {
+  return useQuery({
+    queryKey: queryKeys.giftsWithFilters,
+    queryFn: getGiftsWithFilters,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 

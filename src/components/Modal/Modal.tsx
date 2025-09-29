@@ -7,6 +7,7 @@ import { AcceptOfferModal } from './OfferAcceptModal';
 import { AcceptOfferConfirmModal } from './OfferAcceptConfirmModal';
 import { CancelOfferModal } from './OfferCancelModal';
 import { AddChannelModal } from './AddChannelModal';
+import { PurchaseConfirmModal } from './PurchaseConfirmModal';
 import './Modal.css';
 
 export const Modal = () => {
@@ -15,15 +16,16 @@ export const Modal = () => {
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (modalType) {
-      // Store original styles
+      // Store original styles and scroll position
       const originalStyle = window.getComputedStyle(document.body).overflow;
       const originalPosition = window.getComputedStyle(document.body).position;
+      const scrollY = window.scrollY;
       
       // Prevent scroll
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
-      document.body.style.top = `-${window.scrollY}px`;
+      document.body.style.top = `-${scrollY}px`;
       document.body.classList.add('modal-open');
       
       // Cleanup function
@@ -31,10 +33,10 @@ export const Modal = () => {
         document.body.style.overflow = originalStyle;
         document.body.style.position = originalPosition;
         document.body.style.width = '';
-        document.body.classList.remove('modal-open');
-        const scrollY = document.body.style.top;
         document.body.style.top = '';
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        document.body.classList.remove('modal-open');
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
       };
     }
   }, [modalType]);
@@ -46,7 +48,7 @@ export const Modal = () => {
       case 'gift-details':
         return <GiftDetailsModal data={modalData} onClose={closeModal} />;
       case 'offer':
-        return <OfferModal onClose={closeModal} />;
+        return <OfferModal data={modalData} onClose={closeModal} />;
       case 'accept-offer':
         return <AcceptOfferModal data={modalData} onClose={closeModal} />;
       case 'accept-offer-confirm':
@@ -55,6 +57,8 @@ export const Modal = () => {
         return <CancelOfferModal data={modalData} onClose={closeModal} />;
       case 'add-channel':
         return <AddChannelModal onClose={closeModal} />;
+      case 'purchase-confirm':
+        return <PurchaseConfirmModal data={modalData} onClose={closeModal} />;
       default:
         return null;
     }

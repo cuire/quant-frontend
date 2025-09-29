@@ -4,7 +4,8 @@ import { createPortal } from 'react-dom';
 import { bem } from '@/css/bem.ts';
 import type { GiftFilterChangeParams, GiftCurrentFilters } from '@/lib/filters';
 import { GiftIcon } from '@/components/GiftIcon';
-import type { Gift } from '@/lib/api';
+import type { GiftWithDetails, GiftBackdrop, GiftSymbol } from '@/lib/api';
+import { useGiftsWithFilters } from '@/lib/api-hooks';
 import './MarketHeader.css';
 
 const [, e] = bem('market-header');
@@ -12,14 +13,17 @@ const [, e] = bem('market-header');
 export interface GiftFiltersProps {
   onFilterChange?: (filters: GiftFilterChangeParams) => void;
   currentFilters?: GiftCurrentFilters;
-  gifts?: Gift[];
 }
 
 export const GiftFilters: FC<GiftFiltersProps> = ({ 
   onFilterChange,
-  currentFilters,
-  gifts = []
+  currentFilters
 }) => {
+  // Get gifts data from API
+  const { data: giftsData, isLoading, error } = useGiftsWithFilters();
+  const gifts = giftsData?.gifts || [];
+  const backdrops = giftsData?.backdrops || [];
+  const symbols = giftsData?.symbols || [];
   const [collectionFilter, setCollectionFilter] = useState(currentFilters?.collection || 'All');
   const [modelFilter, setModelFilter] = useState(currentFilters?.model || 'All');
   const [backgroundFilter, setBackgroundFilter] = useState(currentFilters?.background || 'All');
@@ -95,27 +99,28 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
     onFilterChange?.(newFilters);
   };
 
+  // Generate filter options from real data
   const filterOptions = {
     collection: [
       { value: 'All', label: 'All' },
-      { value: 'Premium', label: 'Premium' },
-      { value: 'Basic', label: 'Basic' },
-      { value: 'Rare', label: 'Rare' },
-      { value: 'Legendary', label: 'Legendary' },
+      ...Array.from(new Set(gifts.map(gift => gift.type))).map(type => ({
+        value: type,
+        label: type
+      }))
     ],
     model: [
       { value: 'All', label: 'All' },
-      { value: '3D', label: '3D' },
-      { value: '2D', label: '2D' },
-      { value: 'Animated', label: 'Animated' },
-      { value: 'Static', label: 'Static' },
+      ...Array.from(new Set(gifts.flatMap(gift => gift.models.map(model => model.name)))).map(name => ({
+        value: name,
+        label: name
+      }))
     ],
     background: [
       { value: 'All', label: 'All' },
-      { value: 'Transparent', label: 'Transparent' },
-      { value: 'Solid', label: 'Solid' },
-      { value: 'Gradient', label: 'Gradient' },
-      { value: 'Pattern', label: 'Pattern' },
+      ...backdrops.map(backdrop => ({
+        value: backdrop.id,
+        label: backdrop.name
+      }))
     ],
     sorting: [
       { value: 'date_new_to_old', label: 'Date: New to Old' },
@@ -211,33 +216,55 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   <input placeholder="Name Gifts" />
                 </div>
                 <div className={e('panel')}>
-                  {gifts.map((gift) => {
-                    const checked = selectedGiftIds.includes(gift.id);
-                    return (
-                      <label key={gift.id} className={e('row')}>
-                        <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
-                          setSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
-                        }} />
-                        <GiftIcon giftId={gift.id} size={40} />
-                        
-                        <div className={e('row-main')}>
-                          <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>{gift.short_name || gift.full_name}</span>
+                  {isLoading ? (
+                    <div className={e('loading')}>Loading gifts...</div>
+                  ) : error ? (
+                    <div className={e('error')}>Error loading gifts</div>
+                  ) : (
+                    gifts.map((gift) => {
+                      const checked = selectedGiftIds.includes(gift.id);
+                      return (
+                        <label key={gift.id} className={e('row')}>
+                          <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
+                            setSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
+                          }} />
+                          <GiftIcon giftId={gift.id} size={40} />
+                          
+                          <div className={e('row-main')}>
+                            <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span>{gift.short_name || gift.full_name}</span>
+                              {gift.new && <span className={e('new-badge')} style={{ 
+                                backgroundColor: gift.new_color,
+                                color: 'white',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '10px',
+                                fontWeight: 'bold'
+                              }}>NEW</span>}
+                              {gift.premarket && <span className={e('premarket-badge')} style={{ 
+                                backgroundColor: '#ff6b35',
+                                color: 'white',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '10px',
+                                fontWeight: 'bold'
+                              }}>PREMARKET</span>}
+                            </div>
+                            <div className={e('row-note')}>Available in market</div>
                           </div>
-                          <div className={e('row-note')}>Available in market</div>
-                        </div>
-                        <div className={e('row-right')}>
-                          <div className={e('row-price')}>
-                            <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
-                            </svg>
-                            <span>{gift.floor_price}</span>
+                          <div className={e('row-right')}>
+                            <div className={e('row-price')}>
+                              <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
+                              </svg>
+                              <span>{gift.floor_price}</span>
+                            </div>
+                            <div className={e('row-min')}>Min. Price</div>
                           </div>
-                          <div className={e('row-min')}>Min. Price</div>
-                        </div>
-                      </label>
-                    )
-                  })}
+                        </label>
+                      )
+                    })
+                  )}
                 </div>
                 <div className={e('sheet-footer')}>
                   <button className={e('btn-secondary')} onClick={() => { setSelectedGiftIds([]); }}>Restart</button>

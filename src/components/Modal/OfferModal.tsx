@@ -1,16 +1,76 @@
+import { useUser } from '@/lib/api-hooks';
+import { createOffer } from '@/lib/api';
 import { useState } from 'react';
 
 interface OfferModalProps {
   onClose: () => void;
+  data?: any;
 }
 
-export const OfferModal = ({ onClose }: OfferModalProps) => {
+export const OfferModal = ({ onClose, data }: OfferModalProps) => {
   const [offerPrice, setOfferPrice] = useState<string>('');
-  const [offerDuration, setOfferDuration] = useState<'1d' | '1w' | 'forever'>('1d');
+  const [offerDuration, setOfferDuration] = useState<'1d' | '1w' | 'forever'>('1w');
+  const [isLoading, setIsLoading] = useState(false);
+  const { data: user } = useUser();
+  
+  // Check if offer is valid
+  const isOfferValid = () => {
+    if (!offerPrice || isNaN(Number(offerPrice))) return false;
+    const offerPriceNum = Number(offerPrice);
+    const channelPrice = data?.channel?.price;
+    const userBalance = user?.balance || 0;
+    
+    return channelPrice && 
+           offerPriceNum > 0 && 
+           offerPriceNum < channelPrice && 
+           offerPriceNum <= userBalance;
+  };
+  
+  const handleSendOffer = async () => {
+    if (!data?.channel?.id) {
+      console.error('No channel ID provided');
+      return;
+    }
 
-  const handleSendOffer = () => {
-    // Handle offer submission logic here
-    onClose();
+    if (!offerPrice || isNaN(Number(offerPrice))) {
+      console.error('Invalid price');
+      return;
+    }
+
+    const offerPriceNum = Number(offerPrice);
+    const channelPrice = data.channel.price;
+
+    if (offerPriceNum >= channelPrice) {
+      console.error('Offer price must be less than channel price');
+      return;
+    }
+
+    const userBalance = user?.balance || 0;
+    if (offerPriceNum > userBalance) {
+      console.error('Insufficient balance');
+      return;
+    }
+
+    const durationDays = offerDuration === '1d' ? 1 : offerDuration === '1w' ? 7 : 365;
+
+    const gifts = data.channel.gifts || {};
+
+    setIsLoading(true);
+    try {
+      await createOffer(
+        data.channel.id,
+        offerPriceNum,
+        gifts,
+        'Europe/Moscow',
+        durationDays
+      );
+    } catch (error) {
+      console.error('Failed to create offer:', error);
+      // TODO: Send a toast with error message
+    } finally {
+      setIsLoading(false);
+      onClose();
+    }
   };
 
   return (
@@ -27,7 +87,8 @@ export const OfferModal = ({ onClose }: OfferModalProps) => {
           value={offerPrice} 
           onChange={(e) => setOfferPrice(e.target.value)} 
         />
-        <div className="offer-modal__balance">YOUR BALANCE: 0 TON</div>
+        <div className="offer-modal__balance">YOUR BALANCE:{" "}
+          <span style={{color:'#2F82C7'}}>{user?.balance} TON</span></div>
       </div>
       <div className="offer-modal__block">
         <div className="offer-modal__label">OFFER DURATION</div>
@@ -55,8 +116,13 @@ export const OfferModal = ({ onClose }: OfferModalProps) => {
           </button>
         </div>
       </div>
-      <button className="offer-modal__submit" type="button" onClick={handleSendOffer}>
-        Send Offer
+      <button 
+        className="offer-modal__submit" 
+        type="button" 
+        onClick={handleSendOffer}
+        disabled={isLoading || !isOfferValid()}
+      >
+        {isLoading ? 'Sending...' : 'Send Offer'}
       </button>
     </div>
   );

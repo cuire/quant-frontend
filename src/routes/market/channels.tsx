@@ -5,6 +5,7 @@ import { MarketFilters } from '@/components/MarketHeader';
 import { useModal } from '@/contexts/ModalContext';
 import { useChannelsInfinite, useGifts } from '@/lib/api-hooks';
 import { channelFiltersSearchSchema, useFilters } from '@/lib/filters';
+import { getChannelPrice } from '@/helpers/priceUtils';
 import { useEffect, useRef, useCallback } from 'react';
 
 // Search schema for channels page that extends base schema
@@ -44,7 +45,7 @@ function ChannelsPage() {
     if (channels.length > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [search.sort_by, search.gift_id, search.type, search.min_price, search.max_price, search.min_qty, search.max_qty]);
+  }, [search.sort_by, search.gift_id, search.channel_type, search.price_min, search.price_max, search.quantity_min, search.quantity_max, search.show_upgraded_gifts, search.only_exact_gift]);
 
   // Wrapped fetchNextPage with logging
   const wrappedFetchNextPage = useCallback(async () => {
@@ -225,10 +226,14 @@ function ChannelsPage() {
                         // Structure: { upgraded: { modelId: [backdropIds] } }
                         for (const [modelId, backdropIds] of Object.entries(channelGifts.upgraded || {})) {
                           const foundGift = gifts.find((gift) => gift.id === modelId);
+                          
+                          // Ensure backdropIds is an array and get its length safely
+                          const quantity = Array.isArray(backdropIds) ? backdropIds.length : 1;
+                          
                           channelGiftsArray.push({
                             id: modelId,
                             name: foundGift?.short_name || foundGift?.full_name || 'Unknown',
-                            quantity: backdropIds.length,
+                            quantity: quantity,
                             type: 'nft' as const
                           });
                         }
@@ -259,7 +264,10 @@ function ChannelsPage() {
                       for (let i = 0; i < displayGifts.length; i++) {
                         const gift = displayGifts[i];
                         const giftName = gift.name || "Unknown";
-                        const giftText = `${giftName} x${gift.quantity}`;
+                        
+                        // Ensure quantity is a number
+                        const quantity = typeof gift.quantity === 'number' ? gift.quantity : 1;
+                        const giftText = `${giftName} x${quantity}`;
 
                         // Add spacing if not first item
                         const spacing = i > 0 ? (isModal ? "  " : " ") : "";
@@ -281,20 +289,21 @@ function ChannelsPage() {
                     const isLastElement = index === channels.length - 1;
                     const ref = isLastElement ? lastElementRef : undefined;
                     
+
                     return (
                       <Gift
                         key={channel.id}
                         ref={ref}
                         items={channelGiftsArray.slice(0, 4).map((gift) => ({
                           id: gift.id.toString(),
-                          name: gift.name,
+                          name: gift.name || 'Unknown',
                           icon: `https://FlowersRestricted.github.io/gifts/${gift.id}/default.png`,
-                          quantity: gift.quantity,
-                          type: gift.type
+                          quantity: typeof gift.quantity === 'number' ? gift.quantity : 1,
+                          type: gift.type || 'item'
                         }))}
                         title={title}
                         giftNumber={`#${channel.id}`}
-                        price={Math.round(channel.price)}
+                        price={getChannelPrice(channel.price)}
                         isFastSale={channel.type === 'fast'}
                         onClick={() => handleGiftClick(channel)}
                       />

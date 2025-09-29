@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useRef, useCallback, useState, useEffect } from 'react';
 import { useUserActivityInfinite, useGifts } from '@/lib/api-hooks';
 import { createPortal } from 'react-dom';
+import { shareChannel } from '@/helpers/shareUtils';
 
 export const Route = createFileRoute('/storage/activity')({
   component: ActivityPage,
@@ -313,7 +314,16 @@ function ActivityPage() {
               ))}
             </div>
             <div className="product-sheet__actions">
-              <button className="product-sheet__btn" type="button">Share Channel</button>
+              <button 
+                className="product-sheet__btn" 
+                type="button"
+                onClick={() => {
+                  const channelId = parseInt(selected.giftNumber.replace('#', ''));
+                  shareChannel(channelId, { gifts: selected.items.reduce((acc, item) => ({ ...acc, [item.id]: item.quantity }), {}) });
+                }}
+              >
+                Share Channel
+              </button>
               <button className="product-sheet__btn product-sheet__btn--primary" type="button">Open Channel</button>
             </div>
           </div>

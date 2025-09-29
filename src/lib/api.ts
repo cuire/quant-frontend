@@ -72,6 +72,56 @@ export interface Gift {
   count: number;
 }
 
+// New types for /gifts/gifts endpoint
+export interface GiftModel {
+  id: string;
+  name: string;
+  rarity_per_mille: number;
+  floor: string;
+  url: string;
+}
+
+export interface GiftBackdrop {
+  id: string;
+  name: string;
+  floor: string;
+  rarity_per_mille: number;
+  centerColor: string;
+  edgeColor: string;
+  patternColor: string;
+  textColor: string;
+}
+
+export interface GiftSymbol {
+  id: string;
+  name: string;
+  floor: string;
+  rarity_per_mille: number;
+  url: string;
+}
+
+export interface GiftWithDetails {
+  id: string;
+  short_name: string;
+  full_name: string;
+  type: string;
+  image_url: string | null;
+  floor_price: string;
+  supply: number;
+  is_active: boolean;
+  new: boolean;
+  new_color: string;
+  premarket: boolean;
+  count: number;
+  models: GiftModel[];
+}
+
+export interface GiftsResponse {
+  gifts: GiftWithDetails[];
+  backdrops: GiftBackdrop[];
+  symbols: GiftSymbol[];
+}
+
 export interface MarketGift {
   slug: string;
   gift_id: string;
@@ -271,6 +321,11 @@ export async function getGifts(): Promise<Gift[]> {
   return request<Gift[]>("/gifts");
 }
 
+// New function for getting gifts with filters data
+export async function getGiftsWithFilters(): Promise<GiftsResponse> {
+  return request<GiftsResponse>("/gifts/gifts");
+}
+
 // Activity functions
 export interface Activity {
   id: number;
@@ -373,5 +428,39 @@ export async function rejectOffer(offerId: number): Promise<void> {
 export async function cancelOffer(offerId: number): Promise<void> {
   return request<void>(`/offers/${offerId}/cancel`, {
     method: 'POST',
+  });
+}
+
+export async function createOffer(
+  channelId: number, 
+  price: number, 
+  gifts: Record<string, number>, 
+  timezone: string = 'Europe/Moscow', 
+  durationDays: number = 7
+): Promise<void> {
+  return request<void>(`/channels/${channelId}/offer`, {
+    method: 'POST',
+    body: JSON.stringify({
+      price,
+      gifts,
+      timezone,
+      duration_days: durationDays
+    }),
+  });
+}
+
+export async function purchaseChannel(
+  channelId: number,
+  price: number,
+  gifts: Record<string, number>,
+  timezone: string = 'Europe/Moscow'
+): Promise<void> {
+  return request<void>(`/channels/${channelId}/purchase-waiting`, {
+    method: 'POST',
+    body: JSON.stringify({
+      price,
+      gifts,
+      timezone
+    }),
   });
 }

@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { MarketTopBar } from '@/components/MarketHeader';
+import { MarketTopBar, MarketFilters } from '@/components/MarketHeader';
 import { useActivityChannelsInfinite, useGifts } from '@/lib/api-hooks';
 import { channelFiltersSearchSchema, useFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { shareChannel } from '@/helpers/shareUtils';
 
 // Reuse market channels search schema
 const searchSchema = channelFiltersSearchSchema;
@@ -18,7 +19,7 @@ function ActivityChannelsPage() {
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   
-  const { apiFilters } = useFilters(search, navigate);
+  const { handleFilterChange, currentFilters, apiFilters } = useFilters(search, navigate, 'channel');
 
   const {
     data: activitiesData,
@@ -45,7 +46,7 @@ function ActivityChannelsPage() {
     if (activities.length > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [search.sort_by, search.gift_id, search.type, search.min_price, search.max_price, search.min_qty, search.max_qty]);
+  }, [search.sort_by, search.gift_id, search.channel_type, search.price_min, search.price_max, search.quantity_min, search.quantity_max, search.show_upgraded_gifts, search.only_exact_gift]);
 
   const wrappedFetchNextPage = useCallback(async () => {
     try {
@@ -141,7 +142,12 @@ function ActivityChannelsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#1A2026', color: '#E7EEF7', paddingBottom: 80 }}>
-      <MarketTopBar />
+      {/* Filters */}
+      <MarketFilters 
+        onFilterChange={handleFilterChange}
+        currentFilters={currentFilters as any}
+        gifts={gifts}
+      />
 
       {/* Activity Channels Content */}
       <div className="px-4 py-6">
@@ -323,7 +329,16 @@ function ActivityChannelsPage() {
               ))}
             </div>
             <div className="product-sheet__actions">
-              <button className="product-sheet__btn" type="button">Share Channel</button>
+              <button 
+                className="product-sheet__btn" 
+                type="button"
+                onClick={() => {
+                  const channelId = parseInt(selected.giftNumber.replace('#', ''));
+                  shareChannel(channelId, { gifts: selected.items.reduce((acc, item) => ({ ...acc, [item.id]: item.quantity }), {}) });
+                }}
+              >
+                Share Channel
+              </button>
               <button className="product-sheet__btn product-sheet__btn--primary" type="button">Open Channel</button>
             </div>
           </div>
