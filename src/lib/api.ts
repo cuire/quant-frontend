@@ -313,8 +313,9 @@ export async function getMeChannels(
   params.append('page', page.toString());
   params.append('limit', limit.toString());
   
-  const data = await request<{channels: UserChannel[]}>(`/users/me/channels?${params.toString()}`);
-  return data.channels || [];
+  const data = await request<{items: UserChannel[]}>(`/users/me/items?${params.toString()}`);
+  const items = data.items.filter((item: UserChannel) => item.item_type === 'channel');
+  return items || [];
 }
 
 export async function addChannel(inviteLink: string): Promise<Channel> {
