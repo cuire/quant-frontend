@@ -531,3 +531,15 @@ export async function purchaseChannel(
     }),
   });
 }
+
+export async function purchaseGift(
+  giftId: string,
+  price: number
+): Promise<void> {
+  return request<void>(`/usergifts/${giftId}/purchase`, {
+    method: 'POST',
+    body: JSON.stringify({
+      price
+    }),
+  });
+}

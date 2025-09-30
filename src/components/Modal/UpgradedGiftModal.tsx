@@ -2,11 +2,15 @@
 import { UpgradedGiftSlugIcon } from '@/components/GiftIcon';
 import type { GiftAttribute } from '@/lib/api';
 import { getGiftModelIcon } from '@/lib/images';
+import { usePurchaseGift } from '@/lib/api-hooks';
+import { useToast } from '@/hooks/useToast';
 
 interface UpgradedGiftModalProps {
   data: {
+    id: string;
     giftId: string;
     giftSlug: string;
+    price: number;
     model: GiftAttribute;
     backdrop: GiftAttribute;
     symbol: GiftAttribute;
@@ -16,7 +20,9 @@ interface UpgradedGiftModalProps {
 
 export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => {
   // const { openModal } = useModal();
-  const { giftId, giftSlug, model, backdrop, symbol } = data;
+  const { id, giftId, giftSlug, price, model, backdrop, symbol } = data;
+  const purchaseGiftMutation = usePurchaseGift();
+  const { success: showSuccessToast, block: showErrorToast } = useToast();
 
   const handleShare = () => {
     // TODO: Implement share functionality
@@ -33,9 +39,15 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
     console.log('Make offer for gift:', giftSlug);
   };
 
-  const handleBuyGifts = () => {
-    // TODO: Implement buy gifts functionality
-    console.log('Buy gifts:', giftSlug);
+  const handleBuyGifts = async () => {
+    try {
+      await purchaseGiftMutation.mutateAsync({ giftId: id, price });
+      showSuccessToast({ message: 'Gift purchased successfully!' });
+      onClose();
+    } catch (error) {
+      console.error('Purchase failed:', error);
+      showErrorToast({ message: 'Failed to purchase gift. Please try again.' });
+    }
   };
 
   // Convert rarity from per mille to percentage
@@ -155,8 +167,9 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
           className="upgraded-gift-modal__btn upgraded-gift-modal__btn--primary" 
           type="button"
           onClick={handleBuyGifts}
+          disabled={purchaseGiftMutation.isPending}
         >
-          Buy Gifts
+          {purchaseGiftMutation.isPending ? 'Purchasing...' : 'Buy Gifts'}
         </button>
       </div>
     </div>

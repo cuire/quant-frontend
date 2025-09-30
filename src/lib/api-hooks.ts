@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts } from './api';
+import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -378,5 +378,20 @@ export const useActivityChannelsInfinite = (
       return allPages.length + 1;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+export const usePurchaseGift = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ giftId, price }: { giftId: string; price: number }) => 
+      purchaseGift(giftId, price),
+    onSuccess: () => {
+      // Invalidate relevant queries after successful purchase
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+    },
   });
 };

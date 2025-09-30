@@ -127,7 +127,9 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
       { value: 'All', label: 'All' },
       ...backdrops.map(backdrop => ({
         value: backdrop.id,
-        label: backdrop.name
+        label: backdrop.name,
+        centerColor: backdrop.centerColor,
+        edgeColor: backdrop.edgeColor,
       }))
     ],
     sorting: [
@@ -247,7 +249,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                           <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
                             setSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
                           }} />
-                          <GiftIcon giftId={gift.id} size={40} />
+                          <GiftIcon giftId={gift.id} size="40" />
                           
                           <div className={e('row-main')}>
                             <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -337,6 +339,17 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                         onChange={() => {
                           handleFilterChange('background', option.value);
                         }} 
+                      />
+                      <div 
+                        className={e('row-icon')}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          background: 'centerColor' in option && 'edgeColor' in option && option.centerColor && option.edgeColor 
+                            ? `radial-gradient(circle, ${option.centerColor}, ${option.edgeColor})`
+                            : '#2F82C7'
+                        }}
                       />
                       <div className={e('row-main')}>
                         <div className={e('row-title')}>

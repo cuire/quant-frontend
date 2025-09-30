@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useMarketGiftsInfinite, useGiftsWithFilters } from '@/lib/api-hooks';
+import { useMarketGiftsInfinite } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
 import { GiftFilters } from '@/components/MarketHeader';
@@ -48,8 +48,10 @@ function GiftsPage() {
     console.log('gift', gift,  model, backdrop, symbol);
     if (model && backdrop && symbol) {
       openModal('upgraded-gift', {
+        id: gift.id,
         giftId: gift.gift_id,
         giftSlug: gift.slug,
+        price: gift.price,
         model,
         backdrop,
         symbol,
