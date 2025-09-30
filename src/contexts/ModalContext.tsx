@@ -3,6 +3,7 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 export type ModalType =
   | 'gift-details'
   | 'upgraded-gift'
+  | 'gift-offer'
   | 'offer'
   | 'accept-offer'
   | 'accept-offer-confirm'

@@ -13,6 +13,7 @@ import { SubscriptionModal } from './SubscriptionModal';
 import { SuccessModal } from './SuccessModal';
 import { ErrorModal } from './ErrorModal';
 import { ParticipatingModal } from './ParticipatingModal';
+import { GiftOfferModal } from './GiftOfferModal';
 import './Modal.css';
 
 export const Modal = () => {
@@ -54,6 +55,8 @@ export const Modal = () => {
         return <GiftDetailsModal data={modalData} onClose={closeModal} />;
       case 'upgraded-gift':
         return <UpgradedGiftModal data={modalData} onClose={closeModal} />;
+      case 'gift-offer':
+        return <GiftOfferModal data={modalData} onClose={closeModal} />;
       case 'offer':
         return <OfferModal data={modalData} onClose={closeModal} />;
       case 'accept-offer':

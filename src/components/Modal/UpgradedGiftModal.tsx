@@ -1,4 +1,4 @@
-// import { useModal } from '@/contexts/ModalContext';
+import { useModal } from '@/contexts/ModalContext';
 import { UpgradedGiftSlugIcon } from '@/components/GiftIcon';
 import type { GiftAttribute } from '@/lib/api';
 import { getGiftModelIcon } from '@/lib/images';
@@ -19,7 +19,7 @@ interface UpgradedGiftModalProps {
 }
 
 export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => {
-  // const { openModal } = useModal();
+  const { openModal } = useModal();
   const { id, giftId, giftSlug, price, model, backdrop, symbol } = data;
   const purchaseGiftMutation = usePurchaseGift();
   const { success: showSuccessToast, block: showErrorToast } = useToast();
@@ -35,8 +35,11 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
   };
 
   const handleMakeOffer = () => {
-    // TODO: Implement make offer functionality
-    console.log('Make offer for gift:', giftSlug);
+    openModal('gift-offer', {
+      giftId: id,
+      giftSlug,
+      price
+    });
   };
 
   const handleBuyGifts = async () => {

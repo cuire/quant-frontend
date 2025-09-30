@@ -58,6 +58,7 @@ export interface UserChannel extends Channel {
   transferring_to_username?: string;
   transferring_to_full_name?: string;
   stars_count: number;
+  item_type?: string;
 }
 
 export interface Gift {
@@ -538,6 +539,18 @@ export async function purchaseGift(
   price: number
 ): Promise<void> {
   return request<void>(`/usergifts/${giftId}/purchase`, {
+    method: 'POST',
+    body: JSON.stringify({
+      price
+    }),
+  });
+}
+
+export async function offerGift(
+  giftId: string,
+  price: number
+): Promise<void> {
+  return request<void>(`/usergifts/${giftId}/offer`, {
     method: 'POST',
     body: JSON.stringify({
       price
