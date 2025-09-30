@@ -21,6 +21,7 @@ export function Page({ children, back = true }: PropsWithChildren<{
   }, [back]);
 
   return <div style={{
+    minHeight: '100vh',
     background: '#1A2026',
   }}>{children}</div>;
 }

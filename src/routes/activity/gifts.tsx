@@ -89,7 +89,7 @@ function ActivityGiftsPage() {
 
   const getGiftNameById = (giftId: string) => {
     const gift = gifts.find(g => g.id === giftId);
-    return gift ? (gift.short_name || gift.full_name) : 'Unknown Gift';
+    return gift ? (gift.full_name || gift.short_name) : 'Unknown Gift';
   };
 
   const getGiftIconById = (giftId: string) => {

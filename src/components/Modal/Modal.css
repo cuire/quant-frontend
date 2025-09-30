@@ -951,3 +951,115 @@ body.modal-open {
         transform: translateY(0);
     }
 }
+
+/* Upgraded Gift Modal Styles */
+.upgraded-gift-modal__gallery {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 16px 24px 16px;
+    width: 100%;
+}
+
+.upgraded-gift-modal__icon {
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.upgraded-gift-modal__info {
+    padding: 0 16px 16px 16px;
+}
+
+.upgraded-gift-modal__info-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.upgraded-gift-modal__info-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.upgraded-gift-modal__info-label {
+    color: #7F94AE;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.upgraded-gift-modal__info-value {
+    color: #E7EEF7;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.upgraded-gift-modal__info-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+.upgraded-gift-modal__model-name {
+    text-align: center;
+    color: #E7EEF7;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.upgraded-gift-modal__backdrop-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+}
+
+.upgraded-gift-modal__symbol-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+}
+
+.upgraded-gift-modal__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.upgraded-gift-modal__btn {
+    background: #2A3541;
+    border: 1px solid #384858;
+    color: #E7EEF7;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.upgraded-gift-modal__btn:hover {
+    background: #344150;
+    border-color: #4A5A6B;
+}
+
+.upgraded-gift-modal__btn--primary {
+    background: #248BDA;
+    border-color: #248BDA;
+    color: #FFFFFF;
+}
+
+.upgraded-gift-modal__btn--primary:hover {
+    background: #1d6fa8;
+    border-color: #1d6fa8;
+}

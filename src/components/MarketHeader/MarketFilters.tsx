@@ -303,7 +303,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                         
                         <div className={e('row-main')}>
                           <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>{gift.short_name || gift.full_name}</span>
+                            <span>{gift.full_name || gift.short_name}</span>
                           </div>
                           <div className={e('row-note')}>{gift.count} channels on sale</div>
                         </div>

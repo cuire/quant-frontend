@@ -4,6 +4,7 @@ import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { NftBadge } from '@/components/NftBadge/NftBadge';
+import { GiftSlugIcon } from '@/components/GiftIcon';
 
 import './Gift.css';
 
@@ -15,6 +16,7 @@ export interface GiftItem {
   icon: string;
   quantity?: number;
   type?: 'nft' | 'item';
+  giftSlug?: string;
 }
 
 export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -117,7 +119,10 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     }}
                   >
                   <div className={e('item-content')}>
-                    <img 
+                    {item.giftSlug ? (  
+                      <GiftSlugIcon giftSlug={item.giftSlug} size="100%" className={e('full-size-image')} />
+                    ) : (
+                      <img 
                       src={item.icon} 
                       alt={item.name} 
                       className={e('item-image')}
@@ -125,6 +130,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                         e.currentTarget.src = '/placeholder-gift.svg';
                       }}
                     />
+                    )}
                     {item.type === 'nft' && (
                       <NftBadge overlay />
                     )}

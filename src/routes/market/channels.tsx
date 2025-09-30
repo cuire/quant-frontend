@@ -232,7 +232,7 @@ function ChannelsPage() {
                           
                           channelGiftsArray.push({
                             id: modelId,
-                            name: foundGift?.short_name || foundGift?.full_name || 'Unknown',
+                            name: foundGift?.full_name ||foundGift?.short_name || 'Unknown',
                             quantity: quantity,
                             type: 'nft' as const
                           });
@@ -244,7 +244,7 @@ function ChannelsPage() {
                             const foundGift = gifts.find((gift) => gift.id === gift_id);
                             channelGiftsArray.push({
                               id: gift_id,
-                              name: foundGift?.short_name || foundGift?.full_name || 'Unknown',
+                              name: foundGift?.full_name || foundGift?.short_name || 'Unknown',
                               quantity: quantity,
                               type: 'item' as const
                             });

@@ -1,23 +1,56 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
+import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import { useUserActivityInfinite, useGifts } from '@/lib/api-hooks';
 import { createPortal } from 'react-dom';
-import { shareChannel } from '@/helpers/shareUtils';
+import { MarketFilters } from '@/components/MarketHeader/MarketFilters';
+import { ActivityGroup } from '@/components/ActivityGroup';
+import { Activity } from '@/lib/api';
+import { useFilters } from '@/lib/filters';
+import './activity.css';
+import { Link } from '@/components/Link/Link';
 
 export const Route = createFileRoute('/storage/activity')({
   component: ActivityPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    page: (search.page as number) || 1,
+    limit: (search.limit as number) || 20,
+    gift_id: (search.gift_id as string[]) || [],
+    type: (search.type as 'fast' | 'waiting') || undefined,
+    sort_by: (search.sort_by as 'date_new_to_old' | 'date_old_to_new' | 'price_low_to_high' | 'price_high_to_low' | 'price_per_unit' | 'quantity_low_to_high' | 'quantity_high_to_low') || 'date_new_to_old',
+    min_price: (search.min_price as string) || undefined,
+    max_price: (search.max_price as string) || undefined,
+    min_qty: (search.min_qty as string) || undefined,
+    max_qty: (search.max_qty as string) || undefined,
+  }),
 });
 
 function ActivityPage() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const { data: giftsData } = useGifts();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useUserActivityInfinite(20);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  
+  // Use the filters hook
+  const { handleFilterChange, currentFilters } = useFilters(search, (options) => {
+    navigate(options as any);
+  });
+  
+  // Mock data state
+  const [mockData, setMockData] = useState<any>(null);
+  const [mockLoading, setMockLoading] = useState(false);
+  const [mockError, setMockError] = useState<Error | null>(null);
+  const [mockPage, setMockPage] = useState(1);
+  const [mockHasNextPage, setMockHasNextPage] = useState(true);
+  
+  // Filters state
 
   const [selected, setSelected] = useState<null | {
     title: string;
     giftNumber: string;
     price: number;
     items: { id: string; name: string; icon: string; quantity: number }[];
+    holdTime?: string;
   }>(null);
 
   // Add shimmer animation styles
@@ -50,7 +83,7 @@ function ActivityPage() {
     
     observerRef.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
+          fetchNextPage();
       }
     }, {
       threshold: 0.1,
@@ -73,24 +106,29 @@ function ActivityPage() {
 
   // Extract activities from all pages
   const activities = data?.pages.flatMap(page => page.activities) || [];
+  
+  // Filter and group activities
+  const filteredAndGroupedActivities = useMemo(() => {
+    const grouped = activities.reduce((groups: Record<string, Activity[]>, activity: Activity) => {
+      const date = new Date(activity.created_at).toDateString();
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(activity);
+      return groups;
+    }, {} as Record<string, Activity[]>);
+    
+    return Object.entries(grouped).map(([date, activities]) => ({
+      date,
+      activities: (activities as Activity[]).sort((a: Activity, b: Activity) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }));
+  }, [activities, currentFilters, giftsData]);
 
-  // Helper function to format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    }) + ', ' + date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    });
-  };
 
   // Helper function to get gift name by ID
   const getGiftNameById = (giftId: string) => {
     const gift = giftsData?.find(g => g.id === giftId);
-    return gift ? (gift.short_name || gift.full_name) : 'Unknown Gift';
+    return gift ? (gift.full_name || gift.short_name) : 'Unknown Gift';
   };
 
   // Helper function to get gift icon by ID
@@ -98,22 +136,33 @@ function ActivityPage() {
     return `https://FlowersRestricted.github.io/gifts/${giftId}/default.png`;
   };
 
+  // Handle activity item click
+  const handleActivityClick = (activity: Activity) => {
+    // Create items array from gifts_data
+    let items: { id: string; name: string; icon: string; quantity: number }[] = [];
+    if (activity.gifts_data) {
+      items = Object.entries(activity.gifts_data).map(([giftId, quantity]) => ({
+        id: giftId,
+        name: getGiftNameById(giftId),
+        icon: getGiftIconById(giftId),
+        quantity: quantity as number,
+      }));
+    }
+     
+    if (items.length > 0) {
+      setSelected({ 
+        title: getGiftNameById(activity.gift_id), 
+        giftNumber: `#${activity.channel_id}`, 
+        price: activity.amount, 
+        items: items,
+        holdTime: activity.hold_time
+      });
+    }
+  };
+
   if (error) {
     return (
       <>
-        <div className="storage-tabs">
-          <div className="storage-segment">
-            <Link to="/storage/channels" className="storage-tab-link">
-              Channels
-            </Link>
-            <Link to="/storage/offers/received" className="storage-tab-link">
-              Offers
-            </Link>
-            <Link to="/storage/activity" className="storage-tab-link is-active">
-              Activity
-            </Link>
-          </div>
-        </div>
         <div className="px-4 py-6">
           <div className="text-center py-16">
             <div className="text-6xl mb-4">😔</div>
@@ -135,14 +184,20 @@ function ActivityPage() {
           <Link to="/storage/offers/received" className="storage-tab-link">
             Offers
           </Link>
-          <Link to="/storage/activity"  disabled className="storage-tab-link is-active">
+          <Link to="/storage/activity" className="storage-tab-link is-active">
             Activity
           </Link>
         </div>
       </div>
 
+      <MarketFilters 
+        onFilterChange={handleFilterChange}
+        currentFilters={currentFilters as any}
+        gifts={giftsData || []}
+      />
+
       {/* Activity Content */}
-      <div className="px-4 py-6">
+      <div className="activity-content">
         {/* Loading state */}
         {isLoading && activities.length === 0 ? (
           <div className="activity-list">
@@ -168,7 +223,7 @@ function ActivityPage() {
         ) : (
           <>
             {/* Activity List */}
-            {activities.length === 0 ? (
+            {filteredAndGroupedActivities.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">😔</div>
                 <h3 className="text-xl font-semibold mb-2">No activity found</h3>
@@ -176,72 +231,16 @@ function ActivityPage() {
               </div>
             ) : (
               <>
-                <div className="activity-list">
-                  {activities.map((activity, index) => {
-                    // Add ref to last element for infinite scroll
-                    const isLastElement = index === activities.length - 1;
-                    const ref = isLastElement ? lastElementRef : undefined;
-
-                    return (
-                      <div 
-                        key={activity.id} 
-                        ref={ref}
-                        className="activity-item" 
-                        onClick={() => {
-                          // Create items array from gifts_data
-                          let items: { id: string; name: string; icon: string; quantity: number }[] = [];
-                          if (activity.gifts_data) {
-                            items = Object.entries(activity.gifts_data).map(([giftId, quantity]) => ({
-                              id: giftId,
-                              name: getGiftNameById(giftId),
-                              icon: getGiftIconById(giftId),
-                              quantity: quantity as number,
-                            }));
-                          }
-                           
-                          if (items.length > 0) {
-                            setSelected({ 
-                              title: getGiftNameById(activity.gift_id), 
-                              giftNumber: `#${activity.channel_id}`, 
-                              price: activity.amount, 
-                              items: items 
-                            });
-                          }
-                        }}
-                      >
-                        <div className="activity-icon">
-                          <img 
-                            src={getGiftIconById(activity.gift_id)} 
-                            alt={getGiftNameById(activity.gift_id)} 
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).src = '/placeholder-gift.svg';
-                            }} 
-                          />
-                        </div>
-                        <div className="activity-main">
-                          <div className="activity-title-row">
-                            <div className="activity-title">{getGiftNameById(activity.gift_id)}</div>
-                          </div>
-                          <div className="activity-sub">Channel #{activity.channel_id}</div>
-                        </div>
-                        <div className="activity-center">
-                          {activity.is_upgraded && (
-                           <span className="activity-badge activity-badge--nft">NFTs</span>
-                          )}
-                          {activity.type === 'purchase' && (
-                           <span className="activity-badge activity-badge--purchase">{activity.type}</span>
-                          )}
-                        </div>
-                        <div className="activity-right">
-                          <div className="activity-price">
-                             {activity.amount} TON
-                          </div>
-                          <div className="activity-time">{formatDate(activity.created_at)}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                {filteredAndGroupedActivities.map((group) => (
+                  <ActivityGroup
+                    key={group.date}
+                    date={group.date}
+                    activities={group.activities}
+                    giftNameById={getGiftNameById}
+                    giftIconById={getGiftIconById}
+                    onActivityClick={handleActivityClick}
+                  />
+                ))}
 
                 {/* Loading indicator for next page */}
                 {isFetchingNextPage && (
@@ -298,10 +297,26 @@ function ActivityPage() {
               </div>
               <button className="product-sheet__close" onClick={() => setSelected(null)}>✕</button>
             </div>
+
             <div className="product-sheet__title">
               <div className="product-sheet__name">{selected.title}</div>
               <div className="product-sheet__num">{selected.giftNumber}</div>
             </div>
+              
+              {selected.holdTime && (
+                <div className="product-sheet__title-hold-time">
+                  <span className="product-sheet__hold-time-label">Time to unhold:</span>
+                  <span className="product-sheet__hold-time-value">{selected.holdTime}<div className="product-sheet__hold-time-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div></span>
+                </div>
+              )}
+              
+            
+            
             <div className="product-sheet__list">
               {selected.items.map((it) => (
                 <div key={it.id} className="product-sheet__row">
@@ -314,16 +329,7 @@ function ActivityPage() {
               ))}
             </div>
             <div className="product-sheet__actions">
-              <button 
-                className="product-sheet__btn" 
-                type="button"
-                onClick={() => {
-                  const channelId = parseInt(selected.giftNumber.replace('#', ''));
-                  shareChannel(channelId, { gifts: selected.items.reduce((acc, item) => ({ ...acc, [item.id]: item.quantity }), {}) });
-                }}
-              >
-                Share Channel
-              </button>
+              <button className="product-sheet__btn" type="button">Share Channel</button>
               <button className="product-sheet__btn product-sheet__btn--primary" type="button">Open Channel</button>
             </div>
           </div>

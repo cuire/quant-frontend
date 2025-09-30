@@ -72,6 +72,13 @@ export interface Gift {
   count: number;
 }
 
+export interface GiftAttribute {
+  type: string;
+  value: string;
+  rarity_per_mille: number;
+  floor: string;
+}
+
 // New types for /gifts/gifts endpoint
 export interface GiftModel {
   id: string;
@@ -123,6 +130,7 @@ export interface GiftsResponse {
 }
 
 export interface MarketGift {
+  full_name: string;
   slug: string;
   gift_id: string;
   model_id: number;
@@ -329,14 +337,62 @@ export async function getGiftsWithFilters(): Promise<GiftsResponse> {
 // Activity functions
 export interface Activity {
   id: number;
-  gift_id: string;
+  activity_type: 'gift' | 'channel';
+  gift_id: string | number;
   is_upgraded: boolean;
-  gifts_data?: Record<string, number>;
+  gifts_data?: Record<string, number> | {
+    upgraded?: Record<string, string[]>;
+  };
   channel_stars: number;
   type: string;
   amount: number;
-  channel_id: number;
+  channel_id: number | null;
   created_at: string;
+  slug: string;
+  user_gift_type?: string | null;
+  gift_data?: {
+    id: number;
+    slug: string;
+    type: string;
+    image_url: string | null;
+    price: number;
+    status: string;
+    pre_market_until: string | null;
+    gift_frozen_until: string | null;
+  } | null;
+  base_gift_data?: {
+    id: number;
+    short_name: string;
+    full_name: string;
+    type: string;
+    image_url: string | null;
+    supply: number;
+    stars: number;
+  } | null;
+  model_data?: {
+    id: number;
+    name: string;
+    url: string | null;
+    rarity_per_mille: number;
+    floor: number;
+  } | null;
+  backdrop_data?: {
+    id: number;
+    name: string;
+    centerColor: string;
+    edgeColor: string;
+    patternColor: string;
+    textColor: string;
+    rarity_per_mille: number;
+    floor: number;
+  } | null;
+  symbol_data?: {
+    id: number;
+    name: string;
+    url: string | null;
+    rarity_per_mille: number;
+    floor: number;
+  } | null;
 }
 
 export interface UserActivityResponse {
@@ -388,13 +444,24 @@ export async function getActivityChannels(
   return data || [];
 }
 
+
+const activityTypes = ["purchase", "sale", "offer_sent", "offer_received", "offer_accepted", "offer_rejected", "offer_cancelled", "deposit", "withdrawal", "referral_reward", "reward_by_admin", "listed", "price_changed", "transferred", "upgraded", "unlisted", "deleted", "returned"] as const;
+
+type ActivityType = (typeof activityTypes)[number];
+
+const storageActivityTypes: ActivityType[] = ["purchase", "sale", "offer_sent", "offer_received", "offer_accepted", "offer_rejected", "offer_cancelled", "listed", "price_changed", "transferred", "upgraded", "unlisted", "deleted", "returned"];
+
 export async function getUserActivity(
   page = 1,
-  limit = 20
+  limit = 20,
+  types: ActivityType[] = storageActivityTypes,
 ): Promise<UserActivityResponse> {
   const params = new URLSearchParams();
   params.append('page', page.toString());
   params.append('limit', limit.toString());
+  for (const type of types) {
+    params.append('activity_types', type);
+  }
   
   const data = await request<UserActivityResponse>(`/users/me/activity?${params.toString()}`);
   return data;

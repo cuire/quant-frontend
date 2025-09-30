@@ -251,7 +251,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                           
                           <div className={e('row-main')}>
                             <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span>{gift.short_name || gift.full_name}</span>
+                              <span>{gift.full_name || gift.short_name}</span>
                               {gift.new && <span className={e('new-badge')} style={{ 
                                 backgroundColor: gift.new_color,
                                 color: 'white',

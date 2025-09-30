@@ -20,8 +20,13 @@ function Root() {
     }
   }, []);
 
-  // Show back button if we're not on the root path
-  const canGoBack = location.pathname !== '/';
+  // Show back button if we're not on the root path or main navigation tabs
+  const isMainTab = location.pathname === '/' || 
+                     location.pathname === '/profile' ||
+                     location.pathname.startsWith('/market') ||
+                     location.pathname.startsWith('/storage') ||
+                     location.pathname.startsWith('/activity');
+  const canGoBack = !isMainTab;
 
   // Hide BottomNav for wallet routes
   const isWalletRoute = location.pathname.startsWith('/wallet');

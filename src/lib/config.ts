@@ -1,7 +1,7 @@
 // Simple configuration
 export const config = {
   api: {
-    baseURL: import.meta.env.VITE_API_URL || "https://quant-marketplace-dev.top/api",
+    baseURL: import.meta.env.VITE_API_URL || "https://quant-marketplace-dev.top",
   },
 
   telegramChannelUrl: import.meta.env.VITE_TELEGRAM_CHANNEL_URL || "https://t.me/quantmarketplace",

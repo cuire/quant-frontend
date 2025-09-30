@@ -1,1 +1,1 @@
-export { GiftIcon } from './GiftIcon';
+export { GiftIcon, GiftSlugIcon, UpgradedGiftSlugIcon } from './GiftIcon';

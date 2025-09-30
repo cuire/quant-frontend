@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 import { useModal } from '@/contexts/ModalContext';
 import { GiftDetailsModal } from './GiftDetailsModal';
+import { UpgradedGiftModal } from './UpgradedGiftModal';
 import { OfferModal } from './OfferModal';
 import { AcceptOfferModal } from './OfferAcceptModal';
 import { AcceptOfferConfirmModal } from './OfferAcceptConfirmModal';
@@ -51,6 +52,8 @@ export const Modal = () => {
     switch (modalType) {
       case 'gift-details':
         return <GiftDetailsModal data={modalData} onClose={closeModal} />;
+      case 'upgraded-gift':
+        return <UpgradedGiftModal data={modalData} onClose={closeModal} />;
       case 'offer':
         return <OfferModal data={modalData} onClose={closeModal} />;
       case 'accept-offer':

@@ -54,7 +54,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
           const foundGift = gifts.find((gift: any) => gift.id === gift_id);
           itemsArray.push({
             id: gift_id,
-            name: foundGift?.short_name || foundGift?.full_name || `Gift ${gift_id}`,
+            name: foundGift?.full_name || foundGift?.short_name || `Gift ${gift_id}`,
             icon: `https://FlowersRestricted.github.io/gifts/${gift_id}/default.png`,
             quantity: quantity,
             type: 'item'

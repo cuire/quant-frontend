@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useMarketGiftsInfinite } from '@/lib/api-hooks';
+import { useMarketGiftsInfinite, useGiftsWithFilters } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
 import { GiftFilters } from '@/components/MarketHeader';
 import { GiftCurrentFilters, giftFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback } from 'react';
+import { useModal } from '@/contexts/ModalContext';
 
 // Search schema for gifts page
 const searchSchema = giftFiltersSearchSchema;
@@ -18,6 +19,7 @@ function GiftsPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const { openModal } = useModal();
   
   // Use the global filters hook
   const { handleFilterChange, currentFilters, apiFilters } = useGlobalFilters(search, navigate, 'gift');
@@ -35,6 +37,25 @@ function GiftsPage() {
 
   // Flatten all pages of gifts data
   const gifts = giftsData?.pages.flat() || [];
+
+  // Handler for opening gift modal
+  const handleGiftClick = (gift: any) => {
+    // Find the matching model from the gift's models array
+    const model = gift.attributes.find((a: any) => a.type === 'model');
+    const backdrop = gift.attributes.find((a: any) => a.type === 'backdrop');
+    const symbol = gift.attributes.find((a: any) => a.type === 'symbol');
+
+    console.log('gift', gift,  model, backdrop, symbol);
+    if (model && backdrop && symbol) {
+      openModal('upgraded-gift', {
+        giftId: gift.gift_id,
+        giftSlug: gift.slug,
+        model,
+        backdrop,
+        symbol,
+      });
+    }
+  };
 
   // Wrapped fetchNextPage with logging
   const wrappedFetchNextPage = useCallback(async () => {
@@ -133,13 +154,16 @@ function GiftsPage() {
                       id: gift.gift_id.toString(),
                       name: gift.slug || 'Unknown Gift',
                       icon: `https://FlowersRestricted.github.io/gifts/${gift.gift_id}/default.png`,
-                      type: undefined
+                      type: undefined,
+                      giftSlug: gift.slug,
                     }
                   ]}
-                  title={gift.slug || 'Unknown Gift'}
+                  title={gift.full_name || 'Unknown Gift'}
                   giftNumber={`#${gift.gift_id}`}
                   price={Math.round(Number(gift.price) || 0)}
                   action="buy-or-cart"
+                  onClick={() => handleGiftClick(gift)}
+                  style={{ cursor: 'pointer' }}
                 />
               );
             })}
