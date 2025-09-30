@@ -1,2 +1,8 @@
-- [ ] {upgraded: {5782984811920491178: ["6030763098724368905"]}} рисуем первый, второй нужен для подсчета, если гифт upgraded, добавляем тэг nft
-- [ ] 
+- [ ] кошель и профиль целиком
+- [ ] storage/activity: activity/gift, activity/modal, activity/pagination fix, activity/убрать channel_type
+- [ ] storage/offers протекстить, добавить поддержку гифтов / плейсхолдеры
+- [ ] storage/channels, добавить гифты, протестить все модалки
+- [ ] activity/gifts
+- [ ] market/gifts неулучшенный
+
+- [ ] плюс предметы из инвенторя должны рендериться по особому
