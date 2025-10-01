@@ -262,16 +262,30 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                                 fontSize: '10px',
                                 fontWeight: 'bold'
                               }}>NEW</span>}
-                              {gift.premarket && <span className={e('premarket-badge')} style={{ 
-                                backgroundColor: '#ff6b35',
-                                color: 'white',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                fontSize: '10px',
-                                fontWeight: 'bold'
-                              }}>PREMARKET</span>}
                             </div>
-                            <div className={e('row-note')}>Available in market</div>
+                            <div className={e('row-note')}>
+                              {gift.premarket && (
+                                <span style={{ 
+                                  backgroundColor: '#FF4545',
+                                  color: 'white',
+                                  padding: '1px 4px',
+                                  borderRadius: '16px',
+                                  fontSize: '8px',
+                                  fontWeight: '600',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '2px',
+                                  height: '16px',
+                                  marginTop: '3px'
+                                }}>
+                                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="10" height="10" rx="5" fill="white"/>
+                                    <path d="M5 1C4.47471 1 3.95457 1.10346 3.46927 1.30448C2.98396 1.5055 2.54301 1.80014 2.17157 2.17157C1.42143 2.92172 1 3.93913 1 5C1 6.06087 1.42143 7.07828 2.17157 7.82843C2.54301 8.19986 2.98396 8.4945 3.46927 8.69552C3.95457 8.89654 4.47471 9 5 9C6.06087 9 7.07828 8.57857 7.82843 7.82843C8.57857 7.07828 9 6.06087 9 5C9 4.47471 8.89654 3.95457 8.69552 3.46927C8.4945 2.98396 8.19986 2.54301 7.82843 2.17157C7.45699 1.80014 7.01604 1.5055 6.53073 1.30448C6.04543 1.10346 5.52529 1 5 1ZM6.68 6.68L4.6 5.4V3H5.2V5.08L7 6.16L6.68 6.68Z" fill="#FF4545"/>
+                                  </svg>
+                                  Pre-Market
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <div className={e('row-right')}>
                             <div className={e('row-price')}>
