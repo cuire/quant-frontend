@@ -8,3 +8,7 @@ export const getGiftIcon = (giftId: string) => {
 export const getGiftModelIcon = (giftId: string, modelId: string) => {
   return `https://quant-marketplace.com/assets/gifts/${giftId}/${modelId}.png`;
 }
+
+export const getSymbolIcon = (symbolId: string) => {
+  return `https://quant-marketplace.com/assets/symbols/${symbolId}.png`;
+}

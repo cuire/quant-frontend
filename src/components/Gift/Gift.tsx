@@ -119,7 +119,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     }}
                   >
                   <div className={e('item-content')}>
-                    {item.giftSlug ? (  
+                    {item.giftSlug && item.giftSlug !== 'None-None' ? (  
                       <GiftSlugIcon giftSlug={item.giftSlug} size="100%" className={e('full-size-image')} />
                     ) : (
                       <img 

@@ -2,7 +2,6 @@ import { MarketTopBar } from '@/components/MarketHeader';
 import { createFileRoute, Link, Outlet, useLocation, redirect } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useLastTab } from '@/hooks/useLastTab';
-import { ToastDemo } from '@/components/Toast/ToastDemo';
 
 export const Route = createFileRoute('/market')({
   beforeLoad: ({ location }) => {
@@ -34,7 +33,6 @@ function MarketIndexPage() {
   return (
     <> 
       <MarketTopBar />
-      <ToastDemo />
       <div className="storage-tabs">
         <div className="storage-segment">
           {[

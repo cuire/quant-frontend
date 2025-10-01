@@ -131,6 +131,8 @@ export interface GiftsResponse {
 }
 
 export interface MarketGift {
+  num: any;
+  id: string;
   full_name: string;
   slug: string;
   gift_id: string;
@@ -147,6 +149,7 @@ export interface MarketGift {
   symbol_floor: number;
   model_backdrops_floor: Record<string, any>;
   model_symbols_floor: Record<string, any>;
+  attributes: GiftAttribute[];
 }
 
 export interface Offer {

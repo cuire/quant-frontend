@@ -6,6 +6,7 @@ import { GiftFilters } from '@/components/MarketHeader';
 import { GiftCurrentFilters, giftFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback } from 'react';
 import { useModal } from '@/contexts/ModalContext';
+import { MarketGift } from '@/lib/api';
 
 // Search schema for gifts page
 const searchSchema = giftFiltersSearchSchema;
@@ -39,24 +40,28 @@ function GiftsPage() {
   const gifts = giftsData?.pages.flat() || [];
 
   // Handler for opening gift modal
-  const handleGiftClick = (gift: any) => {
+  const handleGiftClick = (gift: MarketGift) => {
     // Find the matching model from the gift's models array
     const model = gift.attributes.find((a: any) => a.type === 'model');
     const backdrop = gift.attributes.find((a: any) => a.type === 'backdrop');
     const symbol = gift.attributes.find((a: any) => a.type === 'symbol');
 
     console.log('gift', gift,  model, backdrop, symbol);
-    if (model && backdrop && symbol) {
-      openModal('upgraded-gift', {
-        id: gift.id,
-        giftId: gift.gift_id,
-        giftSlug: gift.slug,
-        price: gift.price,
-        model,
-        backdrop,
-        symbol,
-      });
-    }
+    
+    // Open modal for both upgraded and non-upgraded gifts
+    // For non-upgraded gifts (slug "None-None"), attributes might not exist
+    openModal('upgraded-gift', {
+      id: gift.id,
+      giftId: gift.gift_id,
+      giftSlug: gift.slug,
+      price: gift.price,
+      name: gift.full_name,
+      num: gift.num,
+      gift_frozen_until: gift.gift_frozen_until,
+      model: model || { value: '', rarity_per_mille: 0, floor: 0 },
+      backdrop: backdrop || { value: '', rarity_per_mille: 0, floor: 0, centerColor: '000000', edgeColor: '000000' },
+      symbol: symbol || { value: '', rarity_per_mille: 0, floor: 0 },
+    });
   };
 
   // Wrapped fetchNextPage with logging
@@ -121,7 +126,7 @@ function GiftsPage() {
       />
 
       {/* Market Content */}
-      <div className="px-4 py-6">
+      <div className="px-4 py-6" style={{ paddingBottom: '100px' }}>
         {/* Loading state */}
         {isLoading && gifts.length === 0 ? (
         <div className="gifts-grid">

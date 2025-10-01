@@ -63,3 +63,26 @@ const copyToClipboard = (text: string) => {
     alert("Channel link copied! Share it with your friends.");
   }
 };
+
+export const shareGift = (giftId: string) => {
+  try {
+    const shareText = `Gift ${giftId}`;
+    const shareUrl = `https://t.me/QuantMarketRobot/market?startapp=gift${giftId}`;
+    if (navigator.share) {
+      // Use native Web Share API
+      navigator.share({
+        title: "QuantMarket - Gift",
+        text: shareText,
+        url: shareUrl,
+      }).catch(() => {
+        // Fallback to copying link
+        copyToClipboard(`${shareText}\n\n${shareUrl}`);
+      });
+    } else {
+      // Fallback to copying the link
+      copyToClipboard(`${shareText}\n\n${shareUrl}`);
+    }
+  } catch (error) {
+    console.error("Failed to share gift", error);
+  }
+};

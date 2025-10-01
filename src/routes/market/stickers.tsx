@@ -55,10 +55,6 @@ function StickersPage() {
                     console.log('Background clicked:', background);
                   }}
                   style={{ cursor: 'pointer' }}
-                  backgroundGradient={{
-                    centerColor: background.centerColor,
-                    edgeColor: background.edgeColor,
-                  }}
                 />
               );
             })}
