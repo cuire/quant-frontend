@@ -1,5 +1,5 @@
 - [ ] кошель и профиль целиком
-- [ ] storage/activity: activity/gift, activity/modal, activity/pagination fix, activity/убрать channel_type
+- [ ] storage/activity: activity/gift, activity/modal, activity/pagination fix, activity/фильтры убрать channel_type
 - [ ] storage/offers протекстить, добавить поддержку гифтов / плейсхолдеры
 - [ ] storage/channels, добавить гифты, протестить все модалки
 - [ ] activity/gifts

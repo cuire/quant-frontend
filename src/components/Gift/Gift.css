@@ -188,25 +188,25 @@
 
 /* размеры изображений в зависимости от количества */
 .gift__items-grid--single .gift__item-image {
-  max-width: 80px;
-  max-height: 80px;
+  max-width: 140px;
+  max-height: 140px;
 }
 
 .gift__items-grid--double .gift__item-image {
-  max-width: 60px;
-  max-height: 60px;
+  max-width: 85px;
+  max-height: 85px;
 }
 
 .gift__items-grid--multiple .gift__item-image,
 .gift__items-grid--triple .gift__item-image {
-  max-width: 50px;
-  max-height: 50px;
+  max-width: 75px;
+  max-height: 75px;
 }
 
 
 .gift__items-grid--triple .gift__item:nth-child(1) .gift__item-image {
-  max-width: 64px;
-  max-height: 64px;
+  max-width: 75px;
+  max-height: 75px;
 }
 
 /* Overlay helper reused by NftBadge */
