@@ -4,7 +4,7 @@ import { Modal } from '@/components/Modal';
 import { ModalProvider } from '@/contexts/ModalContext';
 import { FilterProvider } from '@/contexts/FilterContext';
 import { useEffect } from 'react';
-import { miniApp } from '@telegram-apps/sdk-react';
+import { miniApp, swipeBehavior } from '@telegram-apps/sdk-react';
 import { Page } from '@/components/Page';
 
 export const Route = createRootRoute({
@@ -16,6 +16,9 @@ function Root() {
   // const lp = useLaunchParams();
 
   useEffect(() => {
+    swipeBehavior.mount();
+    swipeBehavior.disableVertical();
+
     if ( miniApp.setHeaderColor.isAvailable()) {
         miniApp.setHeaderColor('#1A2026');
     }
@@ -25,13 +28,7 @@ function Root() {
     // }
   }, []);
 
-  // Show back button if we're not on the root path or main navigation tabs
-  const isMainTab = location.pathname === '/' || 
-                     location.pathname === '/profile' ||
-                     location.pathname.startsWith('/market') ||
-                     location.pathname.startsWith('/storage') ||
-                     location.pathname.startsWith('/activity');
-  const canGoBack = !isMainTab;
+  const canGoBack = false;
 
   // Hide BottomNav for wallet routes
   const isWalletRoute = location.pathname.startsWith('/wallet');
