@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift } from './api';
+import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, getMeGifts, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -16,6 +16,8 @@ export const queryKeys = {
     ['meChannels', page, limit] as const,
   meChannelsInfinite: (limit: number) => 
     ['meChannelsInfinite', limit] as const,
+  meGiftsInfinite: (limit: number) => 
+    ['meGiftsInfinite', limit] as const,
   gifts: ['gifts'] as const,
   giftsWithFilters: ['giftsWithFilters'] as const,
   activity: (limit: number, offset: number, onlyExactGift: boolean, showUpgradedGifts: boolean) => 
@@ -127,6 +129,24 @@ export const useMeChannelsInfinite = (
   return useInfiniteQuery({
     queryKey: queryKeys.meChannelsInfinite(limit),
     queryFn: ({ pageParam = 1 }) => getMeChannels(pageParam, limit),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than the limit, we've reached the end
+      if (lastPage.length < limit) {
+        return undefined;
+      }
+      return allPages.length + 1;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+export const useMeGiftsInfinite = (
+  limit = 20
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.meGiftsInfinite(limit),
+    queryFn: ({ pageParam = 1 }) => getMeGifts(pageParam, limit),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       // If we got fewer items than the limit, we've reached the end

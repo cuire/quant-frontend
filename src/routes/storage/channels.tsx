@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useRef, useCallback, useMemo } from 'react';
-import { useMeChannelsInfinite, useGifts } from '@/lib/api-hooks';
+import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
+import { getGiftIcon } from '@/lib/images';
 
 export const Route = createFileRoute('/storage/channels')({
   component: ChannelsPage,
@@ -11,34 +12,78 @@ export const Route = createFileRoute('/storage/channels')({
 function ChannelsPage() {
   const { openModal } = useModal();
   const { data: giftsData } = useGifts();
+  
   const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error
+    data: channelsData,
+    fetchNextPage: fetchNextChannels,
+    hasNextPage: hasNextChannels,
+    isFetchingNextPage: isFetchingNextChannels,
+    isLoading: isLoadingChannels,
+    error: channelsError
   } = useMeChannelsInfinite(20);
+
+  const {
+    data: userGiftsData,
+    isLoading: isLoadingGifts,
+  } = useMeGiftsInfinite(20);
 
   const observer = useRef<IntersectionObserver>();
   const lastElementRef = useCallback((node: HTMLDivElement) => {
-    if (isLoading) return;
+    if (isLoadingChannels) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
+      if (entries[0].isIntersecting && hasNextChannels && !isFetchingNextChannels) {
+        fetchNextChannels();
       }
     });
     if (node) observer.current.observe(node);
-  }, [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [isLoadingChannels, hasNextChannels, isFetchingNextChannels, fetchNextChannels]);
 
-  const allChannels = data?.pages.flatMap(page => page) || [];
+  const allChannels = channelsData?.pages.flatMap(page => page) || [];
+  const allUserGifts = userGiftsData?.pages.flatMap(page => page) || [];
 
   // Create a map of gift IDs to gift data for quick lookup
   const giftsMap = useMemo(() => {
     if (!giftsData) return new Map();
     return new Map(giftsData.map(gift => [gift.id, gift]));
   }, [giftsData]);
+
+  const handleGiftClick = (userGift: any) => {
+    // Extract attributes from user gift data
+    const model = userGift.model_data ? {
+      value: userGift.model_data.name || '',
+      rarity_per_mille: userGift.model_data.rarity_per_mille || 0,
+      floor: userGift.model_data.floor || 0
+    } : { value: '', rarity_per_mille: 0, floor: 0 };
+
+    const backdrop = userGift.backdrop_data ? {
+      value: userGift.backdrop_data.name || '',
+      rarity_per_mille: userGift.backdrop_data.rarity_per_mille || 0,
+      floor: userGift.backdrop_data.floor || 0,
+      centerColor: userGift.backdrop_data.center_color || '000000',
+      edgeColor: userGift.backdrop_data.edge_color || '000000'
+    } : { value: '', rarity_per_mille: 0, floor: 0, centerColor: '000000', edgeColor: '000000' };
+
+    const symbol = userGift.symbol_data ? {
+      value: userGift.symbol_data.name || '',
+      rarity_per_mille: userGift.symbol_data.rarity_per_mille || 0,
+      floor: userGift.symbol_data.floor || 0
+    } : { value: '', rarity_per_mille: 0, floor: 0 };
+
+    // Open upgraded-gift modal with hideActions flag
+    openModal('upgraded-gift', {
+      id: userGift.id,
+      giftId: String(userGift.gift_data.id),
+      giftSlug: userGift.slug,
+      name: userGift.gift_data?.full_name || `Gift ${userGift.gift_id}`,
+      num: userGift.id,
+      gift_frozen_until: userGift.gift_frozen_until || null,
+      model,
+      backdrop,
+      symbol,
+      hideActions: true,
+    });
+  };
 
   return (
     <>
@@ -50,27 +95,36 @@ function ChannelsPage() {
           <Link to="/storage/offers/received" className="storage-tab-link">
             Offers
           </Link>
-          <Link to="/storage/activity" className="storage-tab-link">
+          <Link 
+            to="/storage/activity" 
+            search={{ 
+              page: 1, 
+              limit: 20, 
+              gift_id: [], 
+              sort_by: 'date_new_to_old',
+            } as any}
+            className="storage-tab-link"
+          >
             Activity
           </Link>
         </div>
       </div>
 
-      {isLoading && (
+      {isLoadingChannels && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <p>Loading channels...</p>
         </div>
       )}
 
-      {error && (
+      {channelsError && (
         <div style={{ textAlign: 'center', padding: '20px', color: '#FF3939' }}>
-          <p>Error loading channels: {error.message}</p>
+          <p>Error loading channels: {channelsError.message}</p>
         </div>
       )}
 
-      {!isLoading && allChannels.length === 0 && (
+      {!isLoadingChannels && allChannels.length === 0 && !isLoadingGifts && allUserGifts.length === 0 && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>No channels found</p>
+          <p>No items found</p>
         </div>
       )}
 
@@ -134,11 +188,33 @@ function ChannelsPage() {
               />
            );
         })}
+
+        {/* Render user gifts as cards */}
+        {allUserGifts.map((userGift) => (
+          <Gift
+            key={`gift-${userGift.id}`}
+            items={[{
+              id: userGift.gift_id,
+              name: userGift.gift_data.full_name || `Gift ${userGift.gift_id}`,
+              icon: userGift.slug && userGift.slug !== 'None-None' 
+                ? '' // Will use UpgradedGiftSlugIcon component
+                : getGiftIcon(userGift.gift_data.id),
+              giftSlug: userGift.slug,
+            }]}
+            title={userGift.gift_data.full_name || `Gift ${userGift.gift_id}`}
+            giftNumber={`#${userGift.gift_data.id}`}
+            price={0}
+            variant="my-channel"
+            giftStatus={userGift.status}
+            onSell={() => openModal('offer', { userGift, gifts: giftsData || [] })}
+            onClick={() => handleGiftClick(userGift)}
+          />
+        ))}
       </div>
 
-      {isFetchingNextPage && (
+      {isFetchingNextChannels && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>Loading more channels...</p>
+          <p>Loading more...</p>
         </div>
       )}
     </>

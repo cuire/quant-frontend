@@ -338,25 +338,25 @@ export function useGlobalFilters<T extends ChannelFiltersSearchParams | GiftFilt
 
       // Map frontend filter names to backend API parameter names
       if (giftFilters.collection && giftFilters.collection !== 'All') {
-        // Collection filter contains comma-separated gift IDs, convert to array of integers
-        const giftIds = giftFilters.collection.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+        // Collection filter contains comma-separated gift IDs, keep as strings to preserve precision for large numbers
+        const giftIds = giftFilters.collection.split(',').map(id => id.trim()).filter(id => id !== '');
         if (giftIds.length > 0) {
           filters.gift_id = giftIds;
         }
       }
 
       if (giftFilters.model && giftFilters.model !== 'All') {
-        // Model value is now the model ID (string), convert to int
-        const modelId = parseInt(giftFilters.model);
-        if (!isNaN(modelId)) {
+        // Model value is the model ID (string), keep as string to preserve precision for large numbers
+        const modelId = giftFilters.model.trim();
+        if (modelId !== '') {
           filters.model_id = modelId;
         }
       }
 
       if (giftFilters.background && giftFilters.background !== 'All') {
-        // Background value is the backdrop ID (string), convert to int
-        const backdropId = parseInt(giftFilters.background);
-        if (!isNaN(backdropId)) {
+        // Background value is the backdrop ID (string), keep as string to preserve precision for large numbers
+        const backdropId = giftFilters.background.trim();
+        if (backdropId !== '') {
           filters.backdrop_id = backdropId;
         }
       }

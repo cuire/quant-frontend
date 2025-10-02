@@ -14,6 +14,7 @@ export type ModalType =
   | 'success'
   | 'error'
   | 'participating'
+  | 'sell-channel'
   | null;
 
 interface ModalContextType {

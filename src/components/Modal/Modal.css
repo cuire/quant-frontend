@@ -1091,3 +1091,65 @@ body.modal-open {
     background: #1d6fa8;
     border-color: #1d6fa8;
 }
+
+/* Sell Modal Duration Slider Styles */
+.sell-modal__duration-slider {
+    position: relative;
+    background: #344655;
+    border-radius: 12px;
+    padding: 20px 16px;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.sell-modal__slider-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    outline: none;
+    margin-bottom: 8px;
+}
+
+.sell-modal__slider-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #248BDA;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sell-modal__slider-input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #248BDA;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sell-modal__slider-marks {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+
+.sell-modal__slider-marks span {
+    color: #7F94AE;
+    font-size: 12px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.sell-modal__slider-marks span.is-active {
+    color: #248BDA;
+    font-weight: 600;
+}

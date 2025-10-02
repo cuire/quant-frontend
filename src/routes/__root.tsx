@@ -4,7 +4,7 @@ import { Modal } from '@/components/Modal';
 import { ModalProvider } from '@/contexts/ModalContext';
 import { FilterProvider } from '@/contexts/FilterContext';
 import { useEffect } from 'react';
-import { miniApp } from '@telegram-apps/sdk-react';
+import { miniApp, viewport, useLaunchParams } from '@telegram-apps/sdk-react';
 import { Page } from '@/components/Page';
 
 export const Route = createRootRoute({
@@ -13,10 +13,15 @@ export const Route = createRootRoute({
 
 function Root() {
   const location = useLocation();
-  
+  const lp = useLaunchParams();
+
   useEffect(() => {
     if ( miniApp.setHeaderColor.isAvailable()) {
         miniApp.setHeaderColor('#1A2026');
+    }
+
+    if (viewport.requestFullscreen.isAvailable() && lp.tgWebAppPlatform === 'android' || lp.tgWebAppPlatform === 'ios') {
+      viewport.requestFullscreen();
     }
   }, []);
 

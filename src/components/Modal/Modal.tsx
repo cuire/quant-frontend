@@ -14,6 +14,7 @@ import { SuccessModal } from './SuccessModal';
 import { ErrorModal } from './ErrorModal';
 import { ParticipatingModal } from './ParticipatingModal';
 import { GiftOfferModal } from './GiftOfferModal';
+import { SellModal } from './StorageModals';
 import './Modal.css';
 
 export const Modal = () => {
@@ -103,6 +104,16 @@ export const Modal = () => {
           <ParticipatingModal 
             onClose={closeModal}
             ticketCount={modalData?.ticketCount}
+          />
+        );
+      case 'sell-channel':
+        return (
+          <SellModal
+            itemName={modalData?.itemName || ''}
+            floorPrice={modalData?.floorPrice}
+            shouldShowDuration={modalData?.shouldShowDuration ?? true}
+            onClose={closeModal}
+            onSubmit={modalData?.onSubmit || (() => {})}
           />
         );
       default:

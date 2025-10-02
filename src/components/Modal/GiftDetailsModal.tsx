@@ -21,6 +21,18 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
     openModal('purchase-confirm', { channel, gifts });
   };
 
+  const handleSellChannel = async (price: number, duration?: number) => {
+    console.log('Selling channel:', channel.id, 'for', price, 'TON', duration ? `for ${duration}h` : '');
+    // TODO: Implement actual API call to create sell offer
+    // await createChannelOffer(channel.id, price, duration);
+  };
+
+  const handleChangePrice = async (price: number, duration?: number) => {
+    console.log('Changing price for channel:', channel.id, 'to', price, 'TON', duration ? `for ${duration}h` : '');
+    // TODO: Implement actual API call to update channel price
+    // await updateChannelPrice(channel.id, price, duration);
+  };
+
   // Extract channel and gifts data
   const channel = data.channel || data;
   const gifts = data.gifts || [];
@@ -205,13 +217,39 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
           {channel?.status === 'reserved' ? (
             <>
               <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
-              <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Sell Channel
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{display: 'inline-block'}} 
+                type="button"
+                onClick={() => {
+                  openModal('sell-channel', {
+                    itemName: title,
+                    floorPrice: 0,
+                    shouldShowDuration: true,
+                    onSubmit: handleSellChannel
+                  });
+                }}
+              >
+                Sell Channel
               </button>
             </>
           ) : channel?.status === 'active' ? (
             <>
               <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
-              <button className="product-sheet__btn product-sheet__btn--primary" style={{display: 'inline-block'}} type="button">Change Price
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{display: 'inline-block'}} 
+                type="button"
+                onClick={() => {
+                  openModal('sell-channel', {
+                    itemName: title,
+                    floorPrice: price,
+                    shouldShowDuration: true,
+                    onSubmit: handleChangePrice
+                  });
+                }}
+              >
+                Change Price
                 <span className="product-sheet__price">{price} TON</span>
               </button>
             </>

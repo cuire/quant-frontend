@@ -322,6 +322,19 @@ export async function getMeChannels(
   return items || [];
 }
 
+export async function getMeGifts(
+  page = 1, 
+  limit = 20
+): Promise<any[]> {
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  
+  const data = await request<{items: any[]}>(`/users/me/items?${params.toString()}`);
+  const items = data.items.filter((item: any) => item.item_type === 'gift');
+  return items || [];
+}
+
 export async function addChannel(inviteLink: string): Promise<Channel> {
   return request<Channel>("/channels/add", {
     method: "POST",

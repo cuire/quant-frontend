@@ -47,6 +47,8 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   action?: 'sell' | 'buy-or-cart';
   /** Статус канала для отображения цены */
   channelStatus?: string;
+  /** Статус подарка для отображения кнопки Sell */
+  giftStatus?: string;
 
   transferringEndAt?: string;
 }
@@ -68,6 +70,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
   storageAction = 'sell',
   action = 'sell',
   channelStatus,
+  giftStatus,
   transferringEndAt,
   ...rest 
 }, ref) => {
@@ -167,7 +170,17 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
 
           {isStorage ? (
             <div className={e('storage')}> 
-              {variant === 'my-channel' && channelStatus === 'reserved' ? (
+              {giftStatus === 'reserved' ? (
+                <div className={e('actions', 'single')}>
+                  <button 
+                    type="button" 
+                    className={e('sell-button')} 
+                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                  >
+                    Sell
+                  </button>
+                </div>
+              ) : variant === 'my-channel' && channelStatus === 'reserved' ? (
                 <div className={e('actions', 'single')}>
                   <button 
                     type="button" 

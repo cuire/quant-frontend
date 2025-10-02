@@ -4,3 +4,4 @@ export { SubscriptionModal } from './SubscriptionModal';
 export { SuccessModal } from './SuccessModal';
 export { ErrorModal } from './ErrorModal';
 export { ParticipatingModal } from './ParticipatingModal';
+export { SellModal } from './StorageModals';
