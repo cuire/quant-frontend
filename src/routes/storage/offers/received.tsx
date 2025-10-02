@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useOffersInfinite, useGifts } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
-import './activity.css';
+import '../activity.css';
 
 export const Route = createFileRoute('/storage/offers/received')({
   component: ReceivedOffersPage,

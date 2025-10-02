@@ -2,10 +2,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import { useUserActivityInfinite, useGifts } from '@/lib/api-hooks';
 import { createPortal } from 'react-dom';
-import { MarketFilters } from '@/components/MarketHeader/MarketFilters';
 import { ActivityGroup } from '@/components/ActivityGroup';
 import { Activity } from '@/lib/api';
-import { useFilters } from '@/lib/filters';
 import './activity.css';
 import { Link } from '@/components/Link/Link';
 
@@ -25,16 +23,10 @@ export const Route = createFileRoute('/storage/activity')({
 });
 
 function ActivityPage() {
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
   const { data: giftsData } = useGifts();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useUserActivityInfinite(20);
   const observerRef = useRef<IntersectionObserver | null>(null);
   
-  // Use the filters hook
-  const { handleFilterChange, currentFilters } = useFilters(search, (options) => {
-    navigate(options as any);
-  });
   
   const [selected, setSelected] = useState<null | {
     title: string;
@@ -113,7 +105,7 @@ function ActivityPage() {
       date,
       activities: (activities as Activity[]).sort((a: Activity, b: Activity) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     }));
-  }, [activities, currentFilters, giftsData]);
+  }, [activities, giftsData]);
 
 
   // Helper function to get gift name by ID
@@ -179,12 +171,6 @@ function ActivityPage() {
           </Link>
         </div>
       </div>
-
-      <MarketFilters 
-        onFilterChange={handleFilterChange}
-        currentFilters={currentFilters as any}
-        gifts={giftsData || []}
-      />
 
       {/* Activity Content */}
       <div className="activity-content">
