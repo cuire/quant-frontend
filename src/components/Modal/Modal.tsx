@@ -111,9 +111,12 @@ export const Modal = () => {
           <SellModal
             itemName={modalData?.itemName || ''}
             floorPrice={modalData?.floorPrice}
-            shouldShowDuration={modalData?.shouldShowDuration ?? true}
+            shouldShowDuration={modalData?.shouldShowDuration ?? false}
+            defaultPrice={modalData?.defaultPrice}
+            changePrice={modalData?.changePrice ?? false}
             onClose={closeModal}
             onSubmit={modalData?.onSubmit || (() => {})}
+            type={modalData?.type ?? 'channel'}
           />
         );
       default:

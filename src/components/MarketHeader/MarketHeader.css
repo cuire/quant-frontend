@@ -385,15 +385,30 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Apply flex layout only to filter sheets (those with sheet-header and sheet-footer) */
+.market-header__sheet:has(.market-header__sheet-header):has(.market-header__sheet-footer) {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
 .market-header__sheet-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 13px 16px 0 16px;
+    flex-shrink: 0;
 }
 
 .market-header__sheet-content {
     padding: 8px 0 16px 0;
+}
+
+/* Make content scrollable only in filter sheets */
+.market-header__sheet:has(.market-header__sheet-header):has(.market-header__sheet-footer) .market-header__sheet-content {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .market-header__sheet-title {
@@ -680,6 +695,16 @@
     display: flex;
     gap: 12px;
     padding: 12px;
+}
+
+/* Make footer sticky only in filter sheets */
+.market-header__sheet:has(.market-header__sheet-header):has(.market-header__sheet-footer) .market-header__sheet-footer {
+    flex-shrink: 0;
+    background: #212A33;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .market-header__btn-secondary {

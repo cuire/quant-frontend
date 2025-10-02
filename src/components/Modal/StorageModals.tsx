@@ -1,21 +1,29 @@
 import { useState } from 'react';
 import './Modal.css';
+import { config } from '@/lib/config';
 
 type SellModalProps = {
     itemName: string;
     shouldShowDuration?: boolean;
     floorPrice?: number;
+
+    type?: 'channel' | 'gift';
+    defaultPrice?: number;
+
+    changePrice?: boolean;
+
+
     onClose: () => void;
     onSubmit: (amount: number, duration?: number) => void;
 }
 
-export const SellModal = ({ itemName, shouldShowDuration = true, floorPrice = 891, onClose, onSubmit }: SellModalProps) => {
-    const [price, setPrice] = useState<string>('');
+export const SellModal = ({ itemName, defaultPrice, shouldShowDuration = true, changePrice = false, floorPrice = 891, onClose, onSubmit, type='channel' }: SellModalProps) => {
+    const [price, setPrice] = useState<string>(defaultPrice ? defaultPrice.toString() : '');
     const [duration, setDuration] = useState<1 | 3 | 5 | 8>(1);
     const [isLoading, setIsLoading] = useState(false);
 
     const priceNum = Number(price);
-    const serviceFee = 0.05; // 5% fee
+    const serviceFee = config.commissionRate;
     const youWillReceive = priceNum > 0 ? priceNum * (1 - serviceFee) : 0;
 
     const isValid = priceNum > 0 && priceNum >= floorPrice;
@@ -37,7 +45,7 @@ export const SellModal = ({ itemName, shouldShowDuration = true, floorPrice = 89
     return (
         <div className="offer-modal">
             <div className="offer-modal__header">
-                <div className="offer-modal__title">Sell Channel {itemName}</div>
+                <div className="offer-modal__title">{changePrice ? 'Change Price' : `Sell ${type === 'channel' ? 'Channel' : 'Gift'}`} {itemName}</div>
                 <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
             </div>
 
@@ -95,7 +103,7 @@ export const SellModal = ({ itemName, shouldShowDuration = true, floorPrice = 89
                 onClick={handleSubmit}
                 disabled={isLoading || !isValid}
             >
-                {isLoading ? 'Processing...' : 'Sell Channel'}
+                {isLoading ? 'Processing...' : changePrice ? 'Change Price' : `Sell ${type === 'channel' ? 'Channel' : 'Gift'}`}
             </button>
         </div>
     );

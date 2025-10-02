@@ -6,6 +6,8 @@ export const config = {
 
   telegramChannelUrl: import.meta.env.VITE_TELEGRAM_CHANNEL_URL || "https://t.me/quantmarketplace",
   
+  commissionRate: import.meta.env.VITE_COMMISSION_RATE || 0.05,
+
   telegram: {
     botUsername: import.meta.env.VITE_TELEGRAM_BOT_USERNAME || "quant_marketplace_bot",
   },

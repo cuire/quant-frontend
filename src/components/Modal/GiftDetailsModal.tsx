@@ -223,7 +223,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
                 type="button"
                 onClick={() => {
                   openModal('sell-channel', {
-                    itemName: title,
+                    itemName: `#${channel.id}`,
                     floorPrice: 0,
                     shouldShowDuration: true,
                     onSubmit: handleSellChannel
@@ -242,10 +242,11 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
                 type="button"
                 onClick={() => {
                   openModal('sell-channel', {
-                    itemName: title,
+                    itemName: `#${channel.id}`,
                     floorPrice: price,
-                    shouldShowDuration: true,
-                    onSubmit: handleChangePrice
+                    changePrice: true,
+                    onSubmit: handleChangePrice,
+                    defaultPrice: price,
                   });
                 }}
               >
