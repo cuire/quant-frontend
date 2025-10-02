@@ -26,7 +26,7 @@ export const SellModal = ({ itemName, defaultPrice, shouldShowDuration = true, c
     const serviceFee = config.commissionRate;
     const youWillReceive = priceNum > 0 ? priceNum * (1 - serviceFee) : 0;
 
-    const isValid = priceNum > 0 && priceNum >= floorPrice;
+    const isValid = priceNum > 0;
 
     const handleSubmit = async () => {
         if (!isValid || isLoading) return;
