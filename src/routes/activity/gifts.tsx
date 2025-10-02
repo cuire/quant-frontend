@@ -231,7 +231,7 @@ function ActivityGiftsPage() {
                         </div>
                       </div>
                       <div className="activity-sub">
-                        {activity.slug || `#${activity.gift_id}`}
+                        {`#${activity.gift_id}`}
                       </div>
                     </div>
                     <div className="activity-center">

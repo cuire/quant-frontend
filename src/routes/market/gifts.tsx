@@ -154,7 +154,7 @@ function GiftsPage() {
               
               return (
                 <Gift
-                  key={gift.gift_id}
+                  key={gift.id}
                   ref={ref}
                   items={[
                     {
@@ -166,7 +166,7 @@ function GiftsPage() {
                     }
                   ]}
                   title={gift.full_name || 'Unknown Gift'}
-                  giftNumber={`#${gift.gift_id}`}
+                  giftNumber={`#${gift.id}`}
                   price={Math.round(Number(gift.price) || 0)}
                   action="buy-or-cart"
                   onClick={() => handleGiftClick(gift)}
