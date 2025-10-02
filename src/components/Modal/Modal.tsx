@@ -109,6 +109,7 @@ export const Modal = () => {
       case 'sell-channel':
         return (
           <SellModal
+            itemId={modalData?.itemId || ''}
             itemName={modalData?.itemName || ''}
             floorPrice={modalData?.floorPrice}
             shouldShowDuration={modalData?.shouldShowDuration ?? false}

@@ -235,7 +235,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
             </>
           ) : channel?.status === 'active' ? (
             <>
-              <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
+              <button className="product-sheet__btn product-sheet__btn--error" type="button" onClick={() => {data.onDecline && data.onDecline(channel.id)}}>Remove Sale</button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
                 style={{display: 'inline-block'}} 

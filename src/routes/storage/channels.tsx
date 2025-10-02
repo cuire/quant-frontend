@@ -48,6 +48,30 @@ function ChannelsPage() {
     return new Map(giftsData.map(gift => [gift.id, gift]));
   }, [giftsData]);
 
+  const handleSellChannel = (id: string, price: number, duration?: number) => {
+    console.log('Selling channel:', id, price, 'TON', duration ? `for ${duration}h` : '');
+    // TODO: Implement actual API call to create sell offer
+    // await createChannelOffer(channel.id, price, duration);
+  };
+
+  const handleDeclineChannel = (id: string) => {
+    console.log('Declining channel', id);
+    // TODO: Implement actual API call to decline channel
+    // await declineChannel(channel.id);
+  };
+
+  const handleSellUserGift = (id: string, price: number, duration?: number) => {
+    console.log('Selling user gift:', id, price, 'TON', duration ? `for ${duration}h` : '');
+    // TODO: Implement actual API call to create sell offer
+    // await createUserGiftOffer(userGift.id, price, duration);
+  };
+
+  const handleDeclineUserGift = (id: string) => {
+    console.log('Declining user gift', id);
+    // TODO: Implement actual API call to decline user gift
+    // await declineUserGift(userGift.id);
+  };
+
   const handleGiftClick = (userGift: any) => {
     // Extract attributes from user gift data
     const model = userGift.model_data ? {
@@ -179,7 +203,15 @@ function ChannelsPage() {
                 variant="my-channel"
                 channelStatus={channel.status}
                 onClick={() => openModal('gift-details', {channel, gifts: giftsData || [],
-                  showPurchaseActions: channel.status !== 'transferring' && channel.status !== 'frozen'
+                  showPurchaseActions: channel.status !== 'transferring' && channel.status !== 'frozen',
+                  onDecline: handleDeclineChannel,
+                })}
+                onSell={() => openModal('sell-channel', {
+                  itemId: channel.id,
+                  itemName: `#${channel.id}`,
+                  floorPrice: null,
+                  onSubmit: handleSellChannel,
+                  defaultPrice: channel.price,
                 })}
                 transferringEndAt={channel.transferring_end_at}
                 
@@ -202,11 +234,18 @@ function ChannelsPage() {
               giftSlug: userGift.slug,
             }]}
             title={userGift.gift_data.full_name || `Gift ${userGift.gift_id}`}
-            giftNumber={`#${userGift.gift_data.id}`}
+            giftNumber={`#${userGift.id}`}
             price={0}
             variant="my-channel"
             giftStatus={userGift.status}
-            onSell={() => openModal('offer', { userGift, gifts: giftsData || [] })}
+            onSell={() => openModal('sell-channel', {
+              itemId: userGift.id,
+              itemName: `#${userGift.id}`,
+              floorPrice: null,
+              type: 'gift',
+              onSubmit: handleSellUserGift,
+              defaultPrice: userGift.gift_data.price,
+            })}
             onClick={() => handleGiftClick(userGift)}
           />
         ))}

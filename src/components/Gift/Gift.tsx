@@ -195,7 +195,6 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                   <button 
                     type="button" 
                     className={e('sell-button')} 
-                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
                     style={{ 
                       backgroundColor: '#DA7024',
                     }}
@@ -208,7 +207,6 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                   <button 
                     type="button" 
                     className={e('sell-button')} 
-                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
                   >
                     Frozen by admin
                   </button>
@@ -218,7 +216,6 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                   <button 
                     type="button" 
                     className={e('sell-button')} 
-                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
                     style={{ 
                       backgroundColor: '#32404D',
                       display: 'flex', alignItems: 'center', gap: '4px', paddingLeft: '12px', paddingRight: '12px', textAlign: 'left' }}
@@ -236,7 +233,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                   <button 
                     type="button" 
                     className={e('remove-button')} 
-                    onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                    onClick={(ev) => { ev.stopPropagation(); onDecline && onDecline(); }}
                   >
                     Remove Offers
                   </button>

@@ -1092,6 +1092,15 @@ body.modal-open {
     border-color: #1d6fa8;
 }
 
+.product-sheet__btn--error {
+    background: #503434 !important;
+    color: #FF7D7F !important;
+}
+
+.product-sheet__btn--error:hover {
+    background: #503434 !important;
+}
+
 /* Sell Modal Duration Slider Styles */
 .sell-modal__duration-slider {
     position: relative;

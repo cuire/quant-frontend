@@ -13,4 +13,4 @@
 - [ ] storage/offers плейсхолдеры
 
 
-- [ ] backend отдать атриббуты для подарка в storage 
+- [ ] backend отдать атриббуты для подарка в storage / floor_price

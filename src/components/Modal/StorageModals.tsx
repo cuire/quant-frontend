@@ -3,6 +3,7 @@ import './Modal.css';
 import { config } from '@/lib/config';
 
 type SellModalProps = {
+    itemId: string;
     itemName: string;
     shouldShowDuration?: boolean;
     floorPrice?: number;
@@ -14,10 +15,10 @@ type SellModalProps = {
 
 
     onClose: () => void;
-    onSubmit: (amount: number, duration?: number) => void;
+    onSubmit: (id: string, amount: number, duration?: number) => void;
 }
 
-export const SellModal = ({ itemName, defaultPrice, shouldShowDuration = true, changePrice = false, floorPrice = 891, onClose, onSubmit, type='channel' }: SellModalProps) => {
+export const SellModal = ({ itemId, itemName, defaultPrice, shouldShowDuration = true, changePrice = false, floorPrice = 891, onClose, onSubmit, type='channel' }: SellModalProps) => {
     const [price, setPrice] = useState<string>(defaultPrice ? defaultPrice.toString() : '');
     const [duration, setDuration] = useState<1 | 3 | 5 | 8>(1);
     const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +34,7 @@ export const SellModal = ({ itemName, defaultPrice, shouldShowDuration = true, c
         
         setIsLoading(true);
         try {
-            await onSubmit(priceNum, shouldShowDuration ? duration : undefined);
+            await onSubmit(itemId, priceNum, shouldShowDuration ? duration : undefined);
             onClose();
         } catch (error) {
             console.error('Failed to create sell offer:', error);
