@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useOffersInfinite, useGifts } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
+import './activity.css';
 
 export const Route = createFileRoute('/storage/offers/received')({
   component: ReceivedOffersPage,
@@ -101,8 +102,10 @@ function ReceivedOffersPage() {
       )}
 
       {!isLoading && allOffers.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>No offers found</p>
+        <div className="text-center py-16">
+          <div className="text-6xl mb-4">😔</div>
+          <h3 className="text-xl font-semibold mb-2">No activity found</h3>
+          <p className="text-gray-400">Your received offers will appear here</p>
         </div>
       )}
 

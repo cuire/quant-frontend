@@ -4,6 +4,7 @@ import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts } from '@/lib/api-h
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
 import { getGiftIcon } from '@/lib/images';
+import './activity.css';
 
 export const Route = createFileRoute('/storage/channels')({
   component: ChannelsPage,
@@ -148,7 +149,11 @@ function ChannelsPage() {
 
       {!isLoadingChannels && allChannels.length === 0 && !isLoadingGifts && allUserGifts.length === 0 && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>No items found</p>
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">😔</div>
+            <h3 className="text-xl font-semibold mb-2">No activity found</h3>
+            <p className="text-gray-400">Your items will appear here</p>
+          </div>
         </div>
       )}
 
