@@ -14,7 +14,7 @@ interface ProfileInfoProps {
 export function ProfileInfo({ 
   photoUrl, 
   username, 
-  isPremium, 
+  isPremium: _isPremium, 
   telegramLevel = 7,
   badges = [
     { text: 'Excellent User', color: 'orange' },

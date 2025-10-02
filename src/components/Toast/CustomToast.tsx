@@ -21,7 +21,7 @@ const toastIcons = {
 
 const CustomToastComponent = ({ 
   type, 
-  title, 
+  title: _title, 
   message, 
   action, 
   t 

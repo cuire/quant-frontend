@@ -219,7 +219,7 @@ function ActivityChannelsPage() {
                           
                           if (items.length > 0) {
                             setSelected({ 
-                              title: getGiftNameById(activity.gift_id), 
+                              title: getGiftNameById(String(activity.gift_id)), 
                               giftNumber: `#${activity.channel_id}`, 
                               price: activity.amount, 
                               items: items 
@@ -229,8 +229,8 @@ function ActivityChannelsPage() {
                       >
                         <div className="activity-icon">
                           <img 
-                            src={getGiftIconById(activity.gift_id)} 
-                            alt={getGiftNameById(activity.gift_id)} 
+                            src={getGiftIconById(String(activity.gift_id))} 
+                            alt={getGiftNameById(String(activity.gift_id))} 
                             onError={(e) => {
                               (e.currentTarget as HTMLImageElement).src = '/placeholder-gift.svg';
                             }} 
@@ -238,7 +238,7 @@ function ActivityChannelsPage() {
                         </div>
                         <div className="activity-main">
                           <div className="activity-title-row">
-                            <div className="activity-title">{getGiftNameById(activity.gift_id)}</div>
+                            <div className="activity-title">{getGiftNameById(String(activity.gift_id))}</div>
                           </div>
                           <div className="activity-sub">#{activity.channel_id}</div>
                         </div>

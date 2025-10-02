@@ -36,15 +36,6 @@ function ActivityPage() {
     navigate(options as any);
   });
   
-  // Mock data state
-  const [mockData, setMockData] = useState<any>(null);
-  const [mockLoading, setMockLoading] = useState(false);
-  const [mockError, setMockError] = useState<Error | null>(null);
-  const [mockPage, setMockPage] = useState(1);
-  const [mockHasNextPage, setMockHasNextPage] = useState(true);
-  
-  // Filters state
-
   const [selected, setSelected] = useState<null | {
     title: string;
     giftNumber: string;
@@ -74,7 +65,7 @@ function ActivityPage() {
   }, []);
 
   // Intersection Observer for infinite scroll
-  const lastElementRef = useCallback((node: HTMLDivElement | null) => {
+  useCallback((node: HTMLDivElement | null) => {
     if (isLoading) return;
     
     if (observerRef.current) {
@@ -151,11 +142,10 @@ function ActivityPage() {
      
     if (items.length > 0) {
       setSelected({ 
-        title: getGiftNameById(activity.gift_id), 
+        title: getGiftNameById(String(activity.gift_id)), 
         giftNumber: `#${activity.channel_id}`, 
         price: activity.amount, 
-        items: items,
-        holdTime: activity.hold_time
+        items: items
       });
     }
   };

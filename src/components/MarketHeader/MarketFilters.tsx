@@ -290,16 +290,16 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       return name.includes(q);
                     })
                     .map((gift) => {
-                    const checked = selectedGiftIds.includes(gift.id);
+                    const checked = selectedGiftIds.includes(String(gift.id));
                     if (gift.count === 0) {
                       return;
                     }
                     return (
                       <label key={gift.id} className={e('row')}>
                         <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
-                          setSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
+                          setSelectedGiftIds(prev => ev.target.checked ? [...prev, String(gift.id)] : prev.filter(v => v !== String(gift.id)));
                         }} />
-                        <GiftIcon giftId={gift.id} size={40} />
+                        <GiftIcon giftId={String(gift.id)} size={40} />
                         
                         <div className={e('row-main')}>
                           <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

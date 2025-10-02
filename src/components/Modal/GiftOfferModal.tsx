@@ -23,7 +23,6 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
   const isOfferValid = () => {
     if (!offerPrice || isNaN(Number(offerPrice))) return false;
     const offerPriceNum = Number(offerPrice);
-    const giftPrice = data?.price || 0;
     const userBalance = user?.balance || 0;
     
     return offerPriceNum > 0 && 

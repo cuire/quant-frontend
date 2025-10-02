@@ -36,8 +36,8 @@ export function ActivityGroup({
           <ActivityItem
             key={activity.id}
             activity={activity}
-            giftName={giftNameById(activity.gift_id)}
-            giftIcon={giftIconById(activity.gift_id)}
+            giftName={giftNameById(String(activity.gift_id))}
+            giftIcon={giftIconById(String(activity.gift_id))}
             onItemClick={onActivityClick}
           />
         ))}

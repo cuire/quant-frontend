@@ -2,7 +2,7 @@ import type { FC } from 'react';
 
 interface GiftIconProps {
   giftId: string;
-  size?: string;
+  size?: string | number;
   className?: string;
 }
 
