@@ -124,7 +124,23 @@ function PlacedOffersPage() {
           // Convert gifts_data to items format for Gift component
           const items = [];
           
-          if (offer.gifts_data) {
+          // Handle gift offers (user_gift type)
+          if (offer.type === 'user_gift' && offer.gift_data) {
+            // Use the gift image from backend or fallback to placeholder
+            const giftImage = offer.gift_data.image_url || 
+              `https://FlowersRestricted.github.io/gifts/${offer.gift_data.id}/default.png` ||
+              '/placeholder-gift.svg';
+            
+            items.push({
+              id: offer.gift_data.id.toString(),
+              name: offer.gift_data.full_name,
+              icon: giftImage,
+              quantity: 1,
+              type: 'item' as const
+            });
+          }
+          // Handle channel offers (existing logic)
+          else if (offer.gifts_data) {
             // Check if gifts_data has upgraded structure at root level
             if ('upgraded' in offer.gifts_data && typeof offer.gifts_data === 'object') {
               // Structure: { upgraded: { modelId: [backdropIds] } }
@@ -163,19 +179,27 @@ function PlacedOffersPage() {
             second: '2-digit' 
           }) : '--:--:--';
 
+          // Generate appropriate gift number based on offer type
+          const giftNumber = offer.type === 'user_gift' 
+            ? `#${offer.gift_id}` 
+            : `#${offer.channel_id}`;
+
           return (
+            
             <div key={offer.id} ref={index === allOffers.length - 1 ? observer : undefined}>
               <Gift
                 items={items}
                 title={title}
-                giftNumber={`#${offer.channel_id}`}
+                giftNumber={giftNumber}
                 price={offer.price}
-                variant="storage-offer"
-                storageAction="remove"
+                variant={offer.type === 'user_gift' ? 'market' : 'storage-offer'}
+                action={offer.type === 'user_gift' ? 'cancel-offer' : undefined}
+                storageAction={offer.type === 'user_gift' ? undefined : 'remove'}
                 offerPriceTon={offer.price}
                 timeEnd={timeEnd}
+                showOfferInfo={offer.type === 'user_gift'}
                 onSell={() => handleCancelOffer(offer.id)}
-                onClick={() => openModal('gift-details', { 
+                onClick={offer.type === 'user_gift' ? () => handleCancelOffer(offer.id) : () => openModal('gift-details', { 
                   channel: { id: offer.channel_id, gifts: offer.gifts_data || {} }, 
                   gifts: giftsData || [],
                   price: offer.price,

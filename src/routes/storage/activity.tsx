@@ -6,6 +6,8 @@ import { ActivityGroup } from '@/components/ActivityGroup';
 import { Activity } from '@/lib/api';
 import './activity.css';
 import { Link } from '@/components/Link/Link';
+import { UpgradedGiftModal } from '@/components/Modal/UpgradedGiftModal';
+import type { GiftAttribute } from '@/lib/api';
 
 export const Route = createFileRoute('/storage/activity')({
   component: ActivityPage,
@@ -29,11 +31,26 @@ function ActivityPage() {
   
   
   const [selected, setSelected] = useState<null | {
+    activityType: 'gift' | 'channel';
     title: string;
     giftNumber: string;
     price: number;
     items: { id: string; name: string; icon: string; quantity: number }[];
     holdTime?: string;
+    // Gift-specific data for UpgradedGiftModal
+    giftData?: {
+      id: string;
+      giftId: string;
+      giftSlug: string;
+      price: number;
+      model: GiftAttribute;
+      backdrop: GiftAttribute & { centerColor: string; edgeColor: string };
+      symbol: GiftAttribute;
+      name: string;
+      num: string;
+      gift_frozen_until?: string;
+      hideActions?: boolean;
+    };
   }>(null);
 
   // Add shimmer animation styles
@@ -121,24 +138,69 @@ function ActivityPage() {
 
   // Handle activity item click
   const handleActivityClick = (activity: Activity) => {
-    // Create items array from gifts_data
-    let items: { id: string; name: string; icon: string; quantity: number }[] = [];
-    if (activity.gifts_data) {
-      items = Object.entries(activity.gifts_data).map(([giftId, quantity]) => ({
-        id: giftId,
-        name: getGiftNameById(giftId),
-        icon: getGiftIconById(giftId),
-        quantity: quantity as number,
-      }));
-    }
-     
-    if (items.length > 0) {
-      setSelected({ 
-        title: getGiftNameById(String(activity.gift_id)), 
-        giftNumber: `#${activity.channel_id}`, 
-        price: activity.amount, 
-        items: items
+    // Check if this is a gift activity
+    if (activity.activity_type === 'gift' && activity.gift_data) {
+      // Prepare data for UpgradedGiftModal
+      const giftData = {
+        id: String(activity.id),
+        giftId: String(activity.base_gift_data?.id ?? 'unknown'),
+        giftSlug: activity.slug || 'None-None',
+        price: activity.gift_data?.price || activity.amount,
+        model: {
+          type: 'model',
+          value: activity.model_data?.name || 'Unknown',
+          rarity_per_mille: activity.model_data?.rarity_per_mille || 0,
+          floor: String(activity.model_data?.floor || 0),
+        } as GiftAttribute,
+        backdrop: {
+          type: 'backdrop',
+          value: activity.backdrop_data?.name || 'Unknown',
+          rarity_per_mille: activity.backdrop_data?.rarity_per_mille || 0,
+          floor: String(activity.backdrop_data?.floor || 0),
+          centerColor: activity.backdrop_data?.centerColor || '000000',
+          edgeColor: activity.backdrop_data?.edgeColor || '000000',
+        },
+        symbol: {
+          type: 'symbol',
+          value: activity.symbol_data?.name || 'Unknown',
+          rarity_per_mille: activity.symbol_data?.rarity_per_mille || 0,
+          floor: String(activity.symbol_data?.floor || 0),
+        } as GiftAttribute,
+        name: activity.base_gift_data?.full_name || activity.base_gift_data?.short_name || 'Unknown Gift',
+        num: String(activity.gift_data.id),
+        gift_frozen_until: activity.gift_data.gift_frozen_until || undefined,
+        hideActions: true, // Only show Share/View buttons, not purchase/sell actions
+      };
+
+      setSelected({
+        activityType: 'gift',
+        title: giftData.name,
+        giftNumber: `#${giftData.num}`,
+        price: giftData.price,
+        items: [],
+        giftData,
       });
+    } else {
+      // Handle channel activity (original logic)
+      let items: { id: string; name: string; icon: string; quantity: number }[] = [];
+      if (activity.gifts_data) {
+        items = Object.entries(activity.gifts_data).map(([giftId, quantity]) => ({
+          id: giftId,
+          name: getGiftNameById(giftId),
+          icon: getGiftIconById(giftId),
+          quantity: quantity as number,
+        }));
+      }
+       
+      if (items.length > 0) {
+        setSelected({ 
+          activityType: 'channel',
+          title: getGiftNameById(String(activity.gift_id)), 
+          giftNumber: `#${activity.channel_id}`, 
+          price: activity.amount, 
+          items: items
+        });
+      }
     }
   };
 
@@ -248,68 +310,79 @@ function ActivityPage() {
       </div>
 
       {selected && createPortal(
-        <div className="market-header__sheet-overlay" onClick={() => setSelected(null)}>
-          <div className="market-header__sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="product-sheet__header">
-              <div className="product-sheet__gallery">
-                {(() => {
-                  const count = selected.items.length;
-                  const gridClass = count === 1 ? 'single' : count === 2 ? 'double' : count === 3 ? 'triple' : 'multiple';
-                  const visible = gridClass === 'multiple' ? selected.items.slice(0, 4) : selected.items.slice(0, count);
-                  return (
-                    <div className={`product-sheet__grid product-sheet__grid--${gridClass}`}>
-                      {visible.map((it) => (
-                        <div className="product-sheet__cell" key={it.id}>
-                          <img src={it.icon} alt={it.name} />
-                          <span className="product-sheet__q">x{it.quantity}</span>
-                        </div>
-                      ))}
-                      {count > 4 && (
-                        <div className="product-sheet__more-badge">+{count - 4} more</div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-              <button className="product-sheet__close" onClick={() => setSelected(null)}>✕</button>
-            </div>
-
-            <div className="product-sheet__title">
-              <div className="product-sheet__name">{selected.title}</div>
-              <div className="product-sheet__num">{selected.giftNumber}</div>
-            </div>
-              
-              {selected.holdTime && (
-                <div className="product-sheet__title-hold-time">
-                  <span className="product-sheet__hold-time-label">Time to unhold:</span>
-                  <span className="product-sheet__hold-time-value">{selected.holdTime}<div className="product-sheet__hold-time-icon">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                  </div></span>
-                </div>
-              )}
-              
-            
-            
-            <div className="product-sheet__list">
-              {selected.items.map((it) => (
-                <div key={it.id} className="product-sheet__row">
-                  <div className="product-sheet__row-icon"><img src={it.icon} alt={it.name} /></div>
-                  <div className="product-sheet__row-main">
-                    <div className="product-sheet__row-title">{it.name}</div>
-                    <div className="product-sheet__row-note">Quantity: {it.quantity}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="product-sheet__actions">
-              <button className="product-sheet__btn" type="button">Share Channel</button>
-              <button className="product-sheet__btn product-sheet__btn--primary" type="button">Open Channel</button>
+        selected.activityType === 'gift' && selected.giftData ? (
+          <div className="market-header__sheet-overlay" onClick={() => setSelected(null)}>
+            <div onClick={(e) => e.stopPropagation()}>
+              <UpgradedGiftModal 
+                data={selected.giftData}
+                onClose={() => setSelected(null)}
+              />
             </div>
           </div>
-        </div>, document.body)}
+        ) : (
+          <div className="market-header__sheet-overlay" onClick={() => setSelected(null)}>
+            <div className="market-header__sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="product-sheet__header">
+                <div className="product-sheet__gallery">
+                  {(() => {
+                    const count = selected.items.length;
+                    const gridClass = count === 1 ? 'single' : count === 2 ? 'double' : count === 3 ? 'triple' : 'multiple';
+                    const visible = gridClass === 'multiple' ? selected.items.slice(0, 4) : selected.items.slice(0, count);
+                    return (
+                      <div className={`product-sheet__grid product-sheet__grid--${gridClass}`}>
+                        {visible.map((it) => (
+                          <div className="product-sheet__cell" key={it.id}>
+                            <img src={it.icon} alt={it.name} />
+                            <span className="product-sheet__q">x{it.quantity}</span>
+                          </div>
+                        ))}
+                        {count > 4 && (
+                          <div className="product-sheet__more-badge">+{count - 4} more</div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+                <button className="product-sheet__close" onClick={() => setSelected(null)}>✕</button>
+              </div>
+
+              <div className="product-sheet__title">
+                <div className="product-sheet__name">{selected.title}</div>
+                <div className="product-sheet__num">{selected.giftNumber}</div>
+              </div>
+                
+                {selected.holdTime && (
+                  <div className="product-sheet__title-hold-time">
+                    <span className="product-sheet__hold-time-label">Time to unhold:</span>
+                    <span className="product-sheet__hold-time-value">{selected.holdTime}<div className="product-sheet__hold-time-icon">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </div></span>
+                  </div>
+                )}
+                
+              
+              
+              <div className="product-sheet__list">
+                {selected.items.map((it) => (
+                  <div key={it.id} className="product-sheet__row">
+                    <div className="product-sheet__row-icon"><img src={it.icon} alt={it.name} /></div>
+                    <div className="product-sheet__row-main">
+                      <div className="product-sheet__row-title">{it.name}</div>
+                      <div className="product-sheet__row-note">Quantity: {it.quantity}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="product-sheet__actions">
+                <button className="product-sheet__btn" type="button">Share Channel</button>
+                <button className="product-sheet__btn product-sheet__btn--primary" type="button">Open Channel</button>
+              </div>
+            </div>
+          </div>
+        ), document.body)}
     </>
   );
 }

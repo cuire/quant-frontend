@@ -22,6 +22,8 @@ interface UpgradedGiftModalProps {
     num: string;
     gift_frozen_until?: string;
     hideActions?: boolean;
+    status?: string;
+    onDecline?: (id: string) => void;
   };
   onClose: () => void;
 }
@@ -36,6 +38,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
   const isNotUpgraded = giftSlug === 'None-None';
   const formattedPrice = getChannelPrice(price);
 
+  // Market handlers (for buying gifts)
   const handleMakeOffer = () => {
     openModal('gift-offer', {
       giftId: id,
@@ -53,6 +56,34 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
       console.error('Purchase failed:', error);
       showErrorToast({ message: 'Failed to purchase gift. Please try again.' });
     }
+  };
+
+  // Storage handlers (for managing owned gifts)
+  const handleSellGift = async (price: number, duration?: number) => {
+    console.log('Selling gift:', id, 'for', price, 'TON', duration ? `for ${duration}h` : '');
+    // TODO: Implement actual API call to create sell offer
+    // await createGiftOffer(id, price, duration);
+  };
+
+  const handleChangePrice = async (price: number, duration?: number) => {
+    console.log('Changing price for gift:', id, 'to', price, 'TON', duration ? `for ${duration}h` : '');
+    // TODO: Implement actual API call to update gift price
+    // await updateGiftPrice(id, price, duration);
+  };
+
+  const handleSendGift = () => {
+    console.log('Sending gift:', id);
+    // TODO: Implement send gift functionality
+  };
+
+  const handleReceiveGift = () => {
+    console.log('Receiving gift:', id);
+    // TODO: Implement receive gift functionality
+  };
+
+  const handleUpgrade = () => {
+    console.log('Upgrading gift:', id);
+    // TODO: Implement upgrade functionality
   };
 
   return (
@@ -216,58 +247,171 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="product-sheet__actions">
-        {!isNotUpgraded && (
-          <a 
-            className="product-sheet__btn" 
-            type="button"
-            href={`https://t.me/nft/${giftSlug}`}
-            style={{textDecoration: 'none'}}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View
-          </a>
-        )}
-        
-        <button 
-          className="product-sheet__btn" 
-          type="button"
-          onClick={() => {
-            shareGift(id);
-          }}
-          style={isNotUpgraded  ? { gridColumn: '1 / -1' } : undefined}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9.05056 11.514L5.64389 9.65599C5.31689 9.98059 4.9011 10.2011 4.44895 10.2897C3.9968 10.3784 3.52853 10.3312 3.10317 10.1541C2.67782 9.97695 2.31442 9.67787 2.05879 9.29453C1.80316 8.91119 1.66675 8.46075 1.66675 7.99999C1.66675 7.53924 1.80316 7.08879 2.05879 6.70545C2.31442 6.32211 2.67782 6.02304 3.10317 5.84593C3.52853 5.66882 3.9968 5.6216 4.44895 5.71024C4.9011 5.79888 5.31689 6.01939 5.64389 6.34399L9.05056 4.48599C8.93372 3.93782 9.01811 3.3659 9.28829 2.87483C9.55847 2.38376 9.99638 2.00635 10.522 1.81161C11.0475 1.61688 11.6256 1.61784 12.1506 1.81432C12.6755 2.01079 13.1121 2.38965 13.3807 2.88162C13.6492 3.37358 13.7317 3.94578 13.6131 4.49356C13.4944 5.04135 13.1826 5.52812 12.7345 5.86486C12.2864 6.2016 11.7321 6.36581 11.173 6.32746C10.6138 6.2891 10.0871 6.05075 9.68922 5.65599L6.28256 7.51399C6.3507 7.83419 6.3507 8.16513 6.28256 8.48533L9.68922 10.344C10.0871 9.94923 10.6138 9.71088 11.173 9.67253C11.7321 9.63418 12.2864 9.79838 12.7345 10.1351C13.1826 10.4719 13.4944 10.9586 13.6131 11.5064C13.7317 12.0542 13.6492 12.6264 13.3807 13.1184C13.1121 13.6103 12.6755 13.9892 12.1506 14.1857C11.6256 14.3821 11.0475 14.3831 10.522 14.1884C9.99638 13.9936 9.55847 13.6162 9.28829 13.1252C9.01811 12.6341 8.93372 12.0622 9.05056 11.514Z" fill="currentColor"/>
-          </svg>
-          Share
-        </button>
-        
-        {!data.hideActions && (
-          <>
-            <button 
+      {/* Share and View Actions - show for market (when no status) */}
+      {!data.status && (
+        <div className="product-sheet__actions">
+          {!isNotUpgraded && (
+            <a 
               className="product-sheet__btn" 
               type="button"
-              onClick={handleMakeOffer}
+              href={`https://t.me/nft/${giftSlug}`}
+              style={{textDecoration: 'none'}}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              Make Offer
-            </button>
-            
-            <button 
-              className="product-sheet__btn product-sheet__btn--primary" 
-              style={{display: 'inline-block'}}
-              type="button"
-              onClick={handleBuyGifts}
-              disabled={purchaseGiftMutation.isPending}
-            >
-              {purchaseGiftMutation.isPending ? 'Purchasing...' : 'Buy Gifts'}
-              <span className="product-sheet__price">{formattedPrice} TON</span>
-            </button>
-          </>
-        )}
-      </div>
+              View
+            </a>
+          )}
+          
+          <button 
+            className="product-sheet__btn" 
+            type="button"
+            onClick={() => {
+              shareGift(id);
+            }}
+            style={isNotUpgraded  ? { gridColumn: '1 / -1' } : undefined}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.05056 11.514L5.64389 9.65599C5.31689 9.98059 4.9011 10.2011 4.44895 10.2897C3.9968 10.3784 3.52853 10.3312 3.10317 10.1541C2.67782 9.97695 2.31442 9.67787 2.05879 9.29453C1.80316 8.91119 1.66675 8.46075 1.66675 7.99999C1.66675 7.53924 1.80316 7.08879 2.05879 6.70545C2.31442 6.32211 2.67782 6.02304 3.10317 5.84593C3.52853 5.66882 3.9968 5.6216 4.44895 5.71024C4.9011 5.79888 5.31689 6.01939 5.64389 6.34399L9.05056 4.48599C8.93372 3.93782 9.01811 3.3659 9.28829 2.87483C9.55847 2.38376 9.99638 2.00635 10.522 1.81161C11.0475 1.61688 11.6256 1.61784 12.1506 1.81432C12.6755 2.01079 13.1121 2.38965 13.3807 2.88162C13.6492 3.37358 13.7317 3.94578 13.6131 4.49356C13.4944 5.04135 13.1826 5.52812 12.7345 5.86486C12.2864 6.2016 11.7321 6.36581 11.173 6.32746C10.6138 6.2891 10.0871 6.05075 9.68922 5.65599L6.28256 7.51399C6.3507 7.83419 6.3507 8.16513 6.28256 8.48533L9.68922 10.344C10.0871 9.94923 10.6138 9.71088 11.173 9.67253C11.7321 9.63418 12.2864 9.79838 12.7345 10.1351C13.1826 10.4719 13.4944 10.9586 13.6131 11.5064C13.7317 12.0542 13.6492 12.6264 13.3807 13.1184C13.1121 13.6103 12.6755 13.9892 12.1506 14.1857C11.6256 14.3821 11.0475 14.3831 10.522 14.1884C9.99638 13.9936 9.55847 13.6162 9.28829 13.1252C9.01811 12.6341 8.93372 12.0622 9.05056 11.514Z" fill="currentColor"/>
+            </svg>
+            Share
+          </button>
+        </div>
+      )}
+
+      {/* Market Purchase Buttons - show for market (when no status and not hideActions) */}
+      {!data.status && !data.hideActions && (
+        <div className="product-sheet__actions">
+          <button 
+            className="product-sheet__btn" 
+            type="button"
+            onClick={handleMakeOffer}
+          >
+            Make Offer
+          </button>
+          
+          <button 
+            className="product-sheet__btn product-sheet__btn--primary" 
+            style={{display: 'inline-block'}}
+            type="button"
+            onClick={handleBuyGifts}
+            disabled={purchaseGiftMutation.isPending}
+          >
+            {purchaseGiftMutation.isPending ? 'Purchasing...' : 'Buy Gifts'}
+            <span className="product-sheet__price">{formattedPrice} TON</span>
+          </button>
+        </div>
+      )}
+
+      {/* Conditional Action Buttons for storage (when status is present) */}
+      {data.status && (
+        <div className="product-sheet__actions">
+          {data.status === 'active' ? (
+            <>
+              {/* Gift is on sale - show Remove Sell (red) and Change Price (gray) */}
+              <button 
+                className="product-sheet__btn product-sheet__btn--error" 
+                type="button" 
+                onClick={() => {
+                  data.onDecline && data.onDecline(id);
+                }}
+              >
+                Remove Sell
+              </button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{display: 'inline-block'}} 
+                type="button"
+                onClick={() => {
+                  openModal('sell-channel', {
+                    itemName: `#${id}`,
+                    floorPrice: formattedPrice,
+                    changePrice: true,
+                    onSubmit: handleChangePrice,
+                    defaultPrice: formattedPrice,
+                  });
+                }}
+              >
+                Change Price
+                <span className="product-sheet__price">{formattedPrice} TON</span>
+              </button>
+            </>
+          ) : isNotUpgraded ? (
+            <>
+              {/* Gift not on sale and slug === 'None-None' - show Send Gift (gray), Upgrade (primary disabled), Sell (primary full width) */}
+              <button 
+                className="product-sheet__btn" 
+                type="button"
+                onClick={handleSendGift}
+              >
+                Send Gift
+              </button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#22435D',
+                  color: '#595F66',
+                  cursor: 'not-allowed',
+                  opacity: 1
+                }}
+                type="button"
+                onClick={handleUpgrade}
+                disabled
+              >
+                Upgrade
+              </button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{display: 'inline-block', gridColumn: '1 / -1'}}
+                type="button"
+                onClick={() => {
+                  openModal('sell-channel', {
+                    itemName: `#${id}`,
+                    floorPrice: 0,
+                    onSubmit: handleSellGift,
+                  });
+                }}
+              >
+                Sell
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Gift not on sale and slug !== 'None-None' - show Send Gift (gray), Receive Gift (primary), Sell (primary full width) */}
+              <button 
+                className="product-sheet__btn" 
+                type="button"
+                onClick={handleSendGift}
+              >
+                Send Gift
+              </button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{display: 'inline-block'}}
+                type="button"
+                onClick={handleReceiveGift}
+              >
+                Receive Gift
+              </button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{display: 'inline-block', gridColumn: '1 / -1'}}
+                type="button"
+                onClick={() => {
+                  openModal('sell-channel', {
+                    itemName: `#${id}`,
+                    floorPrice: 0,
+                    onSubmit: handleSellGift,
+                  });
+                }}
+              >
+                Sell
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

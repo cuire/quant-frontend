@@ -14,6 +14,7 @@ interface GiftOfferModalProps {
 
 export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
   const [offerPrice, setOfferPrice] = useState<string>('');
+  const [offerDuration, setOfferDuration] = useState<'1d' | '1w' | 'forever'>('1w');
   const [isLoading, setIsLoading] = useState(false);
   const { data: user } = useUser();
   const offerGiftMutation = useOfferGift();
@@ -48,11 +49,14 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
       return;
     }
 
+    const durationDays = offerDuration === '1d' ? 1 : offerDuration === '1w' ? 7 : 365;
+
     setIsLoading(true);
     try {
       await offerGiftMutation.mutateAsync({
         giftId: data.giftId,
-        price: offerPriceNum
+        price: offerPriceNum,
+        duration_days: durationDays
       });
       showSuccessToast({ message: 'Offer sent successfully!' });
       onClose();
@@ -80,6 +84,32 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
         />
         <div className="offer-modal__balance">YOUR BALANCE:{" "}
           <span style={{color:'#2F82C7'}}>{user?.balance} TON</span></div>
+      </div>
+      <div className="offer-modal__block">
+        <div className="offer-modal__label">OFFER DURATION</div>
+        <div className="offer-modal__segmented">
+          <button 
+            type="button" 
+            className={offerDuration === '1d' ? 'is-active' : ''} 
+            onClick={() => setOfferDuration('1d')}
+          >
+            1 Day
+          </button>
+          <button 
+            type="button" 
+            className={offerDuration === '1w' ? 'is-active' : ''} 
+            onClick={() => setOfferDuration('1w')}
+          >
+            1 Week
+          </button>
+          <button 
+            type="button" 
+            className={offerDuration === 'forever' ? 'is-active' : ''} 
+            onClick={() => setOfferDuration('forever')}
+          >
+            Forever
+          </button>
+        </div>
       </div>
       <button 
         className="offer-modal__submit" 

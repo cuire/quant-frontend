@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useRef, useCallback, useMemo } from 'react';
-import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts } from '@/lib/api-hooks';
+import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts, useSellItem } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
 import { getGiftIcon } from '@/lib/images';
@@ -13,6 +13,7 @@ export const Route = createFileRoute('/storage/channels')({
 function ChannelsPage() {
   const { openModal } = useModal();
   const { data: giftsData } = useGifts();
+  const sellItemMutation = useSellItem();
   
   const {
     data: channelsData,
@@ -49,10 +50,25 @@ function ChannelsPage() {
     return new Map(giftsData.map(gift => [gift.id, gift]));
   }, [giftsData]);
 
-  const handleSellChannel = (id: string, price: number, duration?: number) => {
+  const handleSellChannel = async (id: string, price: number, duration?: number) => {
     console.log('Selling channel:', id, price, 'TON', duration ? `for ${duration}h` : '');
-    // TODO: Implement actual API call to create sell offer
-    // await createChannelOffer(channel.id, price, duration);
+    
+    try {
+      // Convert duration from hours to seconds if provided
+      const secondsToTransfer = duration ? duration * 3600 : 3600;
+      
+      await sellItemMutation.mutateAsync({
+        itemId: id,
+        price,
+        secondsToTransfer,
+        timezone: 'UTC'
+      });
+      
+      console.log('✅ Channel listed for sale successfully');
+    } catch (error) {
+      console.error('❌ Failed to list channel for sale:', error);
+      // You might want to show an error toast here
+    }
   };
 
   const handleDeclineChannel = (id: string) => {
@@ -61,10 +77,25 @@ function ChannelsPage() {
     // await declineChannel(channel.id);
   };
 
-  const handleSellUserGift = (id: string, price: number, duration?: number) => {
+  const handleSellUserGift = async (id: string, price: number, duration?: number) => {
     console.log('Selling user gift:', id, price, 'TON', duration ? `for ${duration}h` : '');
-    // TODO: Implement actual API call to create sell offer
-    // await createUserGiftOffer(userGift.id, price, duration);
+    
+    try {
+      // Convert duration from hours to seconds if provided
+      const secondsToTransfer = duration ? duration * 3600 : 3600;
+      
+      await sellItemMutation.mutateAsync({
+        itemId: id,
+        price,
+        secondsToTransfer,
+        timezone: 'UTC'
+      });
+      
+      console.log('✅ User gift listed for sale successfully');
+    } catch (error) {
+      console.error('❌ Failed to list user gift for sale:', error);
+      // You might want to show an error toast here
+    }
   };
 
   const handleDeclineUserGift = (id: string) => {
@@ -95,7 +126,7 @@ function ChannelsPage() {
       floor: userGift.symbol_data.floor || 0
     } : { value: '', rarity_per_mille: 0, floor: 0 };
 
-    // Open upgraded-gift modal with hideActions flag
+    // Open upgraded-gift modal with status and onDecline
     openModal('upgraded-gift', {
       id: userGift.id,
       giftId: String(userGift.gift_data.id),
@@ -103,10 +134,12 @@ function ChannelsPage() {
       name: userGift.gift_data?.full_name || `Gift ${userGift.gift_id}`,
       num: userGift.id,
       gift_frozen_until: userGift.gift_frozen_until || null,
+      price: userGift.gift_data?.price || 0,
       model,
       backdrop,
       symbol,
-      hideActions: true,
+      status: userGift.status,
+      onDecline: handleDeclineUserGift,
     });
   };
 
@@ -251,6 +284,7 @@ function ChannelsPage() {
               onSubmit: handleSellUserGift,
               defaultPrice: userGift.gift_data.price,
             })}
+            onDecline={() => handleDeclineUserGift(userGift.id)}
             onClick={() => handleGiftClick(userGift)}
           />
         ))}

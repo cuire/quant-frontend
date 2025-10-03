@@ -154,15 +154,45 @@ export interface MarketGift {
 
 export interface Offer {
   id: number;
-  channel_id: number;
+  type?: 'channel' | 'user_gift';
+  channel_id?: number;
+  gift_id?: number;
   gifts_data?: Record<string, number> | {
     upgraded?: Record<string, string[]>;
   };
-  channel_price: number;
-  channel_stars: number;
+  gift_data?: {
+    id: number;
+    short_name: string;
+    full_name: string;
+    type: string;
+    image_url: string | null;
+  };
+  model_data?: {
+    id: number;
+    name: string;
+    url: string | null;
+    rarity_per_mille: number;
+  };
+  backdrop_data?: {
+    id: number;
+    name: string;
+    centerColor: string;
+    edgeColor: string;
+    patternColor: string;
+    textColor: string;
+    rarity_per_mille: number;
+  };
+  symbol_data?: {
+    id: number;
+    name: string;
+    url: string | null;
+    rarity_per_mille: number;
+  };
+  channel_price?: number;
+  channel_stars?: number;
   price: number;
   expires_at: string | null;
-  channel_type: string | null;
+  channel_type?: string | null;
 }
 
 export interface OffersResponse {
@@ -564,12 +594,30 @@ export async function purchaseGift(
 
 export async function offerGift(
   giftId: string,
-  price: number
+  price: number,
+  duration_days?: number
 ): Promise<void> {
   return request<void>(`/usergifts/${giftId}/offer`, {
     method: 'POST',
     body: JSON.stringify({
-      price
+      price,
+      ...(duration_days && { duration_days })
+    }),
+  });
+}
+
+export async function createItemSale(
+  itemId: string,
+  price: number,
+  secondsToTransfer: number = 3600,
+  timezone: string = 'UTC'
+): Promise<void> {
+  return request<void>(`/usergifts/${itemId}/sale`, {
+    method: 'POST',
+    body: JSON.stringify({
+      price,
+      seconds_to_transfer: secondsToTransfer,
+      timezone
     }),
   });
 }

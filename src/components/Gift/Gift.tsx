@@ -37,6 +37,8 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   offerPriceTon?: number;
   /** Остаток времени в формате HH:MM:SS для варианта storage */
   timeEnd?: string;
+  /** Показать информацию о предложении (цена и время) */
+  showOfferInfo?: boolean;
   /** Обработчик кнопки Sell для варианта storage */
   onSell?: () => void;
   /** Обработчик отклонения (крестик) для варианта storage */
@@ -44,7 +46,7 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Тип действия в storage: продажа (Received) или удаление (Placed) */
   storageAction?: 'sell' | 'remove';
 
-  action?: 'sell' | 'buy-or-cart';
+  action?: 'sell' | 'buy-or-cart' | 'cancel-offer';
   /** Статус канала для отображения цены */
   channelStatus?: string;
   /** Статус подарка для отображения кнопки Sell */
@@ -65,6 +67,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
   variant = 'market',
   offerPriceTon,
   timeEnd,
+  showOfferInfo = false,
   onSell,
   onDecline,
   storageAction = 'sell',
@@ -166,6 +169,12 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
           <div className={e('info', isStorage && 'storage')}>
             <h3 className={e('title')}>{title}</h3>
             <span className={e('number')}>{giftNumber.slice(0, 6)}</span>
+            {showOfferInfo && (
+              <div className={e('offer-info')}>
+                <div className={e('offer-price')}>Offer Price: {offerPriceTon} TON</div>
+                <div className={e('offer-time')}>Time End: {timeEnd || '--:--:--'}</div>
+              </div>
+            )}
           </div>
 
           {isStorage ? (
@@ -273,6 +282,19 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                 <button className={e('price-button')}>
                   <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
+                  </svg>
+                  <span className={e('price')}>{price}</span>
+                </button>
+              )}
+
+              {action === 'cancel-offer' && (
+                <button 
+                  className={e('price-button')}
+                  onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
+                  style={{ backgroundColor: 'rgba(80, 52, 52, 1)', color: 'rgba(255, 125, 127, 1)' }}
+                >
+                  <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="currentColor"/>
                   </svg>
                   <span className={e('price')}>{price}</span>
                 </button>

@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, getMeGifts, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift } from './api';
+import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, getMeGifts, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift, createItemSale } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -420,14 +420,34 @@ export const useOfferGift = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ giftId, price }: { giftId: string; price: number }) => 
-      offerGift(giftId, price),
+    mutationFn: ({ giftId, price, duration_days }: { giftId: string; price: number; duration_days?: number }) => 
+      offerGift(giftId, price, duration_days),
     onSuccess: () => {
       // Invalidate relevant queries after successful offer
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
       queryClient.invalidateQueries({ queryKey: ['userActivity'] });
       queryClient.invalidateQueries({ queryKey: ['offers'] });
+    },
+  });
+};
+
+export const useSellItem = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ itemId, price, secondsToTransfer, timezone }: { 
+      itemId: string; 
+      price: number; 
+      secondsToTransfer?: number;
+      timezone?: string;
+    }) => createItemSale(itemId, price, secondsToTransfer, timezone),
+    onSuccess: () => {
+      // Invalidate relevant queries after successful sale listing
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
     },
   });
 };

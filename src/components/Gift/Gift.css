@@ -333,6 +333,20 @@
   margin: 0;
 }
 
+.gift__offer-info {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gift__offer-price,
+.gift__offer-time {
+  font-size: 11px;
+  color: #8B9BA8;
+  font-weight: 500;
+}
+
 .gift__title {
   margin: 0;
   font-size: 13px;

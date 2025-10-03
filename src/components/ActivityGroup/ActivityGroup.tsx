@@ -37,7 +37,7 @@ export function ActivityGroup({
             key={activity.id}
             activity={activity}
             giftName={giftNameById(String(activity.gift_id))}
-            giftIcon={giftIconById(String(activity.gift_id))}
+            giftIcon={giftIconById(String(activity.base_gift_data?.id ?? 'unknown'))}
             onItemClick={onActivityClick}
           />
         ))}
