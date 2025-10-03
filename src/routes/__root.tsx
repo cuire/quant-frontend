@@ -36,7 +36,7 @@ function Root() {
   return (
     <FilterProvider>
       <ModalProvider>
-        <div style={{ minHeight: '100vh', position: 'relative' }}>
+        <div style={{ minHeight: '100vh', position: 'relative', paddingBottom: 'env(safe-area-inset-bottom, 100px)' }}>
           <Page back={canGoBack}>
             <Outlet />
           </Page>

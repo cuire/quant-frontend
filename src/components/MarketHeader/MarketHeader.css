@@ -401,7 +401,7 @@
 }
 
 .market-header__sheet-content {
-    padding: 8px 0 16px 0;
+    padding: 8px 0 0px 0;
 }
 
 /* Make content scrollable only in filter sheets */
