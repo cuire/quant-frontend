@@ -11,15 +11,25 @@ interface ProfileInfoProps {
   badges?: Badge[];
 }
 
+
+const ProfileLevel = ({ level }: { level: number }) => {
+  return (
+    <div className="profile-info__tg-badge">
+      <svg width="26" height="25" viewBox="0 0 26 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11.148 0.767116C12.1711 -0.255633 13.8297 -0.255778 14.8527 0.767116L16.1496 2.06404C16.6811 2.5955 17.4019 2.89407 18.1535 2.89407H19.9867C21.4335 2.89418 22.6066 4.0671 22.6066 5.51396V7.34753C22.6066 8.09893 22.905 8.81957 23.4362 9.351L24.7327 10.648C25.7557 11.6711 25.7558 13.3296 24.7327 14.3527L23.4366 15.6488C22.9052 16.1802 22.6066 16.901 22.6066 17.6526V19.4867C22.6065 20.9335 21.4335 22.1065 19.9867 22.1066H18.1526C17.401 22.1066 16.6802 22.4052 16.1488 22.9366L14.8527 24.2327C13.8296 25.2558 12.1711 25.2557 11.148 24.2327L9.85193 22.9366C9.32047 22.4052 8.59966 22.1066 7.84806 22.1066H6.01397C4.56712 22.1066 3.39419 20.9335 3.39409 19.4867V17.653C3.39409 16.9012 3.09536 16.1802 2.56366 15.6487L1.26713 14.3527C0.244228 13.3296 0.244351 11.6711 1.26713 10.648L2.56406 9.35106C3.09552 8.81961 3.39409 8.09879 3.39409 7.3472V5.51396C3.39409 4.06704 4.56705 2.89407 6.01397 2.89407H7.84721C8.5988 2.89407 9.31962 2.5955 9.85107 2.06404L11.148 0.767116Z" fill="white"/>
+      </svg>
+      <span>{level}</span>
+    </div>
+  )
+}
+
+
 export function ProfileInfo({ 
   photoUrl, 
   username, 
   isPremium: _isPremium, 
   telegramLevel = 7,
-  badges = [
-    { text: 'Excellent User', color: 'orange' },
-    { text: 'good buyer', color: 'green' }
-  ]
+  badges = []
 }: ProfileInfoProps) {
   return (
     <div className="profile-info">
@@ -29,13 +39,7 @@ export function ProfileInfo({
           alt={username} 
           className="profile-info__avatar"
         />
-        <div className="profile-info__tg-badge">
-          <svg width="25" height="25" viewBox="0 0 25 25" fill="none">
-            <path d="M12.5 0.5C5.87 0.5 0.5 5.87 0.5 12.5C0.5 19.13 5.87 24.5 12.5 24.5C19.13 24.5 24.5 19.13 24.5 12.5C24.5 5.87 19.13 0.5 12.5 0.5Z" fill="#0088CC"/>
-            <path d="M17.52 8.59L15.18 17.91C15.01 18.58 14.63 18.75 14.11 18.45L11.07 16.27L9.6 17.68C9.44 17.84 9.3 17.98 8.98 17.98L9.2 14.88L14.76 9.92C15 9.71 14.72 9.59 14.42 9.8L7.55 14.08L4.55 13.14C3.91 12.94 3.9 12.5 4.68 12.2L16.69 7.59C17.22 7.39 17.69 7.71 17.52 8.59Z" fill="white"/>
-          </svg>
-          <span>{telegramLevel}</span>
-        </div>
+        <ProfileLevel level={telegramLevel} />
       </div>
 
       <div className="profile-info__details">

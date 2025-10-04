@@ -8,16 +8,6 @@
     position: relative;
 }
 
-.activity-item::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 67px;
-    right: 67px;
-    height: 1px;
-    background: #2A3541;
-}
-
 .activity-item:hover {
     background: #2A3541;
 }

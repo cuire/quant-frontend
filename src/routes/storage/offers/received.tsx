@@ -185,12 +185,13 @@ function ReceivedOffersPage() {
               title={title}
               giftNumber={giftNumber}
               price={offer.price}
-                variant={offer.type === 'user_gift' ? 'market' : 'storage-offer'}
-                action={offer.type === 'user_gift' ? 'buy-or-cart' : undefined}
-                storageAction={offer.type === 'user_gift' ? undefined : 'sell'}
-                offerPriceTon={offer.price}
-                timeEnd={timeEnd}
-                showOfferInfo={offer.type === 'user_gift'}
+              variant={offer.type === 'user_gift' ? 'market' : 'storage-offer'}
+              action={offer.type === 'user_gift' ? 'buy-or-cart' : undefined}
+              storageAction={offer.type === 'user_gift' ? undefined : 'sell'}
+              offerPriceTon={offer.price}
+              timeEnd={timeEnd}
+              timeEndTimestamp={offer.expires_at || undefined}
+              showOfferInfo={offer.type === 'user_gift'}
               onSell={() => openModal('accept-offer', { offer })}
               onDecline={() => openModal('cancel-offer', { offer })}
               onClick={offer.type === 'user_gift' ? () => openModal('accept-offer', { offer }) : () => openModal('gift-details', { 

@@ -409,7 +409,6 @@ body.modal-open {
     background: #2A3541;
     border: 1px solid #2F3C49;
     color: #E7EEF7;
-    padding: 10px 12px;
     border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
@@ -808,6 +807,27 @@ body.modal-open {
 
 .market-header__btn-primary:hover {
     background: #1d6fa8;
+}
+
+.market-header__btn-secondary {
+    flex: 1;
+    background: #2A3541;
+    border: 1px solid #2F3C49;
+    border-radius: 12px;
+    padding: 12px;
+    color: #E7EEF7;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.market-header__btn-secondary:hover {
+    background: #3A3A3A;
 }
 
 /* Success Modal Sheet Styles */

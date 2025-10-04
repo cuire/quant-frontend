@@ -53,6 +53,48 @@ function PlacedOffersPage() {
     cancelOfferMutation.mutate(offerId);
   };
 
+  const handleGiftClick = (offer: any) => {
+    // Only handle user_gift type offers
+    if (offer.type !== 'user_gift' || !offer.gift_data) return;
+
+    // Extract attributes from offer data - these might be available if the offer contains upgraded gift data
+    const model = offer.model_data ? {
+      value: offer.model_data.name || '',
+      rarity_per_mille: offer.model_data.rarity_per_mille || 0,
+      floor: offer.model_data.floor || 0
+    } : { value: '', rarity_per_mille: 0, floor: 0 };
+
+    const backdrop = offer.backdrop_data ? {
+      value: offer.backdrop_data.name || '',
+      rarity_per_mille: offer.backdrop_data.rarity_per_mille || 0,
+      floor: offer.backdrop_data.floor || 0,
+      centerColor: offer.backdrop_data.center_color || '000000',
+      edgeColor: offer.backdrop_data.edge_color || '000000'
+    } : { value: '', rarity_per_mille: 0, floor: 0, centerColor: '000000', edgeColor: '000000' };
+
+    const symbol = offer.symbol_data ? {
+      value: offer.symbol_data.name || '',
+      rarity_per_mille: offer.symbol_data.rarity_per_mille || 0,
+      floor: offer.symbol_data.floor || 0
+    } : { value: '', rarity_per_mille: 0, floor: 0 };
+
+    // Open upgraded-gift modal with status and onDecline
+    openModal('upgraded-gift', {
+      id: offer.gift_id,
+      giftId: String(offer.gift_data.id),
+      giftSlug: offer.slug || 'None-None',
+      name: offer.gift_data?.full_name || `Gift ${offer.gift_id}`,
+      num: offer.gift_id,
+      gift_frozen_until: offer.gift_frozen_until || null,
+      price: offer.price || 0,
+      model,
+      backdrop,
+      symbol,
+      status: offer.status || 'available',
+      onDecline: () => handleCancelOffer(offer.id),
+    });
+  };
+
   // Extract placed offers from all pages
   const allOffers = data?.pages.flatMap(page => page.placed) || [];
 
@@ -197,9 +239,10 @@ function PlacedOffersPage() {
                 storageAction={offer.type === 'user_gift' ? undefined : 'remove'}
                 offerPriceTon={offer.price}
                 timeEnd={timeEnd}
+                timeEndTimestamp={offer.expires_at || undefined}
                 showOfferInfo={offer.type === 'user_gift'}
-                onSell={() => handleCancelOffer(offer.id)}
-                onClick={offer.type === 'user_gift' ? () => handleCancelOffer(offer.id) : () => openModal('gift-details', { 
+                onDecline={() => handleCancelOffer(offer.id)}
+                onClick={offer.type === 'user_gift' ? () => handleGiftClick(offer) : () => openModal('gift-details', { 
                   channel: { id: offer.channel_id, gifts: offer.gifts_data || {} }, 
                   gifts: giftsData || [],
                   price: offer.price,

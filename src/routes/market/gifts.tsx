@@ -37,7 +37,10 @@ function GiftsPage() {
   } = useMarketGiftsInfinite(search.limit, apiFilters);
 
   // Flatten all pages of gifts data
-  const gifts = giftsData?.pages.flat() || [];
+  const gifts = giftsData?.pages.flatMap(page => page.gifts) || [];
+  
+  // Get models from the first page (they should be the same across all pages)
+  const models = giftsData?.pages[0]?.models || [];
 
   // Handler for opening gift modal
   const handleGiftClick = (gift: MarketGift) => {
@@ -123,6 +126,7 @@ function GiftsPage() {
       <GiftFilters 
         onFilterChange={handleFilterChange}
         currentFilters={currentFilters as GiftCurrentFilters}
+        models={models}
       />
 
       {/* Market Content */}

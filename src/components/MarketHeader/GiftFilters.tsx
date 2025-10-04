@@ -13,40 +13,58 @@ const [, e] = bem('market-header');
 export interface GiftFiltersProps {
   onFilterChange?: (filters: GiftFilterChangeParams) => void;
   currentFilters?: GiftCurrentFilters;
+  models?: Array<{
+    value: string;
+    rarity_per_mille: number;
+    floor: number;
+  }>;
 }
 
 export const GiftFilters: FC<GiftFiltersProps> = ({ 
   onFilterChange,
-  currentFilters
+  currentFilters,
+  models = []
 }) => {
-  // Get gifts data from API
+  // Get gifts data from API (for collection and background options)
   const { data: giftsData, isLoading, error } = useGiftsWithFilters();
   const gifts = giftsData?.gifts || [];
   const backdrops = giftsData?.backdrops || [];
-  const [collectionFilter, setCollectionFilter] = useState(currentFilters?.collection || 'All');
-  const [modelFilter, setModelFilter] = useState(currentFilters?.model || 'All');
-  const [backgroundFilter, setBackgroundFilter] = useState(currentFilters?.background || 'All');
-  const [sortingFilter, setSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
-  const [selectedGiftIds, setSelectedGiftIds] = useState<string[]>([]);
   const [openSheet, setOpenSheet] = useState<null | 'collection' | 'model' | 'background' | 'filters'>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Local state for pending changes (not applied until modal closes)
+  const [pendingCollectionFilter, setPendingCollectionFilter] = useState(currentFilters?.collection || 'All');
+  const [pendingModelFilter, setPendingModelFilter] = useState(currentFilters?.model || 'All');
+  const [pendingBackgroundFilter, setPendingBackgroundFilter] = useState(currentFilters?.background || 'All');
+  const [pendingSortingFilter, setPendingSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
+  const [pendingSelectedGiftIds, setPendingSelectedGiftIds] = useState<string[]>([]);
+
+  // Check if a collection is selected (not 'All' and not empty)
+  const isCollectionSelected = pendingCollectionFilter && pendingCollectionFilter !== 'All' && pendingCollectionFilter.trim() !== '';
 
   // Update filter states when currentFilters change
   useEffect(() => {
     if (currentFilters) {
-      setCollectionFilter(currentFilters.collection);
-      setModelFilter(currentFilters.model);
-      setBackgroundFilter(currentFilters.background);
-      setSortingFilter(currentFilters.sorting);
+      // Update pending states
+      setPendingCollectionFilter(currentFilters.collection);
+      setPendingModelFilter(currentFilters.model);
+      setPendingBackgroundFilter(currentFilters.background);
+      setPendingSortingFilter(currentFilters.sorting);
       
-      // Update selectedGiftIds from collection filter
       if (currentFilters.collection && currentFilters.collection !== 'All') {
-        setSelectedGiftIds(currentFilters.collection.split(',').filter(id => id.trim()));
+        setPendingSelectedGiftIds(currentFilters.collection.split(',').filter(id => id.trim()));
       } else {
-        setSelectedGiftIds([]);
+        setPendingSelectedGiftIds([]);
       }
     }
   }, [currentFilters]);
+
+  // Reset model filter when collection changes
+  useEffect(() => {
+    if (!isCollectionSelected) {
+      setPendingModelFilter('All');
+    }
+  }, [isCollectionSelected]);
 
   // Clear search when closing/opening sheet
   useEffect(() => {
@@ -55,8 +73,8 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
     }
   }, [openSheet]);
 
-  // Helper function to get gift name by ID
-  const getGiftNameById = (giftIds: string[]): string => {
+  // Helper function to get pending gift name by ID
+  const getPendingGiftNameById = (giftIds: string[]): string => {
     if (giftIds.length === 0) return 'All';
     if (giftIds.length === 1) {
       const gift = gifts.find(g => g.id === giftIds[0]);
@@ -91,20 +109,27 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
   };
 
 
-  const handleFilterChange = (type: string, value: string) => {
+  // Function to apply pending filters when modal closes
+  const applyPendingFilters = (collectionOverride?: string) => {
     const newFilters = {
-      collection: type === 'collection' ? value : collectionFilter,
-      model: type === 'model' ? value : modelFilter,
-      background: type === 'background' ? value : backgroundFilter,
-      sorting: type === 'sorting' ? value : sortingFilter,
+      collection: collectionOverride || pendingCollectionFilter,
+      model: pendingModelFilter,
+      background: pendingBackgroundFilter,
+      sorting: pendingSortingFilter,
     };
 
-    if (type === 'collection') setCollectionFilter(value);
-    if (type === 'model') setModelFilter(value);
-    if (type === 'background') setBackgroundFilter(value);
-    if (type === 'sorting') setSortingFilter(value);
+    // Update the actual filter states (these are used internally for consistency)
+    // The actual state updates are handled by the parent component through onFilterChange
 
     onFilterChange?.(newFilters);
+  };
+
+  // Function to update pending filters without applying them
+  const updatePendingFilter = (type: string, value: string) => {
+    if (type === 'collection') setPendingCollectionFilter(value);
+    if (type === 'model') setPendingModelFilter(value);
+    if (type === 'background') setPendingBackgroundFilter(value);
+    if (type === 'sorting') setPendingSortingFilter(value);
   };
 
   // Generate filter options from real data
@@ -118,9 +143,9 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
     ],
     model: [
       { value: 'All', label: 'All' },
-      ...Array.from(new Set(gifts.flatMap(gift => gift.models.map(model => ({ id: model.id, name: model.name }))))).map(model => ({
-        value: model.id,
-        label: model.name
+      ...models.map(model => ({
+        value: model.value,
+        label: model.value
       }))
     ],
     background: [
@@ -150,7 +175,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
           <div className={e('filter-chip')} onClick={() => setOpenSheet('collection')} role="button" tabIndex={0}>
             <span className={e('chip-label')}>Collection</span>
             <div className={e('chip-control')}>
-              <span className={e('chip-value')}>{getGiftNameById(currentFilters?.collection ? currentFilters.collection.split(',') : [])}</span>
+              <span className={e('chip-value')}>{getPendingGiftNameById(pendingSelectedGiftIds)}</span>
               <div className={e('chip-select')} />
             </div>
           </div>
@@ -163,11 +188,17 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
         </div>
 
         {/* Model chip */}
-        <div style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
-          <div className={e('filter-chip')} onClick={() => setOpenSheet('model')} role="button" tabIndex={0}>
+        <div style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center', opacity: isCollectionSelected ? 1 : 0.5}} className={e('filter-chip-container')}>
+          <div 
+            className={e('filter-chip')} 
+            onClick={() => isCollectionSelected && setOpenSheet('model')} 
+            role="button" 
+            tabIndex={0}
+            style={{ cursor: isCollectionSelected ? 'pointer' : 'not-allowed' }}
+          >
             <span className={e('chip-label')}>Model</span>
             <div className={e('chip-control')}>
-              <span className={e('chip-value')}>{getModelDisplay(modelFilter)}</span>
+              <span className={e('chip-value')}>{getModelDisplay(pendingModelFilter)}</span>
               <div className={e('chip-select')} />
             </div>
           </div>
@@ -184,7 +215,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
           <div className={e('filter-chip')} onClick={() => setOpenSheet('background')} role="button" tabIndex={0}>
             <span className={e('chip-label')}>Background</span>
             <div className={e('chip-control')}>
-              <span className={e('chip-value')}>{getBackgroundDisplay(backgroundFilter)}</span>
+              <span className={e('chip-value')}>{getBackgroundDisplay(pendingBackgroundFilter)}</span>
               <div className={e('chip-select')} />
             </div>
           </div>
@@ -204,20 +235,34 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
       </div>
 
       {openSheet && createPortal(
-        <div className={e('sheet-overlay')} onClick={() => setOpenSheet(null)}>
+        <div className={e('sheet-overlay')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>
           <div className={e('sheet')} onClick={(ev) => ev.stopPropagation()}>
             <div className={e('sheet-header')}>
               <div>
                 <div className={e('sheet-title')}>
-            {openSheet === 'collection' && 'Collection'}
+                  {openSheet === 'collection' && 'Collection'}
+                  {openSheet === 'model' && 'Model'}
+                  {openSheet === 'background' && 'Background'}
                   {openSheet === 'filters' && 'Filters'}
                 </div>
                 <div className={e('sheet-subtitle')}>Selects the appropriate filter</div>
               </div>
-              <button className={e('sheet-close')} onClick={() => setOpenSheet(null)}>✕</button>
+              <button className={e('sheet-close')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>✕</button>
             </div>
 
-            {openSheet === 'collection' ? (
+            {openSheet === 'model' && !isCollectionSelected ? (
+              <div className={e('sheet-content')}>
+                <div className={e('panel')}>
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#5C6874' }}>
+                    <div style={{ fontSize: '16px', marginBottom: '8px' }}>Select a collection first</div>
+                    <div style={{ fontSize: '14px' }}>Choose a collection to see available models</div>
+                  </div>
+                </div>
+                <div className={e('sheet-footer')}>
+                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>Close</button>
+                </div>
+              </div>
+            ) : openSheet === 'collection' ? (
               <div className={e('sheet-content')}>
                 <div className={e('search-input')}>
                   <svg className={e('search-icon')} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -243,11 +288,11 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   return name.includes(q);
                 })
                 .map((gift) => {
-                      const checked = selectedGiftIds.includes(gift.id);
+                      const checked = pendingSelectedGiftIds.includes(gift.id);
                       return (
                         <label key={gift.id} className={e('row')}>
                           <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
-                            setSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
+                            setPendingSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
                           }} />
                           <GiftIcon giftId={gift.id} size="40" />
                           
@@ -302,20 +347,22 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   )}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => { setSelectedGiftIds([]); }}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => { setPendingSelectedGiftIds([]); }}>Restart</button>
                   <button className={e('btn-primary')} onClick={() => { 
-                    handleFilterChange('collection', selectedGiftIds.join(',')); 
+                    const collectionValue = pendingSelectedGiftIds.join(',');
+                    setPendingCollectionFilter(collectionValue);
+                    applyPendingFilters(collectionValue);
                     setOpenSheet(null); 
                   }}>Search</button>
                 </div>
               </div>
-            ) : (
+            ) : openSheet === 'model' && isCollectionSelected ? (
               <div className={e('sheet-content')}>
                 {/* Model Section */}
                 <div className={e('panel')}>
                   <div className={e('toggle-row')}>
                     <div className={e('toggle-label')}>Model</div>
-                    <div className={e('toggle-value')}>{getModelDisplay(modelFilter)}</div>
+                    <div className={e('toggle-value')}>{getModelDisplay(pendingModelFilter)}</div>
                   </div>
                   {filterOptions.model.map((option) => (
                     <label key={option.value} className={e('toggle-row')}>
@@ -323,9 +370,9 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                         type="radio" 
                         className={e('radio')} 
                         name="model"
-                        checked={modelFilter === option.value}
+                        checked={pendingModelFilter === option.value}
                         onChange={() => {
-                          handleFilterChange('model', option.value);
+                          updatePendingFilter('model', option.value);
                         }} 
                       />
                       <div className={e('row-main')}>
@@ -336,12 +383,18 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     </label>
                   ))}
                 </div>
-
+                <div className={e('sheet-footer')}>
+                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('model', 'All')}>Restart</button>
+                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                </div>
+              </div>
+            ) : openSheet === 'background' ? (
+              <div className={e('sheet-content')}>
                 {/* Background Section */}
                 <div className={e('panel')}>
                   <div className={e('toggle-row')}>
                     <div className={e('toggle-label')}>Background</div>
-                    <div className={e('toggle-value')}>{getBackgroundDisplay(backgroundFilter)}</div>
+                    <div className={e('toggle-value')}>{getBackgroundDisplay(pendingBackgroundFilter)}</div>
                   </div>
                   {filterOptions.background.map((option) => (
                     <label key={option.value} className={e('toggle-row')}>
@@ -349,9 +402,9 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                         type="radio" 
                         className={e('radio')} 
                         name="background"
-                        checked={backgroundFilter === option.value}
+                        checked={pendingBackgroundFilter === option.value}
                         onChange={() => {
-                          handleFilterChange('background', option.value);
+                          updatePendingFilter('background', option.value);
                         }} 
                       />
                       <div 
@@ -373,12 +426,18 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     </label>
                   ))}
                 </div>
-
+                <div className={e('sheet-footer')}>
+                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('background', 'All')}>Restart</button>
+                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                </div>
+              </div>
+            ) : openSheet === 'filters' ? (
+              <div className={e('sheet-content')}>
                 {/* Sorting Section */}
                 <div className={e('panel')}>
                   <div className={e('toggle-row')}>
                     <div className={e('toggle-label')}>Sorting</div>
-                    <div className={e('toggle-value')}>{getSortingDisplay(sortingFilter)}</div>
+                    <div className={e('toggle-value')}>{getSortingDisplay(pendingSortingFilter)}</div>
                   </div>
                   {filterOptions.sorting.map((option) => (
                     <label key={option.value} className={e('toggle-row')}>
@@ -386,9 +445,9 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                         type="radio" 
                         className={e('radio')} 
                         name="sorting"
-                        checked={sortingFilter === option.value}
+                        checked={pendingSortingFilter === option.value}
                         onChange={() => {
-                          handleFilterChange('sorting', option.value);
+                          updatePendingFilter('sorting', option.value);
                         }} 
                       />
                       <div className={e('row-main')}>
@@ -399,8 +458,12 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     </label>
                   ))}
                 </div>
+                <div className={e('sheet-footer')}>
+                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('sorting', 'date_new_to_old')}>Restart</button>
+                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>,
         document.body

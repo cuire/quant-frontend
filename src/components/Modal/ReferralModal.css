@@ -1,0 +1,178 @@
+/* Referral Modal Styles */
+.referral-modal__ref-label {
+  font-size: 12px;
+  color: #7F94AE;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.referral-modal__progress-section {
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.referral-modal__progress-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #344150;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.referral-modal__progress-fill {
+  position: relative;
+  height: 100%;
+  background: linear-gradient(90deg, #FFAE00 0%, #8B25CA 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.referral-modal__progress-remaining {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background: #344150;
+  border-radius: 4px;
+}
+
+.referral-modal__level-label {
+  position: absolute;
+  top: -24px;
+  font-size: 12px;
+  color: #7F94AE;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.referral-modal__progress-fill .referral-modal__level-label {
+  left: 0;
+  color: #FFAE00;
+}
+
+.referral-modal__progress-remaining .referral-modal__level-label {
+  right: 0;
+}
+
+.referral-modal__progress-indicator {
+  position: relative;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.referral-modal__progress-bubble {
+  position: relative;
+  background: #FF8C00;
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+}
+
+.referral-modal__progress-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #FF8C00;
+}
+
+.referral-modal__progress-bubble svg {
+  width: 16px;
+  height: 16px;
+}
+
+.referral-modal__commission-rate {
+  text-align: center;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.referral-modal__instructions {
+  padding: 16px;
+}
+
+.referral-modal__instruction-block {
+  background: #2A3541;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.referral-modal__instruction-block:last-child {
+  margin-bottom: 0;
+}
+
+.referral-modal__instruction-title {
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.referral-modal__instruction-description {
+  color: #7F94AE;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Button styles override for referral modal */
+.referral-modal .market-header__btn-secondary {
+  background: #2A3541;
+  border: 1px solid #384858;
+  color: #E7EEF7;
+}
+
+.referral-modal .market-header__btn-secondary:hover {
+  background: #344150;
+  border-color: #4A5A6B;
+}
+
+.referral-modal .market-header__btn-primary {
+  background: #248BDA;
+  border: 1px solid #248BDA;
+  color: #FFFFFF;
+}
+
+.referral-modal .market-header__btn-primary:hover {
+  background: #1d6fa8;
+  border-color: #1d6fa8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .referral-modal__progress-section {
+    padding: 16px 12px;
+  }
+  
+  .referral-modal__instructions {
+    padding: 12px;
+  }
+  
+  .referral-modal__instruction-block {
+    padding: 12px;
+  }
+  
+  .referral-modal__progress-bubble {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}

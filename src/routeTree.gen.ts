@@ -10,13 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StorageRouteImport } from './routes/storage'
-import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProfileRouteRouteImport } from './routes/profile/route'
 import { Route as MarketRouteRouteImport } from './routes/market/route'
 import { Route as ActivityRouteRouteImport } from './routes/activity/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StorageIndexRouteImport } from './routes/storage/index'
+import { Route as ProfileIndexRouteImport } from './routes/profile/index'
 import { Route as StorageChannelsRouteImport } from './routes/storage/channels'
 import { Route as StorageActivityRouteImport } from './routes/storage/activity'
+import { Route as ProfileStatsRouteImport } from './routes/profile/stats'
 import { Route as MarketStickersRouteImport } from './routes/market/stickers'
 import { Route as MarketGiftsRouteImport } from './routes/market/gifts'
 import { Route as MarketChannelsRouteImport } from './routes/market/channels'
@@ -31,7 +33,7 @@ const StorageRoute = StorageRouteImport.update({
   path: '/storage',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileRoute = ProfileRouteImport.update({
+const ProfileRouteRoute = ProfileRouteRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => rootRouteImport,
@@ -56,6 +58,11 @@ const StorageIndexRoute = StorageIndexRouteImport.update({
   path: '/',
   getParentRoute: () => StorageRoute,
 } as any)
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProfileRouteRoute,
+} as any)
 const StorageChannelsRoute = StorageChannelsRouteImport.update({
   id: '/channels',
   path: '/channels',
@@ -65,6 +72,11 @@ const StorageActivityRoute = StorageActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
   getParentRoute: () => StorageRoute,
+} as any)
+const ProfileStatsRoute = ProfileStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => ProfileRouteRoute,
 } as any)
 const MarketStickersRoute = MarketStickersRouteImport.update({
   id: '/stickers',
@@ -111,7 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRouteRouteWithChildren
   '/market': typeof MarketRouteRouteWithChildren
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteRouteWithChildren
   '/storage': typeof StorageRouteWithChildren
   '/wallet': typeof walletWalletRoute
   '/activity/channels': typeof ActivityChannelsRoute
@@ -119,8 +131,10 @@ export interface FileRoutesByFullPath {
   '/market/channels': typeof MarketChannelsRoute
   '/market/gifts': typeof MarketGiftsRoute
   '/market/stickers': typeof MarketStickersRoute
+  '/profile/stats': typeof ProfileStatsRoute
   '/storage/activity': typeof StorageActivityRoute
   '/storage/channels': typeof StorageChannelsRoute
+  '/profile/': typeof ProfileIndexRoute
   '/storage/': typeof StorageIndexRoute
   '/storage/offers/placed': typeof StorageOffersPlacedRoute
   '/storage/offers/received': typeof StorageOffersReceivedRoute
@@ -129,15 +143,16 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRouteRouteWithChildren
   '/market': typeof MarketRouteRouteWithChildren
-  '/profile': typeof ProfileRoute
   '/wallet': typeof walletWalletRoute
   '/activity/channels': typeof ActivityChannelsRoute
   '/activity/gifts': typeof ActivityGiftsRoute
   '/market/channels': typeof MarketChannelsRoute
   '/market/gifts': typeof MarketGiftsRoute
   '/market/stickers': typeof MarketStickersRoute
+  '/profile/stats': typeof ProfileStatsRoute
   '/storage/activity': typeof StorageActivityRoute
   '/storage/channels': typeof StorageChannelsRoute
+  '/profile': typeof ProfileIndexRoute
   '/storage': typeof StorageIndexRoute
   '/storage/offers/placed': typeof StorageOffersPlacedRoute
   '/storage/offers/received': typeof StorageOffersReceivedRoute
@@ -147,7 +162,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRouteRouteWithChildren
   '/market': typeof MarketRouteRouteWithChildren
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteRouteWithChildren
   '/storage': typeof StorageRouteWithChildren
   '/(wallet)/wallet': typeof walletWalletRoute
   '/activity/channels': typeof ActivityChannelsRoute
@@ -155,8 +170,10 @@ export interface FileRoutesById {
   '/market/channels': typeof MarketChannelsRoute
   '/market/gifts': typeof MarketGiftsRoute
   '/market/stickers': typeof MarketStickersRoute
+  '/profile/stats': typeof ProfileStatsRoute
   '/storage/activity': typeof StorageActivityRoute
   '/storage/channels': typeof StorageChannelsRoute
+  '/profile/': typeof ProfileIndexRoute
   '/storage/': typeof StorageIndexRoute
   '/storage/offers/placed': typeof StorageOffersPlacedRoute
   '/storage/offers/received': typeof StorageOffersReceivedRoute
@@ -175,8 +192,10 @@ export interface FileRouteTypes {
     | '/market/channels'
     | '/market/gifts'
     | '/market/stickers'
+    | '/profile/stats'
     | '/storage/activity'
     | '/storage/channels'
+    | '/profile/'
     | '/storage/'
     | '/storage/offers/placed'
     | '/storage/offers/received'
@@ -185,15 +204,16 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/market'
-    | '/profile'
     | '/wallet'
     | '/activity/channels'
     | '/activity/gifts'
     | '/market/channels'
     | '/market/gifts'
     | '/market/stickers'
+    | '/profile/stats'
     | '/storage/activity'
     | '/storage/channels'
+    | '/profile'
     | '/storage'
     | '/storage/offers/placed'
     | '/storage/offers/received'
@@ -210,8 +230,10 @@ export interface FileRouteTypes {
     | '/market/channels'
     | '/market/gifts'
     | '/market/stickers'
+    | '/profile/stats'
     | '/storage/activity'
     | '/storage/channels'
+    | '/profile/'
     | '/storage/'
     | '/storage/offers/placed'
     | '/storage/offers/received'
@@ -221,7 +243,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRouteRoute: typeof ActivityRouteRouteWithChildren
   MarketRouteRoute: typeof MarketRouteRouteWithChildren
-  ProfileRoute: typeof ProfileRoute
+  ProfileRouteRoute: typeof ProfileRouteRouteWithChildren
   StorageRoute: typeof StorageRouteWithChildren
   walletWalletRoute: typeof walletWalletRoute
 }
@@ -239,7 +261,7 @@ declare module '@tanstack/react-router' {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
+      preLoaderRoute: typeof ProfileRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market': {
@@ -270,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StorageIndexRouteImport
       parentRoute: typeof StorageRoute
     }
+    '/profile/': {
+      id: '/profile/'
+      path: '/'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof ProfileIndexRouteImport
+      parentRoute: typeof ProfileRouteRoute
+    }
     '/storage/channels': {
       id: '/storage/channels'
       path: '/channels'
@@ -283,6 +312,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/storage/activity'
       preLoaderRoute: typeof StorageActivityRouteImport
       parentRoute: typeof StorageRoute
+    }
+    '/profile/stats': {
+      id: '/profile/stats'
+      path: '/stats'
+      fullPath: '/profile/stats'
+      preLoaderRoute: typeof ProfileStatsRouteImport
+      parentRoute: typeof ProfileRouteRoute
     }
     '/market/stickers': {
       id: '/market/stickers'
@@ -373,6 +409,20 @@ const MarketRouteRouteWithChildren = MarketRouteRoute._addFileChildren(
   MarketRouteRouteChildren,
 )
 
+interface ProfileRouteRouteChildren {
+  ProfileStatsRoute: typeof ProfileStatsRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
+}
+
+const ProfileRouteRouteChildren: ProfileRouteRouteChildren = {
+  ProfileStatsRoute: ProfileStatsRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
+}
+
+const ProfileRouteRouteWithChildren = ProfileRouteRoute._addFileChildren(
+  ProfileRouteRouteChildren,
+)
+
 interface StorageRouteChildren {
   StorageActivityRoute: typeof StorageActivityRoute
   StorageChannelsRoute: typeof StorageChannelsRoute
@@ -396,7 +446,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRouteRoute: ActivityRouteRouteWithChildren,
   MarketRouteRoute: MarketRouteRouteWithChildren,
-  ProfileRoute: ProfileRoute,
+  ProfileRouteRoute: ProfileRouteRouteWithChildren,
   StorageRoute: StorageRouteWithChildren,
   walletWalletRoute: walletWalletRoute,
 }

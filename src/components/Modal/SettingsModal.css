@@ -1,0 +1,89 @@
+.settings-modal__section-title {
+  font-weight: 590;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  text-transform: uppercase;
+  color: #7F94AE;
+}
+
+.settings-modal__button-group {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  align-items: center;
+}
+
+.settings-modal__option-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #32404D;
+  border: none;
+  padding: 12px 10px;
+  border-radius: 70px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-content: center;
+  height: 40px;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.settings-modal__option-button--notifications {
+  width: 70px
+}
+
+.settings-modal__option-button:hover {
+  background: #3A4A5A;
+}
+
+.settings-modal__option-button--active {
+  background: #248BDA;
+  color: #FFFFFF;
+}
+
+.settings-modal__option-button--active:hover {
+  background: #248BDA;
+}
+
+.settings-modal__flag-container {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.settings-modal__flag {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.settings-modal__icon-container {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #475B6D;
+  position: relative;
+}
+
+.settings-modal__option-button--active .settings-modal__icon-container {
+  background: #FFFFFF;
+}
+
+.settings-modal__option-button--active .settings-modal__icon-container svg {
+  fill: #248BDA;
+  color: #248BDA;
+}

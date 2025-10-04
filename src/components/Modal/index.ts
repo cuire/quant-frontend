@@ -5,3 +5,4 @@ export { SuccessModal } from './SuccessModal';
 export { ErrorModal } from './ErrorModal';
 export { ParticipatingModal } from './ParticipatingModal';
 export { SellModal } from './StorageModals';
+export { ReferralModal } from './ReferralModal';

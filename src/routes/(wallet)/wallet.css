@@ -1,0 +1,78 @@
+.wallet-page {
+  min-height: 100vh;
+  background: #1A2026;
+  color: #E7EEF7;
+  font-family: 'system-ui', -apple-system, sans-serif;
+  margin-top: 20px;
+}
+
+.wallet-balance-section {
+  padding: 0 20px 24px;
+}
+
+.wallet-balance-label {
+  font-size: 14px;
+  color: #667E96;
+  margin-bottom: 8px;
+}
+
+.wallet-balance-amount {
+  font-weight: 700;
+  font-style: normal;
+  font-size: 36px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  vertical-align: bottom;
+  color: #FFFFFF;
+  margin-bottom: 20px;
+}
+
+.wallet-balance-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.wallet-action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.wallet-action-button {
+  flex: 1;
+  background-color: #242C35;
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  height: 82px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: 0px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.wallet-action-button:hover {
+  background-color: #2A3440;
+}
+
+.wallet-action-button:active {
+  background-color: #1F262E;
+}
+
+.wallet-action-button:disabled {
+  background-color: #2A3440;
+  color: #6B7280;
+  cursor: not-allowed;
+  opacity: 0.5;
+}

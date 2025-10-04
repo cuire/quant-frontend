@@ -327,6 +327,29 @@
   margin-bottom: 12px;
 }
 
+.gift__info.gift__info--offer {
+  margin-bottom: 0;
+}
+
+.gift__offer-info {
+  margin-bottom: 4px;
+}
+
+.gift__offer-time,
+.gift__offer-price {
+  display: flex;
+  justify-content: space-between;
+}
+
+.gift__offer-price span {
+  color: #248BDA;
+}
+
+.gift__offer-time .countdown-timer {
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* версия info без внутренних отступов и внешних отступов для storage */
 .gift__info--storage {
   padding: 0;

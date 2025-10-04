@@ -1,0 +1,69 @@
+.transaction-list {
+  padding: 0 20px;
+}
+
+.transaction-list__header {
+  font-weight: 590;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.transaction-list__empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.transaction-list__empty-icon {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.transaction-list__empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+
+.transaction-list__empty-subtitle {
+  font-size: 14px;
+  color: #9CA3AF;
+  margin-bottom: 20px;
+}
+
+.transaction-list__empty-action {
+  width: 86px;
+  height: 30px;
+  border-radius: 66px;
+  opacity: 1;
+  gap: 10px;
+  padding-top: 13px;
+  padding-right: 22px;
+  padding-bottom: 13px;
+  padding-left: 22px;
+  background-color: #248BDA;
+  color: #FFFFFF;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.transaction-list__empty-action:hover {
+  background-color: #1E7BC7;
+}

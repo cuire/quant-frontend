@@ -1,7 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
 import { useUser } from '@/lib/api-hooks';
-import { useTonConnectUI, Wallet } from '@tonconnect/ui-react';
+import { useTonWallet } from '@tonconnect/ui-react';
+import { TransactionList } from '@/components/TransactionList';
+import './wallet.css';
+import { MarketTopBar } from '@/components/MarketHeader';
+
 
 export const Route = createFileRoute('/(wallet)/wallet')({
   component: WalletPage,
@@ -9,33 +12,12 @@ export const Route = createFileRoute('/(wallet)/wallet')({
 
 function WalletPage() {
   const { data: user, isLoading } = useUser();
-  const [tonConnectUI] = useTonConnectUI();
-  const [connected, setConnected] = useState(false);
-  const [account, setAccount] = useState<Wallet | null>(null);
+  const wallet = useTonWallet();
 
-  useEffect(() => {
-    const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
-      setConnected(!!wallet);
-      setAccount(wallet);
-    });
-
-    // Get initial status
-    if (tonConnectUI.wallet) {
-      setConnected(true);
-      setAccount(tonConnectUI.wallet);
-    }
-
-    return unsubscribe;
-  }, [tonConnectUI]);
-
-  const connect = () => tonConnectUI.openModal();
-
+  // const connect = () => tonConnectUI.openModal();
   if (isLoading) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#1A2026', 
-        color: '#E7EEF7',
+      <div className="wallet-page" style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -45,158 +27,51 @@ function WalletPage() {
     );
   }
 
-  // Format wallet address for display
-  const formatWalletAddress = (address: string) => {
-    if (address.length <= 12) return address;
-    return `${address.slice(0, 6)}....${address.slice(-6)}`;
-  };
-
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: '#1A2026', 
-      color: '#E7EEF7',
-      padding: '20px'
-    }}>
-      {/* Wallet Card */}
-      <div style={{
-        backgroundColor: '#3A8ECE',
-        borderRadius: '12px',
-        padding: '10px',
-        position: 'relative',
-        overflow: 'hidden',
-        height: '158px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-      }}>
-        {/* Address and Total Volume */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: '#ffffff20',
-          borderRadius: '30px',
-          width: '100%',
-          height: '24px',
-          padding: '8px',
-        }}>
-          <div style={{
-            fontSize: '12px',
-            color: '#ffffff',
-            fontFamily: 'monospace'
-          }}>
-            {connected && account ? 
-              formatWalletAddress(account.account.address) : 
-              'Wallet not connected'
-            }
+    <>
+      <MarketTopBar showConnectButton={true} />
+      <div className="wallet-page">
+        {/* Wallet Balance Section */}
+        <div className="wallet-balance-section">
+          <div className="wallet-balance-section-header">
+            <div className="wallet-balance-label">
+              Wallet balance
+            </div>
+            <div className="wallet-balance-amount">
+              {`${(user?.balance || 100799).toLocaleString()} TON`}
+            </div>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '14px',
-            color: '#ffffff',
-            cursor: 'pointer'
-          }}>
-            <span>{user?.total_volume || 0} TON</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-        </div>
 
-        {/* Main Balance */}
-        <div style={{
-          fontSize: '37px',
-          fontWeight: 'bold',
-          color: '#FFFFFF',
-          textAlign: 'center',
-        }}>
-          {connected ? 
-            (user?.balance || 0) + ' TON' : 
-            'Connect'
-          }
-        </div>
-
-        {/* Action Buttons */}
-        <div style={{
-          display: 'flex',
-          gap: '12px'
-        }}>
-          {connected ? (
-            <>
-              <button style={{
-                flex: 1,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '16px',
-                color: '#FFFFFF',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Deposit
-              </button>
-              <button style={{
-                flex: 1,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '16px',
-                color: '#FFFFFF',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Withdraw
-              </button>
-            </>
-          ) : (
-            <button 
-              onClick={connect}
-              style={{
-                width: '100%',
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '16px',
-                color: '#FFFFFF',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* Action Buttons */}
+          <div className="wallet-action-buttons">
+            <button className="wallet-action-button" disabled={!wallet}>
+              <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.75 9L15.75 3M15.75 3L21.75 9M15.75 3V15C15.75 16.5913 15.1179 18.1174 13.9926 19.2426C12.8674 20.3679 11.3413 21 9.75 21C8.1587 21 6.63258 20.3679 5.50736 19.2426C4.38214 18.1174 3.75 16.5913 3.75 15V12" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Connect Wallet
+              Withdraw
             </button>
-          )}
+            <button className="wallet-action-button" disabled={!wallet}>
+              <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.25 15L9.25 21M9.25 21L3.25 15M9.25 21V9C9.25 7.4087 9.88214 5.88258 11.0074 4.75736C12.1326 3.63214 13.6587 3 15.25 3C16.8413 3 18.3674 3.63214 19.4926 4.75736C20.6179 5.88258 21.25 7.4087 21.25 9V12" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Deposit
+            </button>
+          </div>
         </div>
-      </div>
 
-    </div>
+        {/* Transaction Section */}
+        <TransactionList 
+          transactions={[]}
+          onTransactionClick={(transaction) => {
+            console.log('Transaction clicked:', transaction);
+          }}
+          emptyState={{
+            title: "Nothing to see here",
+            subtitle: "Make your first sales with",
+            actionText: "Market",
+          }}
+        />
+      </div>
+    </>
   );
 }

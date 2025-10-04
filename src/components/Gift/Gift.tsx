@@ -37,6 +37,8 @@ export interface GiftProps extends React.HTMLAttributes<HTMLDivElement> {
   offerPriceTon?: number;
   /** Остаток времени в формате HH:MM:SS для варианта storage */
   timeEnd?: string;
+  /** Timestamp для countdown timer (ISO string или Date) */
+  timeEndTimestamp?: string | Date;
   /** Показать информацию о предложении (цена и время) */
   showOfferInfo?: boolean;
   /** Обработчик кнопки Sell для варианта storage */
@@ -67,6 +69,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
   variant = 'market',
   offerPriceTon,
   timeEnd,
+  timeEndTimestamp,
   showOfferInfo = false,
   onSell,
   onDecline,
@@ -166,16 +169,17 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
         </div>
         
         <div className={e('footer')}>
-          <div className={e('info', isStorage && 'storage')}>
+          <div className={e('info', isStorage && 'storage', showOfferInfo && 'offer')}>
             <h3 className={e('title')}>{title}</h3>
             <span className={e('number')}>{giftNumber.slice(0, 6)}</span>
-            {showOfferInfo && (
-              <div className={e('offer-info')}>
-                <div className={e('offer-price')}>Offer Price: {offerPriceTon} TON</div>
-                <div className={e('offer-time')}>Time End: {timeEnd || '--:--:--'}</div>
-              </div>
-            )}
           </div>
+
+          {showOfferInfo && (
+            <div className={e('offer-info')}>
+              <div className={e('offer-price')}>Offer Price: <span>{offerPriceTon} TON</span></div>
+              <div className={e('offer-time')}>Time End: <span>{timeEndTimestamp ? <CountdownTimer endTime={timeEndTimestamp} /> : (timeEnd || '--:--:--')}</span></div>
+            </div>
+          )}
 
           {isStorage ? (
             <div className={e('storage')}> 
@@ -220,7 +224,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     Frozen by admin
                   </button>
                 </div>
-              ) : variant === 'my-channel' && channelStatus === 'active' ? (
+              ) : variant === 'my-channel' && channelStatus === 'active' || giftStatus === 'active' ? (
                 <div className={e('actions', 'single')}>
                   <button 
                     type="button" 

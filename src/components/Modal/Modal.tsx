@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useModal } from '@/contexts/ModalContext';
 import { GiftDetailsModal } from './GiftDetailsModal';
 import { UpgradedGiftModal } from './UpgradedGiftModal';
@@ -15,10 +15,80 @@ import { ErrorModal } from './ErrorModal';
 import { ParticipatingModal } from './ParticipatingModal';
 import { GiftOfferModal } from './GiftOfferModal';
 import { SellModal } from './StorageModals';
+import { SettingsModal } from './SettingsModal';
+import { ReferralModal } from './ReferralModal';
 import './Modal.css';
 
 export const Modal = () => {
   const { modalType, modalData, closeModal, openModal } = useModal();
+  const [pointerStart, setPointerStart] = useState<{ x: number; y: number } | null>(null);
+  const [pointerEnd, setPointerEnd] = useState<{ x: number; y: number } | null>(null);
+  const [swipeProgress, setSwipeProgress] = useState(0);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Minimum distance for swipe to close modal
+  const minSwipeDistance = 50;
+
+  // Handle pointer start
+  const handlePointerStart = (e: React.PointerEvent) => {
+    // Only handle primary pointer (left mouse button or first touch)
+    if (e.isPrimary) {
+      setPointerStart({ x: e.clientX, y: e.clientY });
+      setPointerEnd(null);
+    }
+  };
+
+  // Handle pointer move
+  const handlePointerMove = (e: React.PointerEvent) => {
+    // Only handle primary pointer
+    if (e.isPrimary && pointerStart) {
+      setPointerEnd({ x: e.clientX, y: e.clientY });
+      
+      // Calculate swipe progress for visual feedback
+      const deltaY = e.clientY - pointerStart.y;
+      const deltaX = e.clientX - pointerStart.x;
+      
+      // Only show progress for downward swipes
+      if (deltaY > 0 && Math.abs(deltaY) > Math.abs(deltaX)) {
+        const progress = Math.min(deltaY / 100, 1); // Normalize to 0-1
+        setSwipeProgress(progress);
+      } else {
+        setSwipeProgress(0);
+      }
+    }
+  };
+
+  // Handle pointer end and detect swipe
+  const handlePointerEnd = (e: React.PointerEvent) => {
+    // Only handle primary pointer
+    if (!e.isPrimary || !pointerStart || !pointerEnd) return;
+
+    const deltaX = pointerEnd.x - pointerStart.x;
+    const deltaY = pointerEnd.y - pointerStart.y;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    // Check if it's a downward swipe (common for closing modals)
+    const isDownwardSwipe = deltaY > 0 && Math.abs(deltaY) > Math.abs(deltaX);
+    
+    // Check if it's a significant swipe gesture
+    if (distance > minSwipeDistance && isDownwardSwipe) {
+      closeModal();
+    }
+
+    // Reset pointer states
+    setPointerStart(null);
+    setPointerEnd(null);
+    setSwipeProgress(0);
+  };
+
+  // Reset swipe progress when modal opens
+  useEffect(() => {
+    if (modalType) {
+      setSwipeProgress(0);
+      setPointerStart(null);
+      setPointerEnd(null);
+    }
+  }, [modalType]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -120,14 +190,32 @@ export const Modal = () => {
             type={modalData?.type ?? 'channel'}
           />
         );
+      case 'settings':
+        return <SettingsModal onClose={closeModal} />;
+      case 'referral':
+        return <ReferralModal onClose={closeModal} />;
       default:
         return null;
     }
   };
 
   return createPortal(
-    <div className="market-header__sheet-overlay" onClick={closeModal}>
-      <div onClick={(e) => e.stopPropagation()}>
+    <div 
+      ref={overlayRef}
+      className="market-header__sheet-overlay" 
+      onClick={closeModal}
+      onPointerDown={handlePointerStart}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          transform: `translateY(${swipeProgress * 20}px)`,
+          opacity: 1 - (swipeProgress * 0.3),
+          transition: swipeProgress === 0 ? 'transform 0.2s ease, opacity 0.2s ease' : 'none'
+        }}
+      >
         {renderModal()}
       </div>
     </div>,

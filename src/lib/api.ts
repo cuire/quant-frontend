@@ -128,6 +128,20 @@ export interface GiftsResponse {
   gifts: GiftWithDetails[];
   backdrops: GiftBackdrop[];
   symbols: GiftSymbol[];
+  models?: Array<{
+    value: string;
+    rarity_per_mille: number;
+    floor: number;
+  }>;
+  bounds?: {
+    min_price: number;
+    max_price: number;
+  };
+  floor_data?: {
+    models_floor: Record<string, any>;
+    backdrops_floor: Record<string, number>;
+    symbols_floor: Record<string, number>;
+  };
 }
 
 export interface MarketGift {
@@ -258,6 +272,37 @@ export async function updateLanguage(language: string): Promise<User> {
   });
 }
 
+export async function updateTheme(theme: string): Promise<User> {
+  return request<User>("/users/me/theme", {
+    method: "POST",
+    body: JSON.stringify({ theme }),
+  });
+}
+
+// Profile types
+export interface StatCard {
+  value: string;
+  name: string;
+  icon: string;
+}
+
+export interface UserProfile {
+  main_stats: StatCard[];
+  all_stats: StatCard[];
+  referrals_count: number;
+  referral_level: number;
+  referrals_volume: number;
+  referrals_volume_min: number;
+  referrals_volume_max: number;
+  referrals_balance: number;
+  referrals_percent: number;
+  referrals_code: string;
+}
+
+export async function getUserProfile(): Promise<UserProfile> {
+  return request<UserProfile>("/users/me/profile");
+}
+
 const filtersToUrlParams = (filters: Record<string, any>): URLSearchParams => {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
@@ -324,14 +369,14 @@ export async function marketGetGifts(
   page = 1, 
   limit = 20, 
   filters: Record<string, any> = {}
-): Promise<MarketGift[]> {
+): Promise<{gifts: MarketGift[], models?: Array<{value: string, rarity_per_mille: number, floor: number}>, bounds?: {min_price: number, max_price: number}, floor_data?: any}> {
   let params = new URLSearchParams();
   params.append('page', page.toString());
   params.append('limit', limit.toString());
   params = new URLSearchParams([...filtersToUrlParams(filters), ...params]);
 
-  const data = await request<{gifts: MarketGift[]}>(`/market/gifts?${params.toString()}`);
-  return data.gifts || [];
+  const data = await request<{gifts: MarketGift[], models?: Array<{value: string, rarity_per_mille: number, floor: number}>, bounds?: {min_price: number, max_price: number}, floor_data?: any}>(`/market/gifts?${params.toString()}`);
+  return data;
 }
 
 export async function getUserChannels(): Promise<Channel[]> {
@@ -619,5 +664,11 @@ export async function createItemSale(
       seconds_to_transfer: secondsToTransfer,
       timezone
     }),
+  });
+}
+
+export async function withdrawReferralBalance(): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>("/users/me/withdraw_referral_balance", {
+    method: 'POST',
   });
 }

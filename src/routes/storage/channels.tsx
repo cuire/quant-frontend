@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useRef, useCallback, useMemo } from 'react';
 import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts, useSellItem } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
+import { Skeleton } from '@/components/Skeleton';
 import { useModal } from '@/contexts/ModalContext';
 import { getGiftIcon } from '@/lib/images';
 import './activity.css';
@@ -134,7 +135,7 @@ function ChannelsPage() {
       name: userGift.gift_data?.full_name || `Gift ${userGift.gift_id}`,
       num: userGift.id,
       gift_frozen_until: userGift.gift_frozen_until || null,
-      price: userGift.gift_data?.price || 0,
+      price: userGift.price || 0,
       model,
       backdrop,
       symbol,
@@ -168,9 +169,9 @@ function ChannelsPage() {
         </div>
       </div>
 
-      {isLoadingChannels && (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>Loading channels...</p>
+      {isLoadingChannels && allChannels.length === 0 && (
+        <div className="gifts-grid">
+          <Skeleton count={8} />
         </div>
       )}
 
@@ -273,7 +274,7 @@ function ChannelsPage() {
             }]}
             title={userGift.gift_data.full_name || `Gift ${userGift.gift_id}`}
             giftNumber={`#${userGift.id}`}
-            price={0}
+            price={userGift.price}
             variant="my-channel"
             giftStatus={userGift.status}
             onSell={() => openModal('sell-channel', {
@@ -291,8 +292,8 @@ function ChannelsPage() {
       </div>
 
       {isFetchingNextChannels && (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>Loading more...</p>
+        <div className="gifts-grid">
+          <Skeleton count={4} />
         </div>
       )}
     </>

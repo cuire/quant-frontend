@@ -1,3 +1,7 @@
+button {
+  border: none;
+}
+
 /* Profile Header */
 .profile-header {
   display: flex;
@@ -268,9 +272,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   justify-content: flex-end;
-  padding: 5px;
 }
 
 .profile-stats__card-value {
@@ -327,10 +330,10 @@
   display: flex;
   align-items: center;
   gap: 19px;
-  height: 70px;
   margin-bottom: 10px;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%;
 }
 
 .profile-referrals__card:hover {
@@ -346,7 +349,7 @@
 
 .profile-referrals__count {
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-weight: 500;
@@ -359,6 +362,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: left;
 }
 
 .profile-referrals__text {
@@ -371,6 +375,7 @@
   font-size: 11px;
   color: #667E96;
   line-height: 13px;
+  width: 80%;
 }
 
 .profile-referrals__arrow {
@@ -402,18 +407,21 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   justify-content: flex-end;
-  padding: 5px;
 }
 
-.profile-referrals__stat-card--green {
-  background: #6FBA65;
+.profile-referrals__stat-card-receive {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
+
+.profile-referrals__stat-card-receive-green {
+  background: #6FBA65;
+}
+
 
 .profile-referrals__stat-card--green .profile-referrals__stat-value {
   font-weight: 700;
@@ -444,7 +452,5 @@
 /* Profile Container */
 .profile-container {
   padding: 15px;
-  background: var(--tg-theme-bg-color, #1A2026);
-  min-height: 100vh;
   padding-bottom: 80px;
 }

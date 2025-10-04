@@ -1,10 +1,11 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, getMeGifts, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift, createItemSale } from './api';
+import { getUser, updateLanguage, updateTheme, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, getMeGifts, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift, createItemSale, getUserProfile, withdrawReferralBalance } from './api';
 
 // Query keys
 export const queryKeys = {
   user: ['user'] as const,
+  userProfile: ['userProfile'] as const,
   channels: (page: number, limit: number, filters?: Record<string, any>) => 
     ['channels', page, limit, filters] as const,
   channelsInfinite: (limit: number, filters?: Record<string, any>) => 
@@ -61,7 +62,27 @@ export const useUpdateLanguage = () => {
     mutationFn: updateLanguage,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
     },
+  });
+};
+
+export const useUpdateTheme = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: updateTheme,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+    },
+  });
+};
+
+export const useUserProfile = () => {
+  return useQuery({
+    queryKey: queryKeys.userProfile,
+    queryFn: getUserProfile,
   });
 };
 
@@ -207,7 +228,7 @@ export const useMarketGiftsInfinite = (
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       // If we got fewer items than the limit, we've reached the end
-      if (lastPage.length < limit || lastPage.length === 0) {
+      if (lastPage.gifts.length < limit || lastPage.gifts.length === 0) {
         return undefined;
       }
       return allPages.length + 1;
@@ -448,6 +469,19 @@ export const useSellItem = () => {
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
       queryClient.invalidateQueries({ queryKey: ['meGifts'] });
       queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+    },
+  });
+};
+
+export const useWithdrawReferralBalance = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: withdrawReferralBalance,
+    onSuccess: () => {
+      // Invalidate user and profile queries after successful withdrawal
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
     },
   });
 };
