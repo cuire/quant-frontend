@@ -42,10 +42,17 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   useEffect(() => {
     // Apply theme to document root
     document.documentElement.setAttribute('data-theme', theme);
-    
-    // Bind Telegram theme params for system theme compatibility
+  }, [theme]);
+
+  // Bind Telegram theme params for system theme compatibility
+  useEffect(() => {
     if (theme === 'system' && bindThemeParamsCssVars) {
-      bindThemeParamsCssVars();
+      try {
+        bindThemeParamsCssVars();
+      } catch (error) {
+        // CSS variables might already be bound, ignore the error
+        console.warn('CSS variables already bound:', error);
+      }
     }
   }, [theme]);
 
