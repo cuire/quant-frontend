@@ -17,31 +17,47 @@ import { GiftOfferModal } from './GiftOfferModal';
 import { SellModal } from './StorageModals';
 import { SettingsModal } from './SettingsModal';
 import { ReferralModal } from './ReferralModal';
+import { GuideModal } from './GuideModal';
 import './Modal.css';
 
 export const Modal = () => {
   const { modalType, modalData, closeModal, openModal } = useModal();
-  const [pointerStart, setPointerStart] = useState<{ x: number; y: number } | null>(null);
+  const [pointerStart, setPointerStart] = useState<{ x: number; y: number; fromHeader: boolean } | null>(null);
   const [pointerEnd, setPointerEnd] = useState<{ x: number; y: number } | null>(null);
   const [swipeProgress, setSwipeProgress] = useState(0);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  // Minimum distance for swipe to close modal
-  const minSwipeDistance = 50;
+  // Minimum distance for swipe to close modal (increased to prevent accidental closes)
+  const minSwipeDistance = 100;
+  
+  // Animation thresholds for different visual feedback levels
+  const animationThresholds = {
+    start: 20,      // Start showing subtle animation
+    progress: 50,   // More noticeable animation
+    commit: 80,     // Strong visual feedback indicating close will happen
+    close: 100      // Actual close threshold
+  };
+
+  // Debug option to show/hide swipe progress indicator
+  const showSwipeProgressDebug = false;
 
   // Handle pointer start
   const handlePointerStart = (e: React.PointerEvent) => {
     // Only handle primary pointer (left mouse button or first touch)
     if (e.isPrimary) {
-      setPointerStart({ x: e.clientX, y: e.clientY });
+      // Check if the pointer started from the modal header
+      const target = e.target as HTMLElement;
+      const isFromHeader = target.closest('.product-sheet__header') !== null;
+      
+      setPointerStart({ x: e.clientX, y: e.clientY, fromHeader: isFromHeader });
       setPointerEnd(null);
     }
   };
 
   // Handle pointer move
   const handlePointerMove = (e: React.PointerEvent) => {
-    // Only handle primary pointer
-    if (e.isPrimary && pointerStart) {
+    // Only handle primary pointer and only if started from header
+    if (e.isPrimary && pointerStart && pointerStart.fromHeader) {
       setPointerEnd({ x: e.clientX, y: e.clientY });
       
       // Calculate swipe progress for visual feedback
@@ -50,8 +66,25 @@ export const Modal = () => {
       
       // Only show progress for downward swipes
       if (deltaY > 0 && Math.abs(deltaY) > Math.abs(deltaX)) {
-        const progress = Math.min(deltaY / 100, 1); // Normalize to 0-1
-        setSwipeProgress(progress);
+        // Calculate progress based on thresholds
+        let progress = 0;
+        
+        if (deltaY >= animationThresholds.start) {
+          // Start with subtle animation
+          progress = Math.min((deltaY - animationThresholds.start) / (animationThresholds.progress - animationThresholds.start), 0.3);
+        }
+        
+        if (deltaY >= animationThresholds.progress) {
+          // More noticeable animation
+          progress = 0.3 + Math.min((deltaY - animationThresholds.progress) / (animationThresholds.commit - animationThresholds.progress), 0.4) * 0.7;
+        }
+        
+        if (deltaY >= animationThresholds.commit) {
+          // Strong visual feedback
+          progress = 0.7 + Math.min((deltaY - animationThresholds.commit) / (animationThresholds.close - animationThresholds.commit), 0.3);
+        }
+        
+        setSwipeProgress(Math.min(progress, 1));
       } else {
         setSwipeProgress(0);
       }
@@ -60,8 +93,14 @@ export const Modal = () => {
 
   // Handle pointer end and detect swipe
   const handlePointerEnd = (e: React.PointerEvent) => {
-    // Only handle primary pointer
-    if (!e.isPrimary || !pointerStart || !pointerEnd) return;
+    // Only handle primary pointer and only if started from header
+    if (!e.isPrimary || !pointerStart || !pointerEnd || !pointerStart.fromHeader) {
+      // Reset states even if conditions aren't met
+      setPointerStart(null);
+      setPointerEnd(null);
+      setSwipeProgress(0);
+      return;
+    }
 
     const deltaX = pointerEnd.x - pointerStart.x;
     const deltaY = pointerEnd.y - pointerStart.y;
@@ -194,6 +233,8 @@ export const Modal = () => {
         return <SettingsModal onClose={closeModal} />;
       case 'referral':
         return <ReferralModal onClose={closeModal} />;
+      case 'guide':
+        return <GuideModal onClose={closeModal} />;
       default:
         return null;
     }
@@ -211,11 +252,28 @@ export const Modal = () => {
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
-          transform: `translateY(${swipeProgress * 20}px)`,
-          opacity: 1 - (swipeProgress * 0.3),
-          transition: swipeProgress === 0 ? 'transform 0.2s ease, opacity 0.2s ease' : 'none'
+          transform: `translateY(${swipeProgress * 30}px) scale(${1 - (swipeProgress * 0.05)})`,
+          opacity: 1 - (swipeProgress * 0.4),
+          filter: `blur(${swipeProgress * 2}px)`,
+          transition: swipeProgress === 0 ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, filter 0.3s ease' : 'none'
         }}
       >
+        {/* Swipe progress indicator - only shown in debug mode */}
+        {showSwipeProgressDebug && swipeProgress > 0 && (
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: `linear-gradient(90deg, #248BDA 0%, #248BDA ${swipeProgress * 100}%, rgba(36, 139, 218, 0.3) ${swipeProgress * 100}%, rgba(36, 139, 218, 0.3) 100%)`,
+              borderRadius: '0 0 4px 4px',
+              zIndex: 1,
+              transition: 'opacity 0.2s ease'
+            }}
+          />
+        )}
         {renderModal()}
       </div>
     </div>,

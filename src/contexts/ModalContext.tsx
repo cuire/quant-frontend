@@ -17,6 +17,7 @@ export type ModalType =
   | 'sell-channel'
   | 'settings'
   | 'referral'
+  | 'guide'
   | null;
 
 interface ModalContextType {

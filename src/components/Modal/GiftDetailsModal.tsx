@@ -122,7 +122,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
           {(() => {
             const count = items.length;
             const gridClass = count === 1 ? 'single' : count === 2 ? 'double' : count === 3 ? 'triple' : 'multiple';
-            const visible = gridClass === 'multiple' ? items.slice(0, 4) : items.slice(0, count);
+            const visible = count > 4 ? items.slice(0, 3) : count === 4 ? items.slice(0, 4) : items;
             return (
               <div className={`product-sheet__grid product-sheet__grid--${gridClass}`}>
                 {visible.map((it: any) => (
@@ -134,8 +134,11 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
                     <span className="product-sheet__q">x{typeof it.quantity === 'number' ? it.quantity : 1}</span>
                   </div>
                 ))}
-                {count > 4 && (
-                  <div className="product-sheet__more-badge">+{count - 4} more</div>
+          
+                {items.length > 4 && (
+                <div className="product-sheet__cell">
+                    <div className="product-sheet__more-badge"><span>+{count - 3} more</span></div>
+                  </div>
                 )}
               </div>
             );

@@ -30,6 +30,7 @@
 
 .market-header__btn-group {
     display: inline-flex;
+    color: #ffffff;
     align-items: center;
     background: #212A33;
     border: 0;
@@ -96,19 +97,34 @@
 .market-header__telegram-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap:6px;
     background: #1589D0;
     color: white;
-    padding: 3px 5px;
+    padding: 3px 7px;
     border-radius: 22px;
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.market-header__telegram-badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.market-header__telegram-badge:hover::before {
+    opacity: 1;
 }
 
 .market-header__telegram-badge:hover {
-    background: #0077bb;
+    transform: translateY(-1px);
 }
 
 .market-header__telegram-badge {
@@ -493,6 +509,20 @@
     background: linear-gradient(180deg, #2F82C7, #2F82C7);
 }
 
+.market-header__row input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='9' height='9' viewBox='0 0 9 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.8884 1.0982C9.09888 0.766299 9.0029 0.325044 8.67402 0.112627C8.34514 -0.0997884 7.9079 -0.00292828 7.69742 0.328972L3.36789 7.15598L1.25422 4.54888C1.00696 4.2439 0.56153 4.19895 0.259324 4.44848C-0.0428812 4.69801 -0.0874246 5.14753 0.159834 5.45251L2.78865 8.69501C3.14346 9.13266 3.81831 9.09297 4.12035 8.61669L8.8884 1.0982Z' fill='white'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
 /* range + inputs card */
 .market-header__card {
     margin: 12px;
@@ -516,7 +546,6 @@
     align-items: center;
     justify-content: center;
     background: #3F4B58;
-    border: 1px solid #242E37;
     border-radius: 5px;
     color: #fff;
 }
@@ -585,7 +614,7 @@
     height: 18px;
     border-radius: 50%;
     background: #ffffff;
-    border: 2px solid #3D84C5;
+    border: 2px solid #2A3541;
     box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
     pointer-events: auto;
 }
@@ -656,7 +685,7 @@
 .market-header__switch::after {
     content: '';
     position: absolute;
-    top: 2.5px;
+    top: 2.3px;
     left: 2.5px;
     width: 20px;
     height: 20px;
@@ -847,6 +876,26 @@
     color: #AFC0D4;
     border-radius: 10px;
     font-weight: 600;
+}
+
+.product-sheet__more-badge {
+    background: #248BDA;
+    color: #CFE2F7;
+    width: 52px;
+    height: 15px;
+    border: 1px solid rgba(47,130,199,0.35);
+    font-size: 10.29px;
+    font-weight: 600;
+    white-space: nowrap;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-sheet__more-badge span {
+    white-space: nowrap;
+    margin-top: -0.5px;
 }
 
 .product-sheet__close {

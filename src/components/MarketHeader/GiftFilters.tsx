@@ -10,6 +10,29 @@ import './MarketHeader.css';
 
 const [, e] = bem('market-header');
 
+const new_colors: Record<string, { backgroundColor: string; color: string }> = {
+    '1': {
+      backgroundColor: '#FF9500',
+      color: '#ffffff'
+    },
+    '2': {
+      backgroundColor: '#018C03',
+      color: '#ffffff'
+    },
+    '3': {
+      backgroundColor: '#800080',
+      color: '#ffffff'
+    },
+    '4': {
+      backgroundColor: '#8B4513',
+      color: '#ffffff'
+    },
+    '5': {
+      backgroundColor: '#1B1B1B',
+      color: '#ffffff'
+    }
+}
+
 export interface GiftFiltersProps {
   onFilterChange?: (filters: GiftFilterChangeParams) => void;
   currentFilters?: GiftCurrentFilters;
@@ -173,7 +196,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
         {/* Collection chip */}
         <div style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
           <div className={e('filter-chip')} onClick={() => setOpenSheet('collection')} role="button" tabIndex={0}>
-            <span className={e('chip-label')}>Collection</span>
+            <span className={e('chip-label')}>Gift</span>
             <div className={e('chip-control')}>
               <span className={e('chip-value')}>{getPendingGiftNameById(pendingSelectedGiftIds)}</span>
               <div className={e('chip-select')} />
@@ -287,6 +310,15 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   const name = (gift.short_name || gift.full_name || '').toLowerCase();
                   return name.includes(q);
                 })
+                .sort((a, b) => {
+                  // Sort selected gifts to the top
+                  const aSelected = pendingSelectedGiftIds.includes(a.id);
+                  const bSelected = pendingSelectedGiftIds.includes(b.id);
+                  
+                  if (aSelected && !bSelected) return -1;
+                  if (!aSelected && bSelected) return 1;
+                  return 0;
+                })
                 .map((gift) => {
                       const checked = pendingSelectedGiftIds.includes(gift.id);
                       return (
@@ -294,7 +326,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                           <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
                             setPendingSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
                           }} />
-                          <GiftIcon giftId={gift.id} size="40" />
+                          <GiftIcon giftId={gift.id} size="40" badge={gift.new ? { text: "New", ...new_colors[gift.new_color] } : undefined} />
                           
                           <div className={e('row-main')}>
                             <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -309,6 +341,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                               }}>NEW</span>}
                             </div>
                             <div className={e('row-note')}>
+                              {gift.count} channels on sale
                               {gift.premarket && (
                                 <span style={{ 
                                   backgroundColor: '#FF4545',
@@ -321,13 +354,15 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                                   alignItems: 'center',
                                   gap: '2px',
                                   height: '16px',
-                                  marginTop: '3px'
+                                  marginLeft: '8px'
                                 }}>
                                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect width="10" height="10" rx="5" fill="white"/>
                                     <path d="M5 1C4.47471 1 3.95457 1.10346 3.46927 1.30448C2.98396 1.5055 2.54301 1.80014 2.17157 2.17157C1.42143 2.92172 1 3.93913 1 5C1 6.06087 1.42143 7.07828 2.17157 7.82843C2.54301 8.19986 2.98396 8.4945 3.46927 8.69552C3.95457 8.89654 4.47471 9 5 9C6.06087 9 7.07828 8.57857 7.82843 7.82843C8.57857 7.07828 9 6.06087 9 5C9 4.47471 8.89654 3.95457 8.69552 3.46927C8.4945 2.98396 8.19986 2.54301 7.82843 2.17157C7.45699 1.80014 7.01604 1.5055 6.53073 1.30448C6.04543 1.10346 5.52529 1 5 1ZM6.68 6.68L4.6 5.4V3H5.2V5.08L7 6.16L6.68 6.68Z" fill="#FF4545"/>
                                   </svg>
-                                  Pre-Market
+                                  <span style={{ marginTop: '-2px' }}>
+                                    Pre-Market
+                                  </span>
                                 </span>
                               )}
                             </div>
@@ -347,9 +382,22 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   )}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => { setPendingSelectedGiftIds([]); }}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => { 
+                    setPendingSelectedGiftIds([]);
+                    setPendingCollectionFilter('All');
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      collection: 'All',
+                      model: pendingModelFilter,
+                      background: pendingBackgroundFilter,
+                      sorting: pendingSortingFilter,
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => { 
-                    const collectionValue = pendingSelectedGiftIds.join(',');
+                    const collectionValue = pendingSelectedGiftIds.length > 0 
+                      ? pendingSelectedGiftIds.join(',') 
+                      : 'All';
                     setPendingCollectionFilter(collectionValue);
                     applyPendingFilters(collectionValue);
                     setOpenSheet(null); 
@@ -384,7 +432,17 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('model', 'All')}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => {
+                    setPendingModelFilter('All');
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      collection: pendingCollectionFilter,
+                      model: 'All',
+                      background: pendingBackgroundFilter,
+                      sorting: pendingSortingFilter,
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
                 </div>
               </div>
@@ -427,7 +485,17 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('background', 'All')}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => {
+                    setPendingBackgroundFilter('All');
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      collection: pendingCollectionFilter,
+                      model: pendingModelFilter,
+                      background: 'All',
+                      sorting: pendingSortingFilter,
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
                 </div>
               </div>
@@ -459,7 +527,17 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                   ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('sorting', 'date_new_to_old')}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => {
+                    setPendingSortingFilter('date_new_to_old');
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      collection: pendingCollectionFilter,
+                      model: pendingModelFilter,
+                      background: pendingBackgroundFilter,
+                      sorting: 'date_new_to_old',
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
                 </div>
               </div>

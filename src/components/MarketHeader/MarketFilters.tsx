@@ -279,6 +279,15 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       const name = (gift.short_name || gift.full_name || '').toLowerCase();
                       return name.includes(q);
                     })
+                    .sort((a, b) => {
+                      // Sort selected gifts to the top
+                      const aSelected = pendingSelectedGiftIds.includes(String(a.id));
+                      const bSelected = pendingSelectedGiftIds.includes(String(b.id));
+                      
+                      if (aSelected && !bSelected) return -1;
+                      if (!aSelected && bSelected) return 1;
+                      return 0;
+                    })
                     .map((gift) => {
                     const checked = pendingSelectedGiftIds.includes(String(gift.id));
                     if (gift.count === 0) {
@@ -311,7 +320,22 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                   })}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => { setPendingSelectedGiftIds([]); }}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => { 
+                    setPendingSelectedGiftIds([]);
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      gift: [],
+                      channelType: pendingChannelTypeFilter,
+                      sorting: pendingSortingFilter,
+                      minPrice: pendingPriceRange[0],
+                      maxPrice: pendingPriceRange[1],
+                      minQuantity: pendingQtyRange[0],
+                      maxQuantity: pendingQtyRange[1],
+                      onlyExactGift: pendingOnlyExactGift,
+                      showUpgraded: pendingShowUpgraded,
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => { 
                     applyPendingFilters();
                     setOpenSheet(null); 
@@ -357,7 +381,22 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                 ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('channelType', 'All')}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => {
+                    setPendingChannelTypeFilter('All');
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      gift: pendingSelectedGiftIds,
+                      channelType: 'All',
+                      sorting: pendingSortingFilter,
+                      minPrice: pendingPriceRange[0],
+                      maxPrice: pendingPriceRange[1],
+                      minQuantity: pendingQtyRange[0],
+                      maxQuantity: pendingQtyRange[1],
+                      onlyExactGift: pendingOnlyExactGift,
+                      showUpgraded: pendingShowUpgraded,
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
                 </div>
               </div>
@@ -384,7 +423,22 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                 ))}
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-secondary')} onClick={() => updatePendingFilter('sorting', 'date_new_to_old')}>Restart</button>
+                  <button className={e('btn-secondary')} onClick={() => {
+                    setPendingSortingFilter('date_new_to_old');
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      gift: pendingSelectedGiftIds,
+                      channelType: pendingChannelTypeFilter,
+                      sorting: 'date_new_to_old',
+                      minPrice: pendingPriceRange[0],
+                      maxPrice: pendingPriceRange[1],
+                      minQuantity: pendingQtyRange[0],
+                      maxQuantity: pendingQtyRange[1],
+                      onlyExactGift: pendingOnlyExactGift,
+                      showUpgraded: pendingShowUpgraded,
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
                 </div>
               </div>
@@ -531,13 +585,32 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                 <div className={e('sheet-footer')}>
                   <button className={e('btn-secondary')} onClick={() => {
                     // Reset to bounds values
-                    if (boundsData?.bounds) {
-                      setPendingPriceRange([boundsData.bounds.min_price, boundsData.bounds.max_price]);
-                      setPendingQtyRange([boundsData.bounds.min_count, boundsData.bounds.max_count]);
-                    }
+                    const resetPriceRange: [number, number] = boundsData?.bounds 
+                      ? [boundsData.bounds.min_price, boundsData.bounds.max_price]
+                      : [0, 1500];
+                    const resetQtyRange: [number, number] = boundsData?.bounds
+                      ? [boundsData.bounds.min_count, boundsData.bounds.max_count]
+                      : [0, 100];
+                    
+                    setPendingPriceRange(resetPriceRange);
+                    setPendingQtyRange(resetQtyRange);
                     setPendingOnlyExactGift(false);
                     setPendingShowUpgraded(true);
-                  }}>Restart</button>
+                    
+                    // Apply reset filters directly
+                    onFilterChange?.({
+                      gift: pendingSelectedGiftIds,
+                      channelType: pendingChannelTypeFilter,
+                      sorting: pendingSortingFilter,
+                      minPrice: resetPriceRange[0],
+                      maxPrice: resetPriceRange[1],
+                      minQuantity: resetQtyRange[0],
+                      maxQuantity: resetQtyRange[1],
+                      onlyExactGift: false,
+                      showUpgraded: true,
+                    });
+                    setOpenSheet(null);
+                  }}>Reset</button>
                   <button className={e('btn-primary')} onClick={() => {
                     applyPendingFilters();
                     setOpenSheet(null);

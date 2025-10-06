@@ -119,7 +119,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
           style={{ backgroundColor: '#2A3541' }}
         >
           <div className={e('items-grid', getGridClass())}>
-            {items.slice(0, 4).map((item) => (
+            {(items.length > 4 ? items.slice(0, 3) : items).map((item) => (
               <div key={item.id} className={e('item')}>
                   <div 
                     className={e('item-background')}
@@ -145,11 +145,15 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     )}
                     {item.quantity && <span className={e('quantity-badge')}>x{item.quantity}</span>}
                   </div>
+                 
                 </div>
               </div>
             ))}
+
             {items.length > 4 && (
-              <div className={e('more-badge')}>+{items.length - 4} more</div>
+              <div className={e('item')}>
+                  <div className={e('more-badge')}><span>+{items.length - 3} more</span></div>
+              </div>
             )}
           </div>
 

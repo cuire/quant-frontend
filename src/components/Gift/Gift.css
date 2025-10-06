@@ -232,17 +232,23 @@
 
 
 .gift__more-badge {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(47,130,199,0.15);
+  background: #248BDA;
   color: #CFE2F7;
+  width: 52px;
+  height: 15px;
   border: 1px solid rgba(47,130,199,0.35);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 12px;
+  font-size: 10.29px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift__more-badge span {
+  white-space: nowrap;
+  margin-top: -0.5px;
 }
 
 .gift__footer {
@@ -463,42 +469,4 @@
   font-size: 15px;
   font-weight: 600;
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
-
-/* responsive */
-@media (max-width: 480px) {
-  .gift {
-    height: 260px;
-  }
-  .gift--storage {
-    height: 264px;
-  }
-  
-  .gift__content {
-    padding: 6px;
-  }
-  
-  .gift__items-grid--single .gift__item-image {
-    max-width: 70px;
-    max-height: 70px;
-  }
-  
-  .gift__items-grid--double .gift__item-image {
-    max-width: 50px;
-    max-height: 50px;
-  }
-  
-  .gift__items-grid--multiple .gift__item-image {
-    max-width: 40px;
-    max-height: 40px;
-  }
-  
-  .gift__title {
-    font-size: 12px;
-  }
-  
-  .gift__price-button {
-    padding: 10px;
-    font-size: 14px;
-  }
 }

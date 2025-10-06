@@ -129,6 +129,7 @@ body.modal-open {
     gap: 12px;
     padding: 10px 16px;
     align-items: center;
+    position: relative;
 }
 
 .market-header__row+.market-header__row {

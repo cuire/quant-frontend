@@ -77,6 +77,7 @@ export type GiftFilterChangeParams = {
   model: string;
   background: string;
   sorting: string;
+  channelsOnSale?: boolean;
 };
 
 export type GiftCurrentFilters = {
@@ -84,6 +85,7 @@ export type GiftCurrentFilters = {
   model: string;
   background: string;
   sorting: string;
+  channelsOnSale?: boolean;
 };
 
 // Build filters object from search params

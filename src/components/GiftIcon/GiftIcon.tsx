@@ -4,12 +4,18 @@ interface GiftIconProps {
   giftId: string;
   size?: string | number;
   className?: string;
+  badge?: {
+    text: string;
+    backgroundColor: string;
+    color: string;
+  };
 }
 
 export const GiftIcon: FC<GiftIconProps> = ({ 
   giftId, 
   size = 24, 
-  className = '' 
+  className = '',
+  badge,
 }) => {
   const iconUrl = `https://FlowersRestricted.github.io/gifts/${giftId}/default.png`;
   
@@ -18,17 +24,25 @@ export const GiftIcon: FC<GiftIconProps> = ({
   const isPercentage = sizeStr.includes('%');
   
   return (
-    <img 
-      src={iconUrl}
-      alt={`Gift ${giftId}`}
-      {...(!isPercentage && { width: size, height: size })}
-      className={className}
-      onError={(e) => {
-        // Fallback to placeholder if image fails to load
-        const target = e.target as HTMLImageElement;
-        target.src = '/placeholder-gift.svg';
-      }}
-    />
+    <div style={{ position: 'relative' }}>
+      <img 
+        src={iconUrl}
+        alt={`Gift ${giftId}`}
+        {...(!isPercentage && { width: size, height: size })}
+        className={className}
+        onError={(e) => {
+          // Fallback to placeholder if image fails to load
+          const target = e.target as HTMLImageElement;
+          target.src = '/placeholder-gift.svg';
+        }}
+      />
+      {badge && (
+        <div style={{ position: 'absolute', height: '11px', width: '28px', bottom: '0px', left: '50%', transform: 'translate(-50%, 0%)', backgroundColor: badge.backgroundColor, color: badge.color, borderRadius: '12px', fontSize: '7.26px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          
+          <span style={{ marginTop: '-1px' }}>{badge.text}</span>
+        </div>
+      )}
+    </div>
   );
 };
 

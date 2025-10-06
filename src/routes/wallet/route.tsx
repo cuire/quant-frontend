@@ -6,7 +6,7 @@ import './wallet.css';
 import { MarketTopBar } from '@/components/MarketHeader';
 
 
-export const Route = createFileRoute('/(wallet)/wallet')({
+export const Route = createFileRoute('/wallet')({
   component: WalletPage,
 });
 

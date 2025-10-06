@@ -33,8 +33,6 @@ function Root() {
 
   const canGoBack = false;
 
-  // Hide BottomNav for wallet routes
-  const isWalletRoute = location.pathname.startsWith('/wallet');
 
   return (
     <TonConnectUIProvider manifestUrl={publicUrl('tonconnect-manifest.json')}>
@@ -45,7 +43,7 @@ function Root() {
               <Page back={canGoBack}>
                 <Outlet />
               </Page>
-              {!isWalletRoute && <BottomNav />}
+              <BottomNav />
               <Modal />
             </div>
           </ModalProvider>

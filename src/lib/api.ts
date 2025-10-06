@@ -28,6 +28,12 @@ export interface User {
     show_upgraded_gifts: boolean;
   };
   joined_main_channel: boolean;
+  info_button: {
+    text: string;
+    symbol: string;
+    color: string;
+    link: string;
+  };
 }
 
 export interface Channel {
