@@ -42,8 +42,11 @@ export const giftFiltersSearchSchema = z.object({
   collection: z.string().optional(),
   model: z.string().optional(),
   background: z.string().optional(),
+  symbol: z.string().optional(),
   min_price: z.string().optional(),
   max_price: z.string().optional(),
+  show_premarket: z.string().optional(),
+  show_unupgraded: z.string().optional(),
 });
 
 export type GiftFiltersSearchParams = z.infer<typeof giftFiltersSearchSchema>;
@@ -76,7 +79,12 @@ export type GiftFilterChangeParams = {
   collection: string;
   model: string;
   background: string;
+  symbol?: string;
   sorting: string;
+  minPrice?: number;
+  maxPrice?: number;
+  showPremarket?: boolean;
+  showUnupgraded?: boolean;
   channelsOnSale?: boolean;
 };
 
@@ -84,7 +92,12 @@ export type GiftCurrentFilters = {
   collection: string;
   model: string;
   background: string;
+  symbol?: string;
   sorting: string;
+  minPrice?: number;
+  maxPrice?: number;
+  showPremarket?: boolean;
+  showUnupgraded?: boolean;
   channelsOnSale?: boolean;
 };
 
@@ -214,6 +227,30 @@ export function convertGiftFiltersToBackendFormat(
   if (newFilters.background && newFilters.background !== 'All') {
     backendFilters.background = newFilters.background;
   }
+
+  // Symbol filter
+  if (newFilters.symbol && newFilters.symbol !== 'All') {
+    backendFilters.symbol = newFilters.symbol;
+  }
+
+  // Price filters
+  if (newFilters.minPrice !== undefined) {
+    backendFilters.min_price = newFilters.minPrice.toString();
+  }
+
+  if (newFilters.maxPrice !== undefined) {
+    backendFilters.max_price = newFilters.maxPrice.toString();
+  }
+
+  // Show premarket filter
+  if (newFilters.showPremarket !== undefined) {
+    backendFilters.show_premarket = newFilters.showPremarket.toString();
+  }
+
+  // Show unupgraded filter
+  if (newFilters.showUnupgraded !== undefined) {
+    backendFilters.show_unupgraded = newFilters.showUnupgraded.toString();
+  }
   
   const updatedSearch = {
     ...currentSearch,
@@ -239,7 +276,12 @@ export function getGiftCurrentFilters(search: GiftFiltersSearchParams): GiftCurr
     collection: search.collection || 'All',
     model: search.model || 'All',
     background: search.background || 'All',
-    sorting: search.sort_by || 'date_new_to_old'
+    symbol: search.symbol || 'All',
+    sorting: search.sort_by || 'date_new_to_old',
+    minPrice: search.min_price ? parseFloat(search.min_price) : undefined,
+    maxPrice: search.max_price ? parseFloat(search.max_price) : undefined,
+    showPremarket: search.show_premarket ? search.show_premarket === 'true' : true,
+    showUnupgraded: search.show_unupgraded ? search.show_unupgraded === 'true' : true,
   };
 }
 
@@ -348,19 +390,46 @@ export function useGlobalFilters<T extends ChannelFiltersSearchParams | GiftFilt
       }
 
       if (giftFilters.model && giftFilters.model !== 'All') {
-        // Model value is the model ID (string), keep as string to preserve precision for large numbers
-        const modelId = giftFilters.model.trim();
-        if (modelId !== '') {
-          filters.model_id = modelId;
+        // Model value can be comma-separated model IDs, convert to array for backend
+        const modelIds = giftFilters.model.split(',').map(id => id.trim()).filter(id => id !== '');
+        if (modelIds.length > 0) {
+          filters.model_id = modelIds;
         }
       }
 
       if (giftFilters.background && giftFilters.background !== 'All') {
-        // Background value is the backdrop ID (string), keep as string to preserve precision for large numbers
-        const backdropId = giftFilters.background.trim();
-        if (backdropId !== '') {
-          filters.backdrop_id = backdropId;
+        // Background value can be comma-separated backdrop IDs, convert to array for backend
+        const backdropIds = giftFilters.background.split(',').map(id => id.trim()).filter(id => id !== '');
+        if (backdropIds.length > 0) {
+          filters.backdrop_id = backdropIds;
         }
+      }
+
+      if (giftFilters.symbol && giftFilters.symbol !== 'All') {
+        // Symbol value can be comma-separated symbol IDs, convert to array for backend
+        const symbolIds = giftFilters.symbol.split(',').map(id => id.trim()).filter(id => id !== '');
+        if (symbolIds.length > 0) {
+          filters.symbol_id = symbolIds;
+        }
+      }
+
+      // Price filters
+      if (giftFilters.minPrice !== undefined) {
+        filters.price_min = giftFilters.minPrice.toString();
+      }
+
+      if (giftFilters.maxPrice !== undefined) {
+        filters.price_max = giftFilters.maxPrice.toString();
+      }
+
+      // Show premarket filter (currently not supported by backend, but keeping for future)
+      if (giftFilters.showPremarket !== undefined) {
+        filters.show_premarket = giftFilters.showPremarket.toString();
+      }
+
+      // Show unupgraded filter (currently not supported by backend, but keeping for future)
+      if (giftFilters.showUnupgraded !== undefined) {
+        filters.show_unupgraded = giftFilters.showUnupgraded.toString();
       }
 
       return filters;

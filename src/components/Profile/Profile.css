@@ -449,8 +449,170 @@ button {
   height: 17px;
 }
 
+/* Profile Links */
+.profile-links {
+  margin-bottom: 16px;
+}
+
+.profile-links__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.profile-links__title {
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  text-transform: uppercase;
+}
+
+.profile-links__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.profile-links__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #242C35; /* match cards */
+  border-radius: 16px; /* match cards */
+  padding: 16px; /* match cards */
+  color: #E7EEF7;
+  text-decoration: none;
+  height: 70px; /* match cards */
+}
+
+.profile-links__item:hover {
+  background: #2A3541;
+}
+
+.profile-links__icon {
+  width: 23px;
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-links__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: white; /* match cards */
+}
+
+.profile-links__arrow {
+  margin-left: auto;
+  width: 15px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 420px) {
+  .profile-links__grid {
+    grid-template-columns: 1fr;
+  }
+}
 /* Profile Container */
 .profile-container {
   padding: 15px;
   padding-bottom: 80px;
+}
+
+/* Profile Stats Page (used in full-page and modal) */
+.profile-stats-page {
+  margin-bottom: 16px;
+}
+
+.profile-stats-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.profile-stats-page__title {
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+}
+
+.profile-stats-page__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+}
+
+/* Modal-specific grid behavior: single column on narrow sheets */
+.profile-stats-page__grid--modal {
+  padding: 0;
+}
+
+@media (max-width: 420px) {
+  .profile-stats-page__grid,
+  .profile-stats-page__grid--modal {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-stats-page__card {
+  background: #242C35;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 70px;
+}
+
+.profile-stats-page__card-modal {
+  background: #2A3541;
+}
+
+.profile-stats-page__card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.profile-stats-page__card-value {
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+}
+
+.profile-stats-page__card-label {
+  font-weight: 500;
+  font-size: 11px;
+  color: #C8D0D8;
+}
+
+/* Icon containers for stats page */
+.profile-stats-page__TON-icon {
+  background: #248BDA;
+  border-radius: 50%;
+  width: 23px;
+  height: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-stats-page__channel-icon,
+.profile-stats-page__sales-icon,
+.profile-stats-page__gift-icon,
+.profile-stats-page__cart-icon,
+.profile-stats-page__default-icon {
+  width: 23px;
+  height: 23px;
+  flex-shrink: 0;
 }

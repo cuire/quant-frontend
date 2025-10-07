@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useGiftsWithFilters } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
+import { formatRarity } from '@/helpers/formatUtils';
 
 export const Route = createFileRoute('/market/stickers')({
   component: StickersPage,
@@ -47,7 +48,7 @@ function StickersPage() {
                     }
                   ]}
                   title={background.name}
-                  giftNumber={`${(background.rarity_per_mille / 10).toFixed(1)}%`}
+                  giftNumber={`${formatRarity(background.rarity_per_mille)}%`}
                   price={Math.round(Number(background.floor) || 0)}
                   action="buy-or-cart"
                   onClick={() => {

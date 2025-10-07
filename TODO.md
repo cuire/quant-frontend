@@ -5,28 +5,30 @@
 - [x] activity/gifts
 - [x] market/gifts неулучшенный
 
-- [ ] gift filters
+- [x] gift filters
 
 - [x] storage/offers плейсхолдеры
 
 
-- [ ] починить флаги в настройках
-- [ ] подключить "кнопку" для выполнения действий в маркете: распиши че как там
+- [x] починить флаги в настройках
+- [x] подключить "кнопку" для выполнения действий в маркете: распиши че как там
 - [ ] дотестировать wallet и подключить его к беку
-- [ ] кнопка remove для каналов / кнопка return для fast sales, вместо close в модалке
+- [x] кнопка remove для каналов / кнопка return для fast sales, вместо close в модалке
 - [ ] lottie
 - [ ] market, предметы из инвенторя должны рендериться по особому
-- [ ] Нарисоваать бейджик new в market/gifts/filters/collections
+- [x] Нарисоваать бейджик new в market/gifts/filters/collections
 - [ ] интернализация
 - [ ] светлая тема
 - [ ] страница statistics - more
 - [ ] профиль список каналов для подписки (тоже какие каналы)
-- [ ] фильтры для гифтов отображение background / model
-- [ ] фильтры для гифтов скрытые фильтры
-- [ ] фильтры рендерить выбранные фильтры
-
+- [x] фильтры для гифтов отображение background / model
+- [x] фильтры для гифтов скрытые фильтры
+- [x] фильтры рендерить выбранные фильтры
 - [ ] https://quant-marketplace-dev.top/api/users/me/activity - не отдает gift_id (опять 000) https://quant-marketplace-dev.top/api/users/me/offers?
-- [ ] gift filters: отдать вместе с model: model_id, и gift_id к которому он относится, не работает фильтр по background, по хорошему вынести models, из market/gifts
-- [ ] написать текст для призыва пользоваться рефералками, чтобы я смог поставить иконки
-- [ ] users/me/offers не отдает gift_slug, поэтому не возможно отрендерить настоящую картину гифта
-- [ ] gift-upgrade бекенд
+
+
+- [ ] все операции с каналом
+- [ ] offer с улучшенным подарком
+- [ ] как работает You will receive в offer-accept offer decline, какая там комса
+- [ ] storage/activity/gift отдает backdrop_data не в hex
+- [ ] 500-ка на storage/items/gifts

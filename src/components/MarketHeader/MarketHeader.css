@@ -158,6 +158,25 @@
     gap: 8px;
 }
 
+/* TonConnect button sizing to match topbar buttons */
+.market-header__right-section [data-tc-connect-button="true"] {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 10px !important;
+    border-radius: 18px !important;
+}
+
+.market-header__right-section [data-tc-connect-button="true"] svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.market-header__right-section [data-tc-text="true"] {
+    font-size: 11px !important;
+    line-height: 14px !important;
+    font-weight: 700 !important;
+}
+
 
 .market-header__second-row .market-header__btn-group {
     gap: 0;
@@ -705,7 +724,7 @@
 
 .market-header__search-input input {
     width: 100%;
-    background: #212A33;
+    background: transparent;
     border: 1px solid #2F3C49;
     border-radius: 10px;
     padding: 10px 12px 10px 36px;
@@ -845,9 +864,9 @@
     height: 85px;
 }
 
-.product-sheet__grid--triple .product-sheet__cell:nth-child(1) img {
-    max-width: 140px;
-    max-height: 140px;
+.product-sheet__grid--triple img {
+    max-width: 72px;
+    max-height: 72px;
 }
 
 .product-sheet__grid--multiple img {

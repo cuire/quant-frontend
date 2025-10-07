@@ -1,6 +1,6 @@
 // Simple React Query hooks
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { getUser, updateLanguage, updateTheme, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, getMeGifts, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift, createItemSale, getUserProfile, withdrawReferralBalance } from './api';
+import { getUser, updateLanguage, updateTheme, getChannels, getChannelsWithBounds, getUserChannels, getMeChannels, getMeGifts, addChannel, getGifts, getGiftsWithFilters, getActivity, getActivityGifts, getActivityChannels, getUserActivity, getOffers, acceptOffer, rejectOffer, cancelOffer, marketGetGifts, purchaseGift, offerGift, createItemSale, editGiftPrice, removeGiftFromSale, removeChannelFromSale, editChannelPrice, sellChannel, returnChannel, removeChannel, transferGift, receiveGift, getUserProfile, withdrawReferralBalance, getGiftModels, respondOffer, updateSetting, getWalletInfo, listWallets, connectWallet, disconnectWallet, initiateDeposit, initiateWithdrawal } from './api';
 
 // Query keys
 export const queryKeys = {
@@ -45,6 +45,10 @@ export const queryKeys = {
     ['activityChannels', page, limit, filters] as const,
   activityChannelsInfinite: (limit: number, filters?: Record<string, any>) => 
     ['activityChannelsInfinite', limit, filters] as const,
+  giftModels: (giftIds: string[]) => 
+    ['giftModels', giftIds] as const,
+  walletInfo: ['walletInfo'] as const,
+  wallets: ['wallets'] as const,
 };
 
 // User hooks
@@ -72,6 +76,19 @@ export const useUpdateTheme = () => {
   
   return useMutation({
     mutationFn: updateTheme,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+    },
+  });
+};
+
+// Generic settings update hook
+export const useUpdateSetting = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ setting, status }: { setting: string; status: boolean }) => updateSetting(setting, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user });
       queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
@@ -332,6 +349,17 @@ export const useCancelOffer = () => {
   });
 };
 
+export const useRespondOffer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ offerId, action }: { offerId: number; action: 'accept' | 'reject' }) => respondOffer(offerId, action),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['offers'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+    },
+  });
+};
+
 // User Activity hooks
 export const useUserActivity = (
   page = 1,
@@ -344,11 +372,12 @@ export const useUserActivity = (
 };
 
 export const useUserActivityInfinite = (
-  limit = 20
+  limit = 20,
+  types?: string[]
 ) => {
   return useInfiniteQuery({
-    queryKey: queryKeys.userActivityInfinite(limit),
-    queryFn: ({ pageParam = 1 }) => getUserActivity(pageParam, limit),
+    queryKey: [...queryKeys.userActivityInfinite(limit), types] as const,
+    queryFn: ({ pageParam = 1 }) => getUserActivity(pageParam, limit, types as any),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       // If we got fewer items than the limit, we've reached the end
@@ -482,6 +511,222 @@ export const useWithdrawReferralBalance = () => {
       // Invalidate user and profile queries after successful withdrawal
       queryClient.invalidateQueries({ queryKey: queryKeys.user });
       queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+    },
+  });
+};
+
+// Edit gift price mutation
+export const useEditGiftPrice = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ giftId, price }: { giftId: string; price: number }) => 
+      editGiftPrice(giftId, price),
+    onSuccess: () => {
+      // Invalidate user gifts queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+    },
+  });
+};
+
+// Remove gift from sale mutation
+export const useRemoveGiftFromSale = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (giftId: string) => 
+      removeGiftFromSale(giftId),
+    onSuccess: () => {
+      // Invalidate user gifts queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+    },
+  });
+};
+
+// Remove channel from sale mutation
+export const useRemoveChannelFromSale = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (channelId: string) => 
+      removeChannelFromSale(channelId),
+    onSuccess: () => {
+      // Invalidate channels queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+    },
+  });
+};
+
+// Edit channel price mutation
+export const useEditChannelPrice = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ channelId, price }: { channelId: string; price: number }) => 
+      editChannelPrice(channelId, price),
+    onSuccess: () => {
+      // Invalidate channels queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+    },
+  });
+};
+
+// Sell channel mutation
+export const useSellChannel = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ channelId, price, secondsToTransfer, timezone }: { 
+      channelId: string; 
+      price: number; 
+      secondsToTransfer?: number;
+      timezone?: string;
+    }) => 
+      sellChannel(channelId, price, secondsToTransfer, timezone),
+    onSuccess: () => {
+      // Invalidate channels queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+    },
+  });
+};
+
+// Return channel mutation
+export const useReturnChannel = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (channelId: string) => 
+      returnChannel(channelId),
+    onSuccess: () => {
+      // Invalidate channels queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+    },
+  });
+};
+
+// Remove channel mutation
+export const useRemoveChannel = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (channelId: string) => 
+      removeChannel(channelId),
+    onSuccess: () => {
+      // Invalidate channels queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+    },
+  });
+};
+
+// Transfer gift mutation
+export const useTransferGift = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ giftId, userIdOrUsername }: { giftId: string; userIdOrUsername: string }) => 
+      transferGift(giftId, userIdOrUsername),
+    onSuccess: () => {
+      // Invalidate user gifts queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+    },
+  });
+};
+
+// Receive gift mutation
+export const useReceiveGift = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (giftId: string) => 
+      receiveGift(giftId),
+    onSuccess: () => {
+      // Invalidate user gifts queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+    },
+  });
+};
+
+// Gift models hook
+export const useGiftModels = (giftIds: string[]) => {
+  return useQuery({
+    queryKey: queryKeys.giftModels(giftIds),
+    queryFn: () => getGiftModels(giftIds),
+    enabled: giftIds.length > 0, // Only fetch when there are gift IDs
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// Wallet hooks
+export const useWalletInfo = () => {
+  return useQuery({
+    queryKey: queryKeys.walletInfo,
+    queryFn: getWalletInfo,
+  });
+};
+
+export const useWallets = () => {
+  return useQuery({
+    queryKey: queryKeys.wallets,
+    queryFn: listWallets,
+  });
+};
+
+export const useConnectWallet = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ address, provider }: { address: string; provider: string }) => connectWallet(address, provider),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wallets });
+      queryClient.invalidateQueries({ queryKey: queryKeys.walletInfo });
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+    },
+  });
+};
+
+export const useDisconnectWallet = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (walletId: number) => disconnectWallet(walletId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wallets });
+      queryClient.invalidateQueries({ queryKey: queryKeys.walletInfo });
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+    },
+  });
+};
+
+export const useInitiateDeposit = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ walletId, amount }: { walletId: number; amount: number }) => initiateDeposit(walletId, amount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.walletInfo });
+    },
+  });
+};
+
+export const useInitiateWithdrawal = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ walletAddress, amount }: { walletAddress: string; amount: number }) => initiateWithdrawal(walletAddress, amount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.walletInfo });
     },
   });
 };

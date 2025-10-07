@@ -1,6 +1,6 @@
 import { Activity } from '@/lib/api';
 import './ActivityItem.css';
-import { GiftIcon } from '../GiftIcon';
+import { GiftIcon, GiftSlugIcon } from '../GiftIcon';
 
 interface ActivityItemProps {
   activity: Activity;
@@ -41,12 +41,7 @@ export function ActivityItem({ activity, giftName, giftIcon, onItemClick }: Acti
     return giftName;
   };
 
-  const getGiftIcon = () => {
-    if (activity.activity_type === 'gift' && activity.gift_data?.image_url) {
-      return activity.gift_data.image_url;
-    }
-    return giftIcon;
-  };
+  // For gifts, prefer GiftSlugIcon when slug present; fallback to base gift icon
 
   const getSubtitle = () => {
     const parts = [];
@@ -104,14 +99,18 @@ export function ActivityItem({ activity, giftName, giftIcon, onItemClick }: Acti
     >
       <div className="activity-item__icon">
         {activity.activity_type === 'gift' ? (
-          <GiftIcon giftId={activity.gift_id as string} />
+          activity.slug && activity.slug !== 'None-None' ? (
+            <GiftSlugIcon giftSlug={activity.slug as string} size={'44'} className="activity-icon" />
+          ) : (
+            <GiftIcon giftId={(activity.base_gift_data?.id || activity.gift_id) as string} size={44} className="activity-icon" />
+          )
         ) : (
             <img 
-            src={getGiftIcon()} 
-            alt={getGiftName()}
-            onError={(e) => {
+              src={`https://FlowersRestricted.github.io/gifts/${String(activity.gift_id)}/default.png`} 
+              alt={getGiftName()}
+              onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = '/placeholder-gift.svg';
-            }}
+              }}
             />
         )}
       </div>

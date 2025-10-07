@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import './Modal.css';
 import { config } from '@/lib/config';
+import { useTransferGift, useReceiveGift } from '@/lib/api-hooks';
+import { useToast } from '@/hooks/useToast';
 
 type SellModalProps = {
     itemId: string;
@@ -106,6 +108,158 @@ export const SellModal = ({ itemId, itemName, defaultPrice, shouldShowDuration =
             >
                 {isLoading ? 'Processing...' : changePrice ? 'Change Price' : `Sell ${type === 'channel' ? 'Channel' : 'Gift'}`}
             </button>
+        </div>
+    );
+};
+
+type SendGiftModalProps = {
+    giftId: string;
+    giftName: string;
+    onClose: () => void;
+    onSuccess: () => void;
+}
+
+export const SendGiftModal = ({ giftId, giftName, onClose, onSuccess }: SendGiftModalProps) => {
+    const [username, setUsername] = useState<string>('');
+    const transferGiftMutation = useTransferGift();
+    const { success: showSuccessToast, block: showErrorToast } = useToast();
+
+    const isValid = username.trim().length > 0;
+
+    const handleSubmit = async () => {
+        if (!isValid || transferGiftMutation.isPending) return;
+        
+        try {
+            await transferGiftMutation.mutateAsync({
+                giftId,
+                userIdOrUsername: username.trim()
+            });
+            showSuccessToast({ message: 'Gift sent successfully!' });
+            onSuccess();
+            onClose();
+        } catch (error) {
+            console.error('Failed to send gift:', error);
+            showErrorToast({ message: 'Failed to send gift. Please try again.' });
+        }
+    };
+
+    return (
+        <div className="offer-modal">
+            <div className="offer-modal__header">
+                <div className="offer-modal__title">Send Gift {giftName}</div>
+                <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
+            </div>
+
+            <div className="offer-modal__block">
+                <div className="offer-modal__label">ENTER YOUR USERNAME OR TELEGRAM ID</div>
+                <div style={{ position: 'relative' }}>
+                    <span style={{
+                        position: 'absolute',
+                        left: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: '#7F94AE',
+                        fontSize: '16px',
+                        pointerEvents: 'none'
+                    }}>@</span>
+                    <input 
+                        className="offer-modal__input" 
+                        type="text"
+                        placeholder="username..." 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)}
+                        style={{ paddingLeft: '24px' }}
+                    />
+                </div>
+                <div className="offer-modal__balance" style={{ marginTop: '8px' }}>
+                    Our bot will redirect this gift to the user you specified.
+                </div>
+            </div>
+
+            <button 
+                className="offer-modal__submit" 
+                type="button" 
+                onClick={handleSubmit}
+                disabled={transferGiftMutation.isPending || !isValid}
+            >
+                {transferGiftMutation.isPending ? 'Sending...' : `Send 1 Gift`}
+            </button>
+        </div>
+    );
+};
+
+type ReceiveGiftModalProps = {
+    giftId: string;
+    giftName: string;
+    onClose: () => void;
+    onSuccess: () => void;
+}
+
+export const ReceiveGiftModal = ({ giftId, giftName, onClose, onSuccess }: ReceiveGiftModalProps) => {
+    const receiveGiftMutation = useReceiveGift();
+    const { success: showSuccessToast, block: showErrorToast } = useToast();
+
+    const handleReceive = async () => {
+        if (receiveGiftMutation.isPending) return;
+        
+        try {
+            console.log(`Receiving gift ${giftName} (ID: ${giftId})`);
+            
+            await receiveGiftMutation.mutateAsync(giftId);
+            
+            showSuccessToast({ message: 'Gift received successfully!' });
+            onSuccess();
+            onClose();
+        } catch (error) {
+            console.error('Failed to receive gift:', error);
+            showErrorToast({ message: 'Failed to receive gift. Please try again.' });
+        }
+    };
+
+    return (
+        <div className="offer-modal">
+            <div className="offer-modal__header">
+                <div className="offer-modal__title">Receive Gift</div>
+                <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
+            </div>
+
+            <div className="offer-modal__block">
+                <div className="offer-modal__balance" style={{ marginBottom: '16px' }}>
+                    Are you sure you want to receive a gift? (cost of receiving <span style={{color:'#2F82C7'}}>0.1 TON</span>)
+                </div>
+                
+                <div className="offer-modal__label">WITHDRAWAL FEE:</div>
+                <div style={{
+                    backgroundColor: '#344150',
+                    border: '1px solid #4A5568',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    color: '#fff',
+                    fontSize: '16px',
+                    fontWeight: '500'
+                }}>
+                    0.01 TON
+                </div>
+            </div>
+
+            <div className="product-sheet__actions" style={{ padding: '12px 0 0 0px', borderTop: 0 }}>
+                <button 
+                    className="product-sheet__btn" 
+                    type="button" 
+                    onClick={onClose}
+                    disabled={receiveGiftMutation.isPending}
+                >
+                    X Close
+                </button>
+                <button 
+                    className="product-sheet__btn product-sheet__btn--primary" 
+                    type="button" 
+                    onClick={handleReceive}
+                    disabled={receiveGiftMutation.isPending}
+                >
+                    {receiveGiftMutation.isPending ? 'Receiving...' : 'Receive'}
+                </button>
+            </div>
         </div>
     );
 };

@@ -2,9 +2,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Gift } from '@/components/Gift';
 import { Skeleton } from '@/components/Skeleton';
 import { MarketFilters } from '@/components/MarketHeader';
+import { ActiveFilters } from '@/components/ActiveFilters';
 import { useModal } from '@/contexts/ModalContext';
-import { useChannelsInfinite, useGifts } from '@/lib/api-hooks';
-import { channelFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
+import { useChannelsInfinite, useGifts, useChannelsBounds } from '@/lib/api-hooks';
+import { channelFiltersSearchSchema, useGlobalFilters, CurrentFilters } from '@/lib/filters';
 import { getChannelPrice } from '@/helpers/priceUtils';
 import { useEffect, useRef, useCallback } from 'react';
 
@@ -23,7 +24,11 @@ function ChannelsPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   
   // Use the global filters hook
-  const { handleFilterChange, currentFilters, apiFilters } = useGlobalFilters(search, navigate);
+  const { handleFilterChange, currentFilters, apiFilters, resetFilters } = useGlobalFilters(search, navigate);
+
+  // Fetch bounds for default detection
+  const { data: boundsData } = useChannelsBounds(apiFilters);
+  const channelBounds = boundsData?.bounds;
 
   // Use infinite query for channels
   const {
@@ -36,6 +41,37 @@ function ChannelsPage() {
 
   // Use regular query for gifts
   const { data: gifts = [] } = useGifts();
+
+  // Handler to remove individual filter
+  const handleRemoveFilter = (filterKey: string) => {
+    const channelFilters = currentFilters as CurrentFilters;
+    const updatedFilters: CurrentFilters = { ...channelFilters };
+    
+    switch (filterKey) {
+      case 'gift':
+        updatedFilters.gift = [];
+        break;
+      case 'channelType':
+        updatedFilters.channelType = 'All';
+        break;
+      case 'price':
+        updatedFilters.minPrice = undefined;
+        updatedFilters.maxPrice = undefined;
+        break;
+      case 'quantity':
+        updatedFilters.minQuantity = undefined;
+        updatedFilters.maxQuantity = undefined;
+        break;
+      case 'onlyExactGift':
+        updatedFilters.onlyExactGift = false; // Reset to default
+        break;
+      case 'showUpgraded':
+        updatedFilters.showUpgraded = true; // Reset to default
+        break;
+    }
+    
+    handleFilterChange(updatedFilters);
+  };
 
   // Flatten all pages of channels data
   const channels = channelsData?.pages.flat() || [];
@@ -193,6 +229,14 @@ function ChannelsPage() {
         onFilterChange={handleFilterChange}
         currentFilters={currentFilters as any}
         gifts={gifts}
+      />
+
+      <ActiveFilters
+        filters={currentFilters as CurrentFilters}
+        filterType="channel"
+        onClearAll={resetFilters}
+        onRemoveFilter={handleRemoveFilter}
+        bounds={channelBounds}
       />
 
       {/* Market Content */}

@@ -2,6 +2,8 @@ import type { FC } from 'react';
 import { useState } from 'react';
 import { useUser } from '@/lib/api-hooks';
 import './ReferralModal.css';
+import { copyTextToClipboard } from '@telegram-apps/sdk';
+import { useToast } from '@/hooks/useToast';
 
 export interface ReferralModalProps {
   onClose: () => void;
@@ -9,6 +11,7 @@ export interface ReferralModalProps {
 
 export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
   const user = useUser();
+  const { success: showSuccessToast, block: showErrorToast } = useToast();
   
   // Mock data - in real implementation, these would come from API
   const [currentLevel] = useState(2);
@@ -23,11 +26,14 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
   const handleCopyReferralLink = async () => {
     const referralLink = `https://t.me/your_bot?start=${referralCode}`;
     try {
-      await navigator.clipboard.writeText(referralLink);
-      // Could show a toast notification here
-      console.log('Referral link copied to clipboard');
+      await copyTextToClipboard(referralLink);
+      showSuccessToast({
+        message: 'Referral link copied to clipboard',
+      });
     } catch (err) {
-      console.error('Failed to copy referral link:', err);
+      showErrorToast({
+        message: 'Failed to copy referral link',
+      });
     }
   };
 
@@ -55,10 +61,9 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="market-header__sheet">
+    <div className="market-header__sheet referral-modal">
       <div className="market-header__sheet-header">
         <div>
-          <div className="referral-modal__ref-label">ref</div>
         </div>
         <button 
           className="market-header__sheet-close"
@@ -72,24 +77,22 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
       <div className="market-header__sheet-content">
         {/* Progress Section */}
         <div className="referral-modal__progress-section">
-          <div className="referral-modal__progress-bar">
-            <div className="referral-modal__progress-fill" style={{ width: `${progressPercentage}%` }}>
-              <span className="referral-modal__level-label">Уровень {currentLevel}</span>
-            </div>
-            <div className="referral-modal__progress-remaining">
-              <span className="referral-modal__level-label">Уровень {nextLevel}</span>
-            </div>
-          </div>
-          
           <div className="referral-modal__progress-indicator">
             <div className="referral-modal__progress-bubble">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 14C11.866 14 15 10.866 15 7C15 3.134 11.866 0 8 0C4.134 0 1 3.134 1 7C1 10.866 4.134 14 8 14Z" fill="white"/>
+                <path d="M9.05066 11.5142L5.644 9.65624C5.31699 9.98083 4.90121 10.2014 4.44906 10.29C3.99691 10.3786 3.52864 10.3314 3.10328 10.1543C2.67792 9.97719 2.31452 9.67811 2.0589 9.29477C1.80327 8.91143 1.66685 8.46099 1.66685 8.00024C1.66685 7.53948 1.80327 7.08904 2.0589 6.7057C2.31452 6.32236 2.67792 6.02328 3.10328 5.84617C3.52864 5.66906 3.99691 5.62185 4.44906 5.71048C4.90121 5.79912 5.31699 6.01964 5.644 6.34424L9.05066 4.48624C8.93383 3.93806 9.01821 3.36614 9.28839 2.87507C9.55857 2.384 9.99649 2.00659 10.5221 1.81186C11.0476 1.61713 11.6257 1.61809 12.1507 1.81456C12.6756 2.01104 13.1123 2.3899 13.3808 2.88186C13.6494 3.37383 13.7318 3.94602 13.6132 4.49381C13.4945 5.04159 13.1827 5.52836 12.7346 5.8651C12.2865 6.20185 11.7323 6.36605 11.1731 6.3277C10.6139 6.28935 10.0872 6.051 9.68933 5.65624L6.28266 7.51424C6.3508 7.83443 6.3508 8.16538 6.28266 8.48557L9.68933 10.3442C10.0872 9.94947 10.6139 9.71112 11.1731 9.67277C11.7323 9.63442 12.2865 9.79863 12.7346 10.1354C13.1827 10.4721 13.4945 10.9589 13.6132 11.5067C13.7318 12.0545 13.6494 12.6266 13.3808 13.1186C13.1123 13.6106 12.6756 13.9894 12.1507 14.1859C11.6257 14.3824 11.0476 14.3833 10.5221 14.1886C9.99649 13.9939 9.55857 13.6165 9.28839 13.1254C9.01821 12.6343 8.93383 12.0624 9.05066 11.5142Z" fill="white"/>
               </svg>
               <span>{formatNumber(currentProgress)} / {formatNumber(targetProgress)}</span>
             </div>
           </div>
-          
+
+          <div className="referral-modal__levels">
+            <div className="referral-modal__level referral-modal__level--active">Уровень {currentLevel}</div>
+            <div className="referral-modal__level referral-modal__level--next">Уровень {nextLevel}</div>
+            <div className="referral-modal__levels-track" />
+            <div className="referral-modal__levels-fill" style={{ width: `${Math.min(100, Math.max(0, progressPercentage))}%` }} />
+          </div>
+
           <div className="referral-modal__commission-rate">
             NOW COMMISSION RATE IS {commissionRate}%
           </div>
@@ -98,23 +101,23 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
         {/* Referral Instructions */}
         <div className="referral-modal__instructions">
           <div className="referral-modal__instruction-block">
-            <div className="referral-modal__instruction-title">Заработать на продвижении</div>
+            <div className="referral-modal__instruction-title">Делитесь своей ссылкой</div>
             <div className="referral-modal__instruction-description">
-              Рекомендуйте рефералку своим друзьям и получайте долю их прибыли.
+              Делитесь своей ссылкой на маркет со своими друзьями и получайте проценты с их покупок!
             </div>
           </div>
-          
+
           <div className="referral-modal__instruction-block">
-            <div className="referral-modal__instruction-title">Заработать на продвижении</div>
+            <div className="referral-modal__instruction-title">Процент зависит от уровня</div>
             <div className="referral-modal__instruction-description">
-              Рекомендуйте рефералку своим друзьям и получайте долю их прибыли.
+              Вы получите определенный процент в зависимости от вашего уровня.
             </div>
           </div>
-          
+
           <div className="referral-modal__instruction-block">
-            <div className="referral-modal__instruction-title">Заработать на продвижении</div>
+            <div className="referral-modal__instruction-title">Моментальное вознаграждение</div>
             <div className="referral-modal__instruction-description">
-              Рекомендуйте рефералку своим друзьям и получайте долю их прибыли.
+              Вы сможете получить вознаграждение сразу же после покупки вашего реферала.
             </div>
           </div>
         </div>
@@ -125,10 +128,18 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
           className="market-header__btn-secondary"
           onClick={handleCopyReferralLink}
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="6" y="6" width="8" height="8" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M4 10V4C4 2.89543 4.89543 2 6 2H10" stroke="currentColor" strokeWidth="1.5"/>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_18_256)">
+          <path d="M2.4375 0.75H7.6875C8.13505 0.75 8.56427 0.92779 8.88074 1.24426C9.19721 1.56073 9.375 1.98995 9.375 2.4375V7.6875C9.375 8.13505 9.19721 8.56427 8.88074 8.88074C8.56427 9.19721 8.13505 9.375 7.6875 9.375H2.4375C1.98995 9.375 1.56073 9.19721 1.24426 8.88074C0.92779 8.56427 0.75 8.13505 0.75 7.6875V2.4375C0.75 1.98995 0.92779 1.56073 1.24426 1.24426C1.56073 0.92779 1.98995 0.75 2.4375 0.75Z" fill="white"/>
+          <path d="M8.25 10.125H2.72156C2.83824 10.4538 3.05378 10.7384 3.33862 10.9398C3.62346 11.1412 3.96364 11.2496 4.3125 11.25H9.5625C10.0101 11.25 10.4393 11.0722 10.7557 10.7557C11.0722 10.4393 11.25 10.0101 11.25 9.5625V4.3125C11.2496 3.96364 11.1412 3.62346 10.9398 3.33862C10.7384 3.05378 10.4538 2.83824 10.125 2.72156V8.25C10.125 8.74728 9.92746 9.22419 9.57583 9.57583C9.22419 9.92746 8.74728 10.125 8.25 10.125Z" fill="white"/>
+          </g>
+          <defs>
+          <clipPath id="clip0_18_256">
+          <rect width="12" height="12" fill="white" transform="matrix(-1 0 0 -1 12 12)"/>
+          </clipPath>
+          </defs>
           </svg>
+
           <span>Copy Referral Link</span>
         </button>
         
@@ -137,12 +148,9 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
           onClick={handleShare}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="4" cy="4" r="2" fill="currentColor"/>
-            <circle cx="12" cy="4" r="2" fill="currentColor"/>
-            <circle cx="12" cy="12" r="2" fill="currentColor"/>
-            <circle cx="4" cy="12" r="2" fill="currentColor"/>
+            <path d="M9.05066 11.5142L5.644 9.65624C5.31699 9.98083 4.90121 10.2014 4.44906 10.29C3.99691 10.3786 3.52864 10.3314 3.10328 10.1543C2.67792 9.97719 2.31452 9.67811 2.0589 9.29477C1.80327 8.91143 1.66685 8.46099 1.66685 8.00024C1.66685 7.53948 1.80327 7.08904 2.0589 6.7057C2.31452 6.32236 2.67792 6.02328 3.10328 5.84617C3.52864 5.66906 3.99691 5.62185 4.44906 5.71048C4.90121 5.79912 5.31699 6.01964 5.644 6.34424L9.05066 4.48624C8.93383 3.93806 9.01821 3.36614 9.28839 2.87507C9.55857 2.384 9.99649 2.00659 10.5221 1.81186C11.0476 1.61713 11.6257 1.61809 12.1507 1.81456C12.6756 2.01104 13.1123 2.3899 13.3808 2.88186C13.6494 3.37383 13.7318 3.94602 13.6132 4.49381C13.4945 5.04159 13.1827 5.52836 12.7346 5.8651C12.2865 6.20185 11.7323 6.36605 11.1731 6.3277C10.6139 6.28935 10.0872 6.051 9.68933 5.65624L6.28266 7.51424C6.3508 7.83443 6.3508 8.16538 6.28266 8.48557L9.68933 10.3442C10.0872 9.94947 10.6139 9.71112 11.1731 9.67277C11.7323 9.63442 12.2865 9.79863 12.7346 10.1354C13.1827 10.4721 13.4945 10.9589 13.6132 11.5067C13.7318 12.0545 13.6494 12.6266 13.3808 13.1186C13.1123 13.6106 12.6756 13.9894 12.1507 14.1859C11.6257 14.3824 11.0476 14.3833 10.5221 14.1886C9.99649 13.9939 9.55857 13.6165 9.28839 13.1254C9.01821 12.6343 8.93383 12.0624 9.05066 11.5142Z" fill="white"/>
           </svg>
+
           <span>Share</span>
         </button>
       </div>

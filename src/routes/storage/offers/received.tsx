@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
 import { useOffersInfinite, useGifts } from '@/lib/api-hooks';
+import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
 import '../activity.css';
@@ -46,6 +47,47 @@ function ReceivedOffersPage() {
     return parts.join("");
   };
 
+  const handleGiftClick = (offer: any) => {
+    if (offer.type !== 'user_gift' || !offer.gift_data) return;
+
+    const model = offer.model_data ? {
+      value: offer.model_data.name || '',
+      rarity_per_mille: offer.model_data.rarity_per_mille || 0,
+      floor: offer.model_data.floor || 0
+    } : { value: '', rarity_per_mille: 0, floor: 0 };
+
+    const backdrop = offer.backdrop_data ? {
+      value: offer.backdrop_data.name || '',
+      rarity_per_mille: offer.backdrop_data.rarity_per_mille || 0,
+      floor: offer.backdrop_data.floor || 0,
+      centerColor: offer.backdrop_data.center_color || '000000',
+      edgeColor: offer.backdrop_data.edge_color || '000000'
+    } : { value: '', rarity_per_mille: 0, floor: 0, centerColor: '000000', edgeColor: '000000' };
+
+    const symbol = offer.symbol_data ? {
+      value: offer.symbol_data.name || '',
+      rarity_per_mille: offer.symbol_data.rarity_per_mille || 0,
+      floor: offer.symbol_data.floor || 0
+    } : { value: '', rarity_per_mille: 0, floor: 0 };
+
+    openModal('upgraded-gift', {
+      id: offer.gift_id,
+      giftId: String(offer.gift_data.id),
+      giftSlug: offer.slug || 'None-None',
+      name: offer.gift_data?.full_name || `Gift ${offer.gift_id}`,
+      num: offer.gift_id,
+      gift_frozen_until: offer.gift_frozen_until || null,
+      price: offer.price || 0,
+      model,
+      backdrop,
+      symbol,
+      status: offer.status || 'available',
+      hideActions: true,
+      offer: offer,
+      offerSide: 'received',
+    });
+  };
+
 
 
   // Extract received offers from all pages
@@ -69,7 +111,7 @@ function ReceivedOffersPage() {
       <div className="storage-tabs">
         <div className="storage-segment">
           <Link to="/storage/channels" className="storage-tab-link">
-            Channels
+            Items
           </Link>
           <Link to="/storage/offers/received" className="storage-tab-link is-active">
             Offers
@@ -89,9 +131,9 @@ function ReceivedOffersPage() {
         </div>
       </div>
 
-      {isLoading && (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>Loading offers...</p>
+      {isLoading && allOffers.length === 0 && (
+        <div className="gifts-grid">
+          <Skeleton count={8} />
         </div>
       )}
 
@@ -109,12 +151,7 @@ function ReceivedOffersPage() {
         </div>
       )}
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '12px',
-        padding: '16px'
-      }}>
+      <div className="gifts-grid">
         {allOffers.map((offer, index) => {
           // Convert gifts_data to items format for Gift component
           const items = [];
@@ -123,14 +160,12 @@ function ReceivedOffersPage() {
           if (offer.type === 'user_gift' && offer.gift_data) {
             // Use the gift image from backend or fallback to placeholder
             const giftImage = offer.gift_data.image_url || 
-              `https://FlowersRestricted.github.io/gifts/${offer.gift_data.id}/default.png` ||
-              '/placeholder-gift.svg';
+              `https://FlowersRestricted.github.io/gifts/${offer.gift_data.id}/default.png`;
             
             items.push({
               id: offer.gift_data.id.toString(),
               name: offer.gift_data.full_name,
               icon: giftImage,
-              quantity: 1,
               type: 'item' as const
             });
           }
@@ -144,7 +179,7 @@ function ReceivedOffersPage() {
                 items.push({
                   id: modelId,
                   name: gift?.full_name || `Gift ${modelId}`,
-                  icon: gift?.image_url || '/placeholder-gift.svg',
+                  icon: gift?.image_url || `https://FlowersRestricted.github.io/gifts/${modelId}/default.png`,
                   quantity: backdropIds.length,
                   type: 'nft' as const // Add NFT tag for upgraded gifts
                 });
@@ -157,7 +192,7 @@ function ReceivedOffersPage() {
                   items.push({
                     id: giftId,
                     name: gift?.full_name || `Gift ${giftId}`,
-                    icon: gift?.image_url || '/placeholder-gift.svg',
+                    icon: gift?.image_url || `https://FlowersRestricted.github.io/gifts/${giftId}/default.png`,
                     quantity: quantity,
                     type: 'item' as const
                   });
@@ -166,7 +201,7 @@ function ReceivedOffersPage() {
             }
           }
 
-          const title = generateChannelTitle(items);
+          const title = offer.type === 'channel' ? generateChannelTitle(items) : offer.gift_data?.full_name || '';
           const timeEnd = offer.expires_at ? new Date(offer.expires_at).toLocaleTimeString('en-US', { 
             hour12: false, 
             hour: '2-digit', 
@@ -185,20 +220,21 @@ function ReceivedOffersPage() {
               title={title}
               giftNumber={giftNumber}
               price={offer.price}
-              variant={offer.type === 'user_gift' ? 'market' : 'storage-offer'}
-              action={offer.type === 'user_gift' ? 'buy-or-cart' : undefined}
+              variant={'storage-offer'}
               storageAction={offer.type === 'user_gift' ? undefined : 'sell'}
               offerPriceTon={offer.price}
               timeEnd={timeEnd}
               timeEndTimestamp={offer.expires_at || undefined}
-              showOfferInfo={offer.type === 'user_gift'}
+              showOfferInfo
               onSell={() => openModal('accept-offer', { offer })}
               onDecline={() => openModal('cancel-offer', { offer })}
-              onClick={offer.type === 'user_gift' ? () => openModal('accept-offer', { offer }) : () => openModal('gift-details', { 
+              onClick={offer.type === 'user_gift' ? () => handleGiftClick({ ...offer }) : () => openModal('gift-details', { 
                   channel: { id: offer.channel_id, gifts: offer.gifts_data || {} }, 
                   gifts: giftsData || [],
                   price: offer.price,
-                  showPurchaseActions: false 
+                  showPurchaseActions: false,
+                  offer: offer,
+                  offerSide: 'received'
                 })}
               key={offer.id} ref={index === allOffers.length - 1 ? observer : undefined}
             />
@@ -207,8 +243,8 @@ function ReceivedOffersPage() {
       </div>
 
       {isFetchingNextPage && (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>Loading more offers...</p>
+        <div className="gifts-grid">
+          <Skeleton count={4} />
         </div>
       )}
     </>

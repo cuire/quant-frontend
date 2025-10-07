@@ -7,6 +7,7 @@ import {
   ProfileReferrals 
 } from '../../components/Profile'
 import '../../components/Profile/Profile.css'
+import { ProfileLinks } from '../../components/Profile/ProfileLinks'
 
 export const Route = createFileRoute('/profile/')({
   component: RouteComponent,
@@ -57,13 +58,15 @@ function RouteComponent() {
         />
 
         <ProfileReferrals 
-          referralsCount={profile.referrals_count}
+          referralsCount={profile.referral_level}
           referralsAmount={profile.referrals_volume}
           friendsInvited={profile.referrals_count}
           referralBalance={profile.referrals_balance}
           onReferralClick={handleReferralClick}
           onReceiveClick={handleWithdrawReferralBalance}
         />
+
+        <ProfileLinks />
     </div>
   )
 }

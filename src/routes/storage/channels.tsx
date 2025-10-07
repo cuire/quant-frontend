@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useRef, useCallback, useMemo } from 'react';
-import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts, useSellItem } from '@/lib/api-hooks';
+import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts, useSellItem, useSellChannel } from '@/lib/api-hooks';
+import { useLastTab } from '@/hooks/useLastTab';
 import { Gift } from '@/components/Gift';
 import { Skeleton } from '@/components/Skeleton';
 import { useModal } from '@/contexts/ModalContext';
@@ -15,6 +16,8 @@ function ChannelsPage() {
   const { openModal } = useModal();
   const { data: giftsData } = useGifts();
   const sellItemMutation = useSellItem();
+  const sellChannelMutation = useSellChannel();
+  const [activeSubTab, setActiveSubTab] = useLastTab('storage_channels_subtab', 'channels');
   
   const {
     data: channelsData,
@@ -28,19 +31,29 @@ function ChannelsPage() {
   const {
     data: userGiftsData,
     isLoading: isLoadingGifts,
+    fetchNextPage: fetchNextGifts,
+    hasNextPage: hasNextGifts,
+    isFetchingNextPage: isFetchingNextGifts,
   } = useMeGiftsInfinite(20);
 
   const observer = useRef<IntersectionObserver>();
   const lastElementRef = useCallback((node: HTMLDivElement) => {
-    if (isLoadingChannels) return;
+    if ((activeSubTab === 'channels' && isLoadingChannels) || (activeSubTab === 'gifts' && isLoadingGifts)) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextChannels && !isFetchingNextChannels) {
-        fetchNextChannels();
+      if (!entries[0].isIntersecting) return;
+      if (activeSubTab === 'channels') {
+        if (hasNextChannels && !isFetchingNextChannels) {
+          fetchNextChannels();
+        }
+      } else {
+        if (hasNextGifts && !isFetchingNextGifts) {
+          fetchNextGifts();
+        }
       }
     });
     if (node) observer.current.observe(node);
-  }, [isLoadingChannels, hasNextChannels, isFetchingNextChannels, fetchNextChannels]);
+  }, [activeSubTab, isLoadingChannels, isLoadingGifts, hasNextChannels, isFetchingNextChannels, fetchNextChannels, hasNextGifts, isFetchingNextGifts, fetchNextGifts]);
 
   const allChannels = channelsData?.pages.flatMap(page => page) || [];
   const allUserGifts = userGiftsData?.pages.flatMap(page => page) || [];
@@ -58,8 +71,8 @@ function ChannelsPage() {
       // Convert duration from hours to seconds if provided
       const secondsToTransfer = duration ? duration * 3600 : 3600;
       
-      await sellItemMutation.mutateAsync({
-        itemId: id,
+      await sellChannelMutation.mutateAsync({
+        channelId: id,
         price,
         secondsToTransfer,
         timezone: 'UTC'
@@ -149,7 +162,7 @@ function ChannelsPage() {
       <div className="storage-tabs">
         <div className="storage-segment">
           <Link to="/storage/channels" className="storage-tab-link is-active">
-            Channels
+            Items
           </Link>
           <Link to="/storage/offers/received" className="storage-tab-link">
             Offers
@@ -167,21 +180,35 @@ function ChannelsPage() {
             Activity
           </Link>
         </div>
+        <div className="storage-segment" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <button
+            className={`storage-tab-link ${activeSubTab === 'channels' ? 'is-active' : ''}`}
+            onClick={() => setActiveSubTab('channels')}
+          >
+            Channels
+          </button>
+          <button
+            className={`storage-tab-link ${activeSubTab === 'gifts' ? 'is-active' : ''}`}
+            onClick={() => setActiveSubTab('gifts')}
+          >
+            Gifts
+          </button>
+        </div>
       </div>
 
-      {isLoadingChannels && allChannels.length === 0 && (
+      {activeSubTab === 'channels' && isLoadingChannels && allChannels.length === 0 && (
         <div className="gifts-grid">
           <Skeleton count={8} />
         </div>
       )}
 
-      {channelsError && (
+      {activeSubTab === 'channels' && channelsError && (
         <div style={{ textAlign: 'center', padding: '20px', color: '#FF3939' }}>
           <p>Error loading channels: {channelsError.message}</p>
         </div>
       )}
 
-      {!isLoadingChannels && allChannels.length === 0 && !isLoadingGifts && allUserGifts.length === 0 && (
+      {activeSubTab === 'channels' && !isLoadingChannels && allChannels.length === 0 && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <div className="text-center py-16">
             <div className="text-6xl mb-4">😔</div>
@@ -191,15 +218,16 @@ function ChannelsPage() {
         </div>
       )}
 
+      {activeSubTab === 'channels' && (
       <div className="gifts-grid">
           {allChannels.map((channel, index) => {
            // Convert channel gifts to items format for Gift component
            const items = Object.entries(channel.gifts).map(([giftId, quantity]) => {
-             const giftData = giftsMap.get(giftId);
+              const giftData = giftsMap.get(giftId);
              return {
                id: giftId,
                name: giftData?.full_name || `Gift ${giftId}`,
-               icon: giftData?.image_url || '/placeholder-gift.svg',
+                icon: giftData?.image_url || `https://FlowersRestricted.github.io/gifts/${giftId}/default.png`,
                quantity
              };
            });
@@ -249,6 +277,7 @@ function ChannelsPage() {
                   itemId: channel.id,
                   itemName: `#${channel.id}`,
                   floorPrice: null,
+                  shouldShowDuration: true,
                   onSubmit: handleSellChannel,
                   defaultPrice: channel.price,
                 })}
@@ -259,16 +288,35 @@ function ChannelsPage() {
               />
            );
         })}
+      </div>
+      )}
 
-        {/* Render user gifts as cards */}
-        {allUserGifts.map((userGift) => (
+      {activeSubTab === 'gifts' && isLoadingGifts && allUserGifts.length === 0 && (
+        <div className="gifts-grid">
+          <Skeleton count={8} />
+        </div>
+      )}
+
+      {activeSubTab === 'gifts' && !isLoadingGifts && allUserGifts.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">😔</div>
+            <h3 className="text-xl font-semibold mb-2">No gifts found</h3>
+            <p className="text-gray-400">Your gifts will appear here</p>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'gifts' && (
+      <div className="gifts-grid">
+        {allUserGifts.map((userGift, index) => (
           <Gift
             key={`gift-${userGift.id}`}
             items={[{
               id: userGift.gift_id,
               name: userGift.gift_data.full_name || `Gift ${userGift.gift_id}`,
               icon: userGift.slug && userGift.slug !== 'None-None' 
-                ? '' // Will use UpgradedGiftSlugIcon component
+                ? ''
                 : getGiftIcon(userGift.gift_data.id),
               giftSlug: userGift.slug,
             }]}
@@ -287,11 +335,18 @@ function ChannelsPage() {
             })}
             onDecline={() => handleDeclineUserGift(userGift.id)}
             onClick={() => handleGiftClick(userGift)}
+            ref={index === allUserGifts.length - 1 ? lastElementRef : undefined}
           />
         ))}
       </div>
+      )}
 
-      {isFetchingNextChannels && (
+      {activeSubTab === 'channels' && isFetchingNextChannels && (
+        <div className="gifts-grid">
+          <Skeleton count={4} />
+        </div>
+      )}
+      {activeSubTab === 'gifts' && isFetchingNextGifts && (
         <div className="gifts-grid">
           <Skeleton count={4} />
         </div>

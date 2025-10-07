@@ -14,8 +14,13 @@ function StorageLayout() {
   const isOnChannelsPage = location.pathname === '/storage/channels';
   
   const handleAddChannel = () => {
-    // Open the add channel modal or navigate to add channel page
-    openModal('add-channel', {});
+    // Decide action based on active sub-tab saved by useLastTab hook
+    const activeSubTab = localStorage.getItem('storage_channels_subtab') || 'channels';
+    if (activeSubTab === 'channels') {
+      openModal('add-channel', {});
+    } else {
+      openModal('add-gift', {});
+    }
   };
 
   return (

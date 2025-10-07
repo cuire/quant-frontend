@@ -5,7 +5,8 @@ import { bem } from '@/css/bem.ts';
 import type { GiftFilterChangeParams, GiftCurrentFilters } from '@/lib/filters';
 import { GiftIcon } from '@/components/GiftIcon';
 // removed unused api types
-import { useGiftsWithFilters } from '@/lib/api-hooks';
+import { useGiftsWithFilters, useGiftModels } from '@/lib/api-hooks';
+import { formatRarity } from '@/helpers/formatUtils';
 import './MarketHeader.css';
 
 const [, e] = bem('market-header');
@@ -38,20 +39,28 @@ export interface GiftFiltersProps {
   currentFilters?: GiftCurrentFilters;
   models?: Array<{
     value: string;
+    model_id?: string;
     rarity_per_mille: number;
     floor: number;
   }>;
+  bounds?: {
+    min_price?: number;
+    max_price?: number;
+  };
 }
 
 export const GiftFilters: FC<GiftFiltersProps> = ({ 
   onFilterChange,
   currentFilters,
-  models = []
+  models = [],
+  bounds: propBounds
 }) => {
   // Get gifts data from API (for collection and background options)
   const { data: giftsData, isLoading, error } = useGiftsWithFilters();
   const gifts = giftsData?.gifts || [];
   const backdrops = giftsData?.backdrops || [];
+  const symbols = giftsData?.symbols || [];
+  const boundsData = propBounds; // Use bounds passed from parent (from market gifts query)
   const [openSheet, setOpenSheet] = useState<null | 'collection' | 'model' | 'background' | 'filters'>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -61,9 +70,24 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
   const [pendingBackgroundFilter, setPendingBackgroundFilter] = useState(currentFilters?.background || 'All');
   const [pendingSortingFilter, setPendingSortingFilter] = useState(currentFilters?.sorting || 'date_new_to_old');
   const [pendingSelectedGiftIds, setPendingSelectedGiftIds] = useState<string[]>([]);
+  const [pendingSelectedModelIds, setPendingSelectedModelIds] = useState<string[]>([]);
+  const [pendingSelectedBackgroundIds, setPendingSelectedBackgroundIds] = useState<string[]>([]);
+  const [pendingSelectedSymbolIds, setPendingSelectedSymbolIds] = useState<string[]>([]);
+  const [pendingPriceRange, setPendingPriceRange] = useState<[number, number]>([0, 10000]);
+  const [pendingShowPremarket, setPendingShowPremarket] = useState(true);
+  const [pendingShowUnupgraded, setPendingShowUnupgraded] = useState(true);
+  const [symbolSectionOpen, setSymbolSectionOpen] = useState(false);
 
   // Check if a collection is selected (not 'All' and not empty)
   const isCollectionSelected = pendingCollectionFilter && pendingCollectionFilter !== 'All' && pendingCollectionFilter.trim() !== '';
+
+  // Fetch gift models when collection is selected
+  const { data: giftModelsData, isLoading: modelsLoading } = useGiftModels(
+    isCollectionSelected ? pendingSelectedGiftIds : []
+  );
+  const fetchedModels = giftModelsData?.models || [];
+
+  console.log('GiftFilters fetchedModels:', fetchedModels);
 
   // Update filter states when currentFilters change
   useEffect(() => {
@@ -79,19 +103,61 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
       } else {
         setPendingSelectedGiftIds([]);
       }
+
+      if (currentFilters.model && currentFilters.model !== 'All') {
+        setPendingSelectedModelIds(currentFilters.model.split(',').filter(id => id.trim()));
+      } else {
+        setPendingSelectedModelIds([]);
+      }
+
+      if (currentFilters.background && currentFilters.background !== 'All') {
+        setPendingSelectedBackgroundIds(currentFilters.background.split(',').filter(id => id.trim()));
+      } else {
+        setPendingSelectedBackgroundIds([]);
+      }
+
+      if (currentFilters.symbol && currentFilters.symbol !== 'All') {
+        setPendingSelectedSymbolIds(currentFilters.symbol.split(',').filter(id => id.trim()));
+      } else {
+        setPendingSelectedSymbolIds([]);
+      }
+
+      setPendingShowPremarket(currentFilters.showPremarket ?? true);
+      setPendingShowUnupgraded(currentFilters.showUnupgraded ?? true);
     }
   }, [currentFilters]);
+
+  // Initialize and update price range from currentFilters or bounds
+  useEffect(() => {
+    console.log('=== Price Range Update ===');
+    console.log('GiftFilters boundsData:', boundsData);
+    console.log('Current filters price:', currentFilters?.minPrice, currentFilters?.maxPrice);
+    console.log('giftsData:', giftsData);
+    
+    if (currentFilters?.minPrice !== undefined && currentFilters?.maxPrice !== undefined) {
+      // Use filter values if they exist
+      console.log('✅ Using current filter prices:', currentFilters.minPrice, currentFilters.maxPrice);
+      setPendingPriceRange([currentFilters.minPrice, currentFilters.maxPrice]);
+    } else if (boundsData) {
+      // Otherwise use bounds as defaults
+      console.log('✅ Using API bounds:', boundsData.min_price, boundsData.max_price);
+      setPendingPriceRange([boundsData.min_price ?? 0, boundsData.max_price ?? 10000]);
+    } else {
+      console.log('❌ No bounds available, using fallback: 0-10000');
+    }
+  }, [boundsData, currentFilters?.minPrice, currentFilters?.maxPrice, giftsData]);
 
   // Reset model filter when collection changes
   useEffect(() => {
     if (!isCollectionSelected) {
       setPendingModelFilter('All');
+      setPendingSelectedModelIds([]);
     }
   }, [isCollectionSelected]);
 
   // Clear search when closing/opening sheet
   useEffect(() => {
-    if (openSheet !== 'collection') {
+    if (openSheet !== 'collection' && openSheet !== 'model' && openSheet !== 'background') {
       setSearchTerm('');
     }
   }, [openSheet]);
@@ -107,38 +173,41 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
   };
   // removed unused getCollectionDisplay
   // Helper function to get display name for model
-  const getModelDisplay = (value: string): string => {
-    if (value === 'All') return 'All';
-    return value;
+  const getModelDisplay = (modelIds: string[]): string => {
+    if (modelIds.length === 0) return 'All';
+    if (modelIds.length === 1) {
+      const model = fetchedModels.find(m => String(m.model_id) === modelIds[0]);
+      return model ? model.value : 'All';
+    }
+    return `${modelIds.length} models selected`;
   };
 
   // Helper function to get display name for background
-  const getBackgroundDisplay = (value: string): string => {
-    if (value === 'All') return 'All';
-    return value;
+  const getBackgroundDisplay = (backgroundIds: string[]): string => {
+    if (backgroundIds.length === 0) return 'All';
+    if (backgroundIds.length === 1) {
+      const backdrop = backdrops.find(b => b.id === backgroundIds[0]);
+      return backdrop ? backdrop.name : 'All';
+    }
+    return `${backgroundIds.length} backgrounds selected`;
   };
-
-  // Helper function to get display name for sorting
-  const getSortingDisplay = (value: string): string => {
-    const mapping: Record<string, string> = {
-      'date_new_to_old': 'Date: New to Old',
-      'date_old_to_new': 'Date: Old to New',
-      'price_low_to_high': 'Price: Low to High',
-      'price_high_to_low': 'Price: High to Low',
-      'name_a_to_z': 'Name: A to Z',
-      'name_z_to_a': 'Name: Z to A',
-    };
-    return mapping[value] || 'Date: New to Old';
-  };
-
 
   // Function to apply pending filters when modal closes
-  const applyPendingFilters = (collectionOverride?: string) => {
+  const applyPendingFilters = (collectionOverride?: string, modelOverride?: string, backgroundOverride?: string) => {
+    const symbolValue = pendingSelectedSymbolIds.length > 0 
+      ? pendingSelectedSymbolIds.join(',') 
+      : 'All';
+    
     const newFilters = {
       collection: collectionOverride || pendingCollectionFilter,
-      model: pendingModelFilter,
-      background: pendingBackgroundFilter,
+      model: modelOverride !== undefined ? modelOverride : pendingModelFilter,
+      background: backgroundOverride !== undefined ? backgroundOverride : pendingBackgroundFilter,
+      symbol: symbolValue,
       sorting: pendingSortingFilter,
+      minPrice: pendingPriceRange[0],
+      maxPrice: pendingPriceRange[1],
+      showPremarket: pendingShowPremarket,
+      showUnupgraded: pendingShowUnupgraded,
     };
 
     // Update the actual filter states (these are used internally for consistency)
@@ -166,10 +235,21 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
     ],
     model: [
       { value: 'All', label: 'All' },
-      ...models.map(model => ({
-        value: model.value,
-        label: model.value
-      }))
+      // Use fetched models if available, otherwise fall back to prop models
+      ...(fetchedModels.length > 0 
+        ? fetchedModels.map(model => ({
+            value: String(model.model_id),
+            label: model.value,
+            rarity_per_mille: model.rarity_per_mille,
+            floor: model.floor
+          }))
+        : models.map(model => ({
+            value: String(model.value),
+            label: String(model.value),
+            rarity_per_mille: model.rarity_per_mille,
+            floor: model.floor
+          }))
+      )
     ],
     background: [
       { value: 'All', label: 'All' },
@@ -178,6 +258,18 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
         label: backdrop.name,
         centerColor: backdrop.centerColor,
         edgeColor: backdrop.edgeColor,
+        rarity_per_mille: backdrop.rarity_per_mille,
+        floor: backdrop.floor,
+      }))
+    ],
+    symbol: [
+      { value: 'All', label: 'All' },
+      ...symbols.map(symbol => ({
+        value: symbol.id,
+        label: symbol.name,
+        url: symbol.url,
+        rarity_per_mille: symbol.rarity_per_mille,
+        floor: symbol.floor,
       }))
     ],
     sorting: [
@@ -220,10 +312,10 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
             style={{ cursor: isCollectionSelected ? 'pointer' : 'not-allowed' }}
           >
             <span className={e('chip-label')}>Model</span>
-            <div className={e('chip-control')}>
-              <span className={e('chip-value')}>{getModelDisplay(pendingModelFilter)}</span>
-              <div className={e('chip-select')} />
-            </div>
+          <div className={e('chip-control')}>
+            <span className={e('chip-value')}>{getModelDisplay(pendingSelectedModelIds)}</span>
+            <div className={e('chip-select')} />
+          </div>
           </div>
           <span className={e('chevrons')}>
             <svg width="20" height="40" viewBox="0 0 20 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -236,11 +328,11 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
         {/* Background chip */}
         <div style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
           <div className={e('filter-chip')} onClick={() => setOpenSheet('background')} role="button" tabIndex={0}>
-            <span className={e('chip-label')}>Background</span>
-            <div className={e('chip-control')}>
-              <span className={e('chip-value')}>{getBackgroundDisplay(pendingBackgroundFilter)}</span>
-              <div className={e('chip-select')} />
-            </div>
+          <span className={e('chip-label')}>Background</span>
+          <div className={e('chip-control')}>
+            <span className={e('chip-value')}>{getBackgroundDisplay(pendingSelectedBackgroundIds)}</span>
+            <div className={e('chip-select')} />
+          </div>
           </div>
           <span className={e('chevrons')}>
             <svg width="20" height="40" viewBox="0 0 20 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -406,34 +498,101 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
               </div>
             ) : openSheet === 'model' && isCollectionSelected ? (
               <div className={e('sheet-content')}>
+                <div className={e('search-input')}>
+                  <svg className={e('search-icon')} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
+                  </svg>
+                  <input
+                    placeholder="Name Model"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
                 {/* Model Section */}
                 <div className={e('panel')}>
-                  <div className={e('toggle-row')}>
-                    <div className={e('toggle-label')}>Model</div>
-                    <div className={e('toggle-value')}>{getModelDisplay(pendingModelFilter)}</div>
-                  </div>
-                  {filterOptions.model.map((option) => (
-                    <label key={option.value} className={e('toggle-row')}>
-                      <input 
-                        type="radio" 
-                        className={e('radio')} 
-                        name="model"
-                        checked={pendingModelFilter === option.value}
-                        onChange={() => {
-                          updatePendingFilter('model', option.value);
-                        }} 
-                      />
-                      <div className={e('row-main')}>
-                        <div className={e('row-title')}>
-                          {option.label}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
+                  {modelsLoading ? (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: '#5C6874' }}>
+                      <div style={{ fontSize: '16px' }}>Loading models...</div>
+                    </div>
+                  ) : fetchedModels.length === 0 && pendingSelectedGiftIds.length > 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: '#5C6874' }}>
+                      <div style={{ fontSize: '16px', marginBottom: '8px' }}>No models available</div>
+                      <div style={{ fontSize: '14px' }}>This collection has no models to filter</div>
+                    </div>
+                  ) : (
+                    filterOptions.model
+                      .filter((option) => {
+                        if (option.value === 'All') return false; // Don't show "All" option
+                        const q = searchTerm.trim().toLowerCase();
+                        if (!q) return true;
+                        const name = option.label.toLowerCase();
+                        return name.includes(q);
+                      })
+                      .sort((a, b) => {
+                        // Sort selected models to the top
+                        const aSelected = pendingSelectedModelIds.includes(a.value);
+                        const bSelected = pendingSelectedModelIds.includes(b.value);
+                        
+                        if (aSelected && !bSelected) return -1;
+                        if (!aSelected && bSelected) return 1;
+                        return 0;
+                      })
+                      .map((option) => {
+                        const checked = pendingSelectedModelIds.includes(option.value);
+                        // Get the gift ID for icon - use first selected gift ID
+                        const giftId = pendingSelectedGiftIds[0] || '';
+                        // Use model name for the image URL
+                        const imageUrl = `https://quant-marketplace.com/assets/gifts/${giftId}/${option.label}.png`;
+                        
+                        return (
+                          <label key={option.value} className={e('row')}>
+                            <input 
+                              type="checkbox" 
+                              className={e('check')} 
+                              checked={checked}
+                              onChange={(ev) => {
+                                setPendingSelectedModelIds(prev => 
+                                  ev.target.checked 
+                                    ? [...prev, option.value] 
+                                    : prev.filter(v => v !== option.value)
+                                );
+                              }} 
+                            />
+                            <div className={e('row-icon')}>
+                              <img src={imageUrl} alt={option.label} style={{ width: '40px', height: '40px', borderRadius: '8px' }} />
+                            </div>
+                            
+                            <div className={e('row-main')}>
+                              <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>{option.label}</span>
+                              </div>
+                              {'rarity_per_mille' in option && option.rarity_per_mille && (
+                                <div className={e('row-note')} style={{ color: '#248BDA'}}>
+                                  {formatRarity(option.rarity_per_mille)}%
+                                </div>
+                              )}
+                            </div>
+                            {'floor' in option && (
+                              <div className={e('row-right')}>
+                                <div className={e('row-price')}>
+                                  <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
+                                  </svg>
+                                  <span>{option.floor}</span>
+                                </div>
+                                <div className={e('row-min')}>Min. Price</div>
+                              </div>
+                            )}
+                          </label>
+                        );
+                      })
+                  )}
                 </div>
                 <div className={e('sheet-footer')}>
                   <button className={e('btn-secondary')} onClick={() => {
+                    setPendingSelectedModelIds([]);
                     setPendingModelFilter('All');
+                    setSearchTerm('');
                     // Apply reset filters directly
                     onFilterChange?.({
                       collection: pendingCollectionFilter,
@@ -443,50 +602,106 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     });
                     setOpenSheet(null);
                   }}>Reset</button>
-                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                  <button className={e('btn-primary')} onClick={() => { 
+                    const modelValue = pendingSelectedModelIds.length > 0 
+                      ? pendingSelectedModelIds.join(',') 
+                      : 'All';
+                    setPendingModelFilter(modelValue);
+                    applyPendingFilters(undefined, modelValue);
+                    setSearchTerm('');
+                    setOpenSheet(null); 
+                  }}>Search</button>
                 </div>
               </div>
             ) : openSheet === 'background' ? (
               <div className={e('sheet-content')}>
+                <div className={e('search-input')}>
+                  <svg className={e('search-icon')} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
+                  </svg>
+                  <input
+                    placeholder="Name Background"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
                 {/* Background Section */}
                 <div className={e('panel')}>
-                  <div className={e('toggle-row')}>
-                    <div className={e('toggle-label')}>Background</div>
-                    <div className={e('toggle-value')}>{getBackgroundDisplay(pendingBackgroundFilter)}</div>
-                  </div>
-                  {filterOptions.background.map((option) => (
-                    <label key={option.value} className={e('toggle-row')}>
-                      <input 
-                        type="radio" 
-                        className={e('radio')} 
-                        name="background"
-                        checked={pendingBackgroundFilter === option.value}
-                        onChange={() => {
-                          updatePendingFilter('background', option.value);
-                        }} 
-                      />
-                      <div 
-                        className={e('row-icon')}
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '50%',
-                          background: 'centerColor' in option && 'edgeColor' in option && option.centerColor && option.edgeColor 
-                            ? `radial-gradient(circle, ${option.centerColor}, ${option.edgeColor})`
-                            : '#2F82C7'
-                        }}
-                      />
-                      <div className={e('row-main')}>
-                        <div className={e('row-title')}>
-                          {option.label}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
+                  {filterOptions.background
+                    .filter((option) => {
+                      if (option.value === 'All') return false; // Don't show "All" option
+                      const q = searchTerm.trim().toLowerCase();
+                      if (!q) return true;
+                      const name = option.label.toLowerCase();
+                      return name.includes(q);
+                    })
+                    .sort((a, b) => {
+                      // Sort selected backgrounds to the top
+                      const aSelected = pendingSelectedBackgroundIds.includes(a.value);
+                      const bSelected = pendingSelectedBackgroundIds.includes(b.value);
+                      
+                      if (aSelected && !bSelected) return -1;
+                      if (!aSelected && bSelected) return 1;
+                      return 0;
+                    })
+                    .map((option) => {
+                      const checked = pendingSelectedBackgroundIds.includes(option.value);
+                      
+                      return (
+                        <label key={option.value} className={e('row')}>
+                          <input 
+                            type="checkbox" 
+                            className={e('check')} 
+                            checked={checked}
+                            onChange={(ev) => {
+                              setPendingSelectedBackgroundIds(prev => 
+                                ev.target.checked 
+                                  ? [...prev, option.value] 
+                                  : prev.filter(v => v !== option.value)
+                              );
+                            }} 
+                          />
+                          <div 
+                            className={e('row-icon')}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '50%',
+                              background: 'centerColor' in option && 'edgeColor' in option && option.centerColor && option.edgeColor 
+                                ? `radial-gradient(circle, #${option.centerColor}, #${option.edgeColor})`
+                                : '#2F82C7'
+                            }}
+                          />
+                          <div className={e('row-main')}>
+                            <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span>{option.label}</span>
+                            </div>
+                            {'rarity_per_mille' in option && option.rarity_per_mille && (
+                              <div className={e('row-note')} style={{ color: '#248BDA'}}>
+                                {formatRarity(option.rarity_per_mille)}%
+                              </div>
+                            )}
+                          </div>
+                          {'floor' in option && (
+                            <div className={e('row-right')}>
+                              <div className={e('row-price')}>
+                                <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
+                                </svg>
+                                <span>{option.floor}</span>
+                              </div>
+                              <div className={e('row-min')}>Min. Price</div>
+                            </div>
+                          )}
+                        </label>
+                      );
+                    })}
                 </div>
                 <div className={e('sheet-footer')}>
                   <button className={e('btn-secondary')} onClick={() => {
+                    setPendingSelectedBackgroundIds([]);
                     setPendingBackgroundFilter('All');
+                    setSearchTerm('');
                     // Apply reset filters directly
                     onFilterChange?.({
                       collection: pendingCollectionFilter,
@@ -496,19 +711,190 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     });
                     setOpenSheet(null);
                   }}>Reset</button>
-                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                  <button className={e('btn-primary')} onClick={() => { 
+                    const backgroundValue = pendingSelectedBackgroundIds.length > 0 
+                      ? pendingSelectedBackgroundIds.join(',') 
+                      : 'All';
+                    setPendingBackgroundFilter(backgroundValue);
+                    applyPendingFilters(undefined, undefined, backgroundValue);
+                    setSearchTerm('');
+                    setOpenSheet(null); 
+                  }}>Search</button>
                 </div>
               </div>
             ) : openSheet === 'filters' ? (
               <div className={e('sheet-content')}>
+                {/* Price Section */}
+                <div className={e('card')}>
+                  <div className={e('card-header')}>
+                    <span className={e('card-icon')}>
+                      <svg width="14" height="14" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="#AFC0D4"/></svg>
+                    </span>
+                    <span className={e('card-title')}>Price</span>
+                  </div>
+                  <div className={e('range-wrap')}>
+                    <div className={e('range-track')} />
+                    <div
+                      className={e('range-progress')}
+                      style={(() => {
+                        const minPrice = boundsData?.min_price ?? 0;
+                        const maxPrice = boundsData?.max_price ?? 10000;
+                        const range = maxPrice - minPrice;
+                        
+                        if (range === 0) {
+                          return { left: '0%', right: '0%' };
+                        }
+                        
+                        return {
+                          left: `${((pendingPriceRange[0] - minPrice) / range) * 100}%`,
+                          right: `${100 - ((pendingPriceRange[1] - minPrice) / range) * 100}%`
+                        };
+                      })()}
+                    />
+                    <input
+                      className={e('range')}
+                      type="range"
+                      min={boundsData?.min_price ?? 0}
+                      max={boundsData?.max_price ?? 10000}
+                      value={pendingPriceRange[0]}
+                      onChange={(e)=> {
+                        const nextMin = Math.min(Number(e.target.value), pendingPriceRange[1] - 1);
+                        setPendingPriceRange([nextMin, pendingPriceRange[1]]);
+                      }}
+                    />
+                    <input
+                      className={e('range')}
+                      type="range"
+                      min={boundsData?.min_price ?? 0}
+                      max={boundsData?.max_price ?? 10000}
+                      value={pendingPriceRange[1]}
+                      onChange={(e)=> {
+                        const nextMax = Math.max(Number(e.target.value), pendingPriceRange[0] + 1);
+                        setPendingPriceRange([pendingPriceRange[0], nextMax]);
+                      }}
+                    />
+                  </div>
+                  <div className={e('inputs-inline')}>
+                    <input value={pendingPriceRange[0]} onChange={(e)=> {
+                      const minPrice = boundsData?.min_price ?? 0;
+                      const maxPrice = boundsData?.max_price ?? 10000;
+                      const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
+                      setPendingPriceRange([Math.min(val, pendingPriceRange[1] - 1), pendingPriceRange[1]]);
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
+                    <input value={pendingPriceRange[1]} onChange={(e)=> {
+                      const minPrice = boundsData?.min_price ?? 0;
+                      const maxPrice = boundsData?.max_price ?? 10000;
+                      const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
+                      setPendingPriceRange([pendingPriceRange[0], Math.max(val, pendingPriceRange[0] + 1)]);
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
+                  </div>
+                </div>
+
+                {/* Collapsible Symbol Section */}
+                <div className={e('card')}>
+                  <div className={e('card-header')} onClick={() => setSymbolSectionOpen(!symbolSectionOpen)} style={{ cursor: 'pointer' }}>
+                    <span className={e('card-icon')}>
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.6952 6.3048C15.7411 8.35073 15.7411 11.6493 13.6952 13.6952C11.6493 15.7411 8.35073 15.7411 6.31524 13.6952C4.27975 11.6493 4.25887 8.35073 6.31524 6.3048C8.37161 4.25887 11.6493 4.25887 13.6952 6.3048ZM17.7975 2.22338C17.7975 2.22338 16.785 2.34864 15.6681 3.06889C15.4903 1.90397 14.9412 0.827593 14.1023 0C13.5649 0.518701 13.1753 1.17114 12.9735 1.89027C12.7717 2.6094 12.765 3.36929 12.9541 4.09186C14.405 4.46764 15.5324 5.59499 15.9081 7.04593C17.0772 7.35908 18.7056 7.20251 20 5.8977C19.1816 5.07114 18.1214 4.52642 16.9729 4.34238C17.38 3.73695 17.7035 3.03758 17.7975 2.22338ZM2.20251 17.7766C2.20251 17.7766 3.21503 17.6514 4.33194 16.9311C4.48852 18.0167 5.01044 19.1127 5.8977 20C7.20251 18.7056 7.35908 17.0772 7.04593 15.9081C6.33456 15.7245 5.68538 15.3536 5.16588 14.8341C4.64637 14.3146 4.27551 13.6654 4.09186 12.9541C2.92276 12.6409 1.29436 12.7975 0 14.1023C0.876827 14.9791 1.95198 15.501 3.02714 15.6576C2.62004 16.263 2.29645 16.9729 2.20251 17.7766Z" fill="#AFC0D4"/>
+                      </svg>
+                    </span>
+                    <span className={e('card-title')}>Symbol</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginLeft: 'auto', transform: symbolSectionOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                      <path d="M4 6L8 10L12 6" stroke="#5C6874" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  {symbolSectionOpen && (
+                    <>
+                      <div className={e('search-input')} style={{ padding: '8px 0px' }}>
+                        <svg className={e('search-icon')} 
+                        style={{ left: '12px' }}
+                        width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
+                        </svg>
+                        <input
+                          placeholder="Name Symbol"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          style={{ color: '#E7EEF7'}}
+                        />
+                      </div>
+                      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                        {filterOptions.symbol
+                          .filter((option) => {
+                            if (option.value === 'All') return false;
+                            const q = searchTerm.trim().toLowerCase();
+                            if (!q) return true;
+                            const name = option.label.toLowerCase();
+                            return name.includes(q);
+                          })
+                          .sort((a, b) => {
+                            const aSelected = pendingSelectedSymbolIds.includes(a.value);
+                            const bSelected = pendingSelectedSymbolIds.includes(b.value);
+                            if (aSelected && !bSelected) return -1;
+                            if (!aSelected && bSelected) return 1;
+                            return 0;
+                          })
+                          .map((option) => {
+                            const checked = pendingSelectedSymbolIds.includes(option.value);
+                            const symbolUrl = `https://quant-marketplace.com/assets/symbols/${option.label}.png`;
+                            return (
+                              <label key={option.value} className={e('row')} style={{ padding: '8px 0' }}>
+                                <input 
+                                  type="checkbox" 
+                                  className={e('check')} 
+                                  checked={checked}
+                                  onChange={(ev) => {
+                                    setPendingSelectedSymbolIds(prev => 
+                                      ev.target.checked 
+                                        ? [...prev, option.value] 
+                                        : prev.filter(v => v !== option.value)
+                                    );
+                                  }} 
+                                />
+                                <div className={e('row-icon')}>
+                                  <img src={symbolUrl} alt={option.label} style={{ width: '30px', height: '30px', borderRadius: '8px', filter: 'brightness(0) invert(1)' }} />
+                                </div>
+                                <div className={e('row-main')}>
+                                  <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span>{option.label}</span>
+                                  </div>
+                                  {'rarity_per_mille' in option && option.rarity_per_mille && (
+                                    <div className={e('row-note')} style={{ color: '#248BDA'}}>
+                                      {formatRarity(option.rarity_per_mille)}%
+                                    </div>
+                                  )}
+                                </div>
+                                {'floor' in option && (
+                                  <div className={e('row-right')}>
+                                    <div className={e('row-price')}>
+                                      <svg className={e('diamond-icon')} width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="white"/>
+                                      </svg>
+                                      <span>{option.floor}</span>
+                                    </div>
+                                    <div className={e('row-min')}>Min. Price</div>
+                                  </div>
+                                )}
+                              </label>
+                            );
+                          })}
+                      </div>
+                    </>
+                  )}
+                </div>
+
                 {/* Sorting Section */}
-                <div className={e('panel')}>
-                  <div className={e('toggle-row')}>
-                    <div className={e('toggle-label')}>Sorting</div>
-                    <div className={e('toggle-value')}>{getSortingDisplay(pendingSortingFilter)}</div>
+                <div className={e('card')}>
+                  <div className={e('card-header')} style={{ marginBottom: '14px' }}>
+                    <span className={e('card-icon')}>
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 5H13M5 9H11M7 13H9" stroke="#AFC0D4" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </span>
+                    <span className={e('card-title')}>Sorting</span>
                   </div>
                   {filterOptions.sorting.map((option) => (
-                    <label key={option.value} className={e('toggle-row')}>
+                    <label key={option.value} className={e('row')} style={{ paddingLeft: '0', paddingRight: '0'}}>
                       <input 
                         type="radio" 
                         className={e('radio')} 
@@ -526,19 +912,51 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     </label>
                   ))}
                 </div>
+
+                {/* Toggle Section */}
+                <div className={e('card')}>
+                  <label className={e('toggle-row')}>
+                    <span style={{color: '#fff'}}>Show pre-market</span>
+                    <input className={e('switch')} type="checkbox" checked={pendingShowPremarket} onChange={(e)=> setPendingShowPremarket(e.target.checked)} />
+                  </label>
+                  <label className={e('toggle-row')}>
+                    <span style={{color: '#fff'}}>Show unupgraded gifts</span>
+                    <input className={e('switch')} type="checkbox" checked={pendingShowUnupgraded} onChange={(e)=> setPendingShowUnupgraded(e.target.checked)} />
+                  </label>
+                </div>
                 <div className={e('sheet-footer')}>
                   <button className={e('btn-secondary')} onClick={() => {
+                    // Reset all filters in this modal
+                    const resetPriceRange: [number, number] = boundsData 
+                      ? [boundsData.min_price ?? 0, boundsData.max_price ?? 10000]
+                      : [0, 10000];
+                    
+                    console.log('Resetting filters with bounds:', boundsData, 'resetPriceRange:', resetPriceRange);
+                    
+                    setPendingPriceRange(resetPriceRange);
+                    setPendingSelectedSymbolIds([]);
                     setPendingSortingFilter('date_new_to_old');
+                    setPendingShowPremarket(true);
+                    setPendingShowUnupgraded(true);
+                    setSearchTerm('');
                     // Apply reset filters directly
                     onFilterChange?.({
                       collection: pendingCollectionFilter,
                       model: pendingModelFilter,
                       background: pendingBackgroundFilter,
+                      symbol: 'All',
                       sorting: 'date_new_to_old',
+                      minPrice: resetPriceRange[0],
+                      maxPrice: resetPriceRange[1],
+                      showPremarket: true,
+                      showUnupgraded: true,
                     });
                     setOpenSheet(null);
                   }}>Reset</button>
-                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                  <button className={e('btn-primary')} onClick={() => { 
+                    applyPendingFilters(); 
+                    setOpenSheet(null); 
+                  }}>Search</button>
                 </div>
               </div>
             ) : null}

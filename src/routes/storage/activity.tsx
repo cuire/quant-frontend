@@ -74,7 +74,7 @@ function ActivityPage() {
   }, []);
 
   // Intersection Observer for infinite scroll
-  useCallback((node: HTMLDivElement | null) => {
+  const lastElementRef = useCallback((node: HTMLDivElement | null) => {
     if (isLoading) return;
     
     if (observerRef.current) {
@@ -92,6 +92,14 @@ function ActivityPage() {
     
     if (node && observerRef.current) {
       observerRef.current.observe(node);
+      // Immediate check if already visible to avoid deadlock on short lists
+      setTimeout(() => {
+        const rect = node.getBoundingClientRect();
+        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        if (isInViewport && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }, 100);
     }
   }, [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
@@ -181,15 +189,27 @@ function ActivityPage() {
         giftData,
       });
     } else {
-      // Handle channel activity (original logic)
-      let items: { id: string; name: string; icon: string; quantity: number }[] = [];
+      // Handle channel activity including upgraded structure
+      let items: { id: string; name: string; icon: string; quantity: number; type?: 'nft' | 'item' }[] = [];
       if (activity.gifts_data) {
-        items = Object.entries(activity.gifts_data).map(([giftId, quantity]) => ({
-          id: giftId,
-          name: getGiftNameById(giftId),
-          icon: getGiftIconById(giftId),
-          quantity: quantity as number,
-        }));
+        if ('upgraded' in (activity.gifts_data as any)) {
+          const upgraded = (activity.gifts_data as any).upgraded || {};
+          items = Object.entries(upgraded).map(([giftId, backdropIds]) => ({
+            id: giftId,
+            name: getGiftNameById(giftId),
+            icon: getGiftIconById(giftId),
+            quantity: Array.isArray(backdropIds) ? backdropIds.length : 1,
+            type: 'nft',
+          }));
+        } else {
+          items = Object.entries(activity.gifts_data as any).map(([giftId, quantity]) => ({
+            id: giftId,
+            name: getGiftNameById(giftId),
+            icon: getGiftIconById(giftId),
+            quantity: typeof quantity === 'number' ? quantity : 1,
+            type: 'item',
+          }));
+        }
       }
        
       if (items.length > 0) {
@@ -223,7 +243,7 @@ function ActivityPage() {
       <div className="storage-tabs">
         <div className="storage-segment">
           <Link to="/storage/channels" className="storage-tab-link">
-            Channels
+            Items
           </Link>
           <Link to="/storage/offers/received" className="storage-tab-link">
             Offers
@@ -279,6 +299,9 @@ function ActivityPage() {
                     onActivityClick={handleActivityClick}
                   />
                 ))}
+
+                {/* Sentinel for infinite scroll */}
+                <div ref={lastElementRef} style={{ height: 1 }} />
 
                 {/* Loading indicator for next page */}
                 {isFetchingNextPage && (

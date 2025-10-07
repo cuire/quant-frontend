@@ -8,16 +8,20 @@ import { AcceptOfferModal } from './OfferAcceptModal';
 import { AcceptOfferConfirmModal } from './OfferAcceptConfirmModal';
 import { CancelOfferModal } from './OfferCancelModal';
 import { AddChannelModal } from './AddChannelModal';
+import { AddGiftModal } from './AddGiftModal.tsx';
+import { AddGiftPreMarketModal } from './AddGiftPreMarketModal.tsx';
+import { AddGiftInstructionsModal } from './AddGiftInstructionsModal.tsx';
 import { PurchaseConfirmModal } from './PurchaseConfirmModal';
 import { SubscriptionModal } from './SubscriptionModal';
 import { SuccessModal } from './SuccessModal';
 import { ErrorModal } from './ErrorModal';
 import { ParticipatingModal } from './ParticipatingModal';
 import { GiftOfferModal } from './GiftOfferModal';
-import { SellModal } from './StorageModals';
+import { SellModal, SendGiftModal, ReceiveGiftModal } from './StorageModals';
 import { SettingsModal } from './SettingsModal';
 import { ReferralModal } from './ReferralModal';
 import { GuideModal } from './GuideModal';
+import { ProfileStatsModal } from './ProfileStatsModal.tsx';
 import './Modal.css';
 
 export const Modal = () => {
@@ -177,6 +181,12 @@ export const Modal = () => {
         return <CancelOfferModal data={modalData} onClose={closeModal} />;
       case 'add-channel':
         return <AddChannelModal onClose={closeModal} />;
+      case 'add-gift':
+        return <AddGiftModal onClose={closeModal} />;
+      case 'add-gift-premarket':
+        return <AddGiftPreMarketModal onClose={closeModal} />;
+      case 'add-gift-instructions':
+        return <AddGiftInstructionsModal onClose={closeModal} type={modalData?.type || 'upgraded'} />;
       case 'purchase-confirm':
         return <PurchaseConfirmModal data={modalData} onClose={closeModal} />;
       
@@ -229,10 +239,30 @@ export const Modal = () => {
             type={modalData?.type ?? 'channel'}
           />
         );
+      case 'send-gift':
+        return (
+          <SendGiftModal
+            giftId={modalData?.giftId || ''}
+            giftName={modalData?.giftName || ''}
+            onClose={closeModal}
+            onSuccess={modalData?.onSuccess || (() => {})}
+          />
+        );
+      case 'receive-gift':
+        return (
+          <ReceiveGiftModal
+            giftId={modalData?.giftId || ''}
+            giftName={modalData?.giftName || ''}
+            onClose={closeModal}
+            onSuccess={modalData?.onSuccess || (() => {})}
+          />
+        );
       case 'settings':
         return <SettingsModal onClose={closeModal} />;
       case 'referral':
         return <ReferralModal onClose={closeModal} />;
+      case 'profile-stats':
+        return <ProfileStatsModal onClose={closeModal} data={modalData} />;
       case 'guide':
         return <GuideModal onClose={closeModal} />;
       default:

@@ -4,6 +4,8 @@ import { NftBadge } from '@/components/NftBadge/NftBadge';
 import { CountdownTimer } from '../CountdownTimer';
 import { getChannelPrice } from '@/helpers/priceUtils';
 import { shareChannel } from '@/helpers/shareUtils';
+import { useRemoveChannelFromSale, useEditChannelPrice, useSellChannel, useReturnChannel, useRemoveChannel } from '@/lib/api-hooks';
+import { useToast } from '@/hooks/useToast';
 
 interface GiftDetailsModalProps {
   data: any;
@@ -12,6 +14,12 @@ interface GiftDetailsModalProps {
 
 export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
   const { openModal } = useModal();
+  const removeChannelFromSaleMutation = useRemoveChannelFromSale();
+  const editChannelPriceMutation = useEditChannelPrice();
+  const sellChannelMutation = useSellChannel();
+  const returnChannelMutation = useReturnChannel();
+  const removeChannelMutation = useRemoveChannel();
+  const { success: showSuccessToast, block: showErrorToast } = useToast();
 
   const handleMakeOffer = () => {
     openModal('offer', { channel, gifts });
@@ -23,19 +31,74 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
 
   const handleSellChannel = async (price: number, duration?: number) => {
     console.log('Selling channel:', channel.id, 'for', price, 'TON', duration ? `for ${duration}h` : '');
-    // TODO: Implement actual API call to create sell offer
-    // await createChannelOffer(channel.id, price, duration);
+    
+    try {
+      // Convert duration from hours to seconds if provided
+      const secondsToTransfer = duration ? duration * 3600 : 3600;
+      
+      await sellChannelMutation.mutateAsync({
+        channelId: channel.id,
+        price,
+        secondsToTransfer,
+        timezone: 'UTC'
+      });
+      
+      showSuccessToast({ message: 'Channel listed for sale successfully!' });
+      onClose();
+    } catch (error) {
+      console.error('Failed to list channel for sale:', error);
+      showErrorToast({ message: 'Failed to list channel for sale. Please try again.' });
+    }
   };
 
-  const handleChangePrice = async (price: number, duration?: number) => {
-    console.log('Changing price for channel:', channel.id, 'to', price, 'TON', duration ? `for ${duration}h` : '');
-    // TODO: Implement actual API call to update channel price
-    // await updateChannelPrice(channel.id, price, duration);
+  const handleChangePrice = async (newPrice: number) => {
+    console.log('Changing price for channel:', channel.id, 'to', newPrice, 'TON');
+    
+    try {
+      await editChannelPriceMutation.mutateAsync({
+        channelId: channel.id,
+        price: newPrice
+      });
+      
+      showSuccessToast({ message: 'Channel price updated successfully!' });
+      onClose();
+    } catch (error) {
+      console.error('Failed to update channel price:', error);
+      showErrorToast({ message: 'Failed to update channel price. Please try again.' });
+    }
+  };
+
+  const handleReturnChannel = async () => {
+    console.log('Returning channel:', channel.id);
+    
+    try {
+      await returnChannelMutation.mutateAsync(channel.id);
+      showSuccessToast({ message: 'Channel returned successfully!' });
+      onClose();
+    } catch (error) {
+      console.error('Failed to return channel:', error);
+      showErrorToast({ message: 'Failed to return channel. Please try again.' });
+    }
+  };
+
+  const handleRemoveChannel = async () => {
+    console.log('Removing channel:', channel.id);
+    
+    try {
+      await removeChannelMutation.mutateAsync(channel.id);
+      showSuccessToast({ message: 'Channel removed successfully!' });
+      onClose();
+    } catch (error) {
+      console.error('Failed to remove channel:', error);
+      showErrorToast({ message: 'Failed to remove channel. Please try again.' });
+    }
   };
 
   // Extract channel and gifts data
   const channel = data.channel || data;
   const gifts = data.gifts || [];
+  const offer = data.offer;
+  const offerSide = data.offerSide as 'received' | 'placed' | undefined;
   
   // Transform gifts object to items array if needed
   const items = channel.items || (channel.gifts ? (() => {
@@ -215,17 +278,68 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
         </a>
       </div>
 
-      {showPurchaseActions && (
-        <div className="product-sheet__actions">
-          {channel?.status === 'reserved' ? (
+      {/* Offer actions when opened from offers context */}
+      {offer && (
+        <div className="product-sheet__actions" style={{ display: 'flex', gap: '8px' }}>
+          {offerSide === 'received' ? (
             <>
-              <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--error" 
+                type="button"
+                onClick={() => openModal('cancel-offer', { offer, offerSide })}
+              >
+                Decline Offer
+              </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
                 style={{display: 'inline-block'}} 
                 type="button"
+                onClick={() => openModal('accept-offer', { offer, offerSide })}
+              >
+                Accept Offer
+                {typeof offer.price === 'number' && (
+                  <span className="product-sheet__price">{getChannelPrice(offer.price)} TON</span>
+                )}
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                className="product-sheet__btn product-sheet__btn--error" 
+                type="button"
+                onClick={() => openModal('cancel-offer', { offer, offerSide })}
+                style={{width: '100%'}}
+              >
+                Cancel Offer
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {showPurchaseActions && !offer && (
+        <div className="product-sheet__actions">
+          {channel?.status === 'reserved' ? (
+            <>
+              <button 
+                className="product-sheet__btn product-sheet__btn--error" 
+                type="button" 
+                disabled={channel.type === 'fast' ? returnChannelMutation.isPending : removeChannelMutation.isPending}
+                onClick={channel.type === 'fast' ? handleReturnChannel : handleRemoveChannel}
+              >
+                {channel.type === 'fast' 
+                  ? (returnChannelMutation.isPending ? 'Returning...' : 'Return')
+                  : (removeChannelMutation.isPending ? 'Removing...' : 'Remove')
+                }
+              </button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                style={{display: 'inline-block'}} 
+                type="button"
+                disabled={sellChannelMutation.isPending}
                 onClick={() => {
                   openModal('sell-channel', {
+                    itemId: channel.id,
                     itemName: `#${channel.id}`,
                     floorPrice: 0,
                     shouldShowDuration: true,
@@ -233,18 +347,36 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
                   });
                 }}
               >
-                Sell Channel
+                {sellChannelMutation.isPending ? 'Listing...' : 'Sell Channel'}
               </button>
             </>
           ) : channel?.status === 'active' ? (
             <>
-              <button className="product-sheet__btn product-sheet__btn--error" type="button" onClick={() => {data.onDecline && data.onDecline(channel.id)}}>Remove Sale</button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--error" 
+                type="button" 
+                disabled={removeChannelFromSaleMutation.isPending}
+                onClick={async () => {
+                  try {
+                    await removeChannelFromSaleMutation.mutateAsync(channel.id);
+                    showSuccessToast({ message: 'Channel removed from sale successfully!' });
+                    onClose();
+                  } catch (error) {
+                    console.error('Failed to remove channel from sale:', error);
+                    showErrorToast({ message: 'Failed to remove channel from sale. Please try again.' });
+                  }
+                }}
+              >
+                {removeChannelFromSaleMutation.isPending ? 'Removing...' : 'Remove Sale'}
+              </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
                 style={{display: 'inline-block'}} 
                 type="button"
+                disabled={editChannelPriceMutation.isPending}
                 onClick={() => {
                   openModal('sell-channel', {
+                    itemId: channel.id,
                     itemName: `#${channel.id}`,
                     floorPrice: price,
                     changePrice: true,
@@ -253,7 +385,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
                   });
                 }}
               >
-                Change Price
+                {editChannelPriceMutation.isPending ? 'Updating...' : 'Change Price'}
                 <span className="product-sheet__price">{price} TON</span>
               </button>
             </>

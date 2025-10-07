@@ -8,53 +8,54 @@
 }
 
 .referral-modal__progress-section {
-  padding: 20px 16px;
+  padding: 20px 16px 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.referral-modal__progress-bar {
+/* Two-segment level bar */
+.referral-modal__levels {
   position: relative;
-  width: 100%;
-  height: 8px;
-  background: #344150;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 16px;
+  height: 35px;
+  margin: 12px 0 12px 0;
 }
 
-.referral-modal__progress-fill {
-  position: relative;
-  height: 100%;
+.referral-modal__levels-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35px;
+  background: #2F3A47;
+  border-radius: 16px;
+}
+
+.referral-modal__levels-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 35px;
   background: linear-gradient(90deg, #FFAE00 0%, #8B25CA 100%);
-  border-radius: 4px;
+  border-radius: 16px;
   transition: width 0.3s ease;
 }
 
-.referral-modal__progress-remaining {
+.referral-modal__level {
   position: absolute;
-  top: 0;
-  right: 0;
-  height: 100%;
-  background: #344150;
-  border-radius: 4px;
-}
-
-.referral-modal__level-label {
-  position: absolute;
-  top: -24px;
+  bottom: calc(50% - 7px);
   font-size: 12px;
-  color: #7F94AE;
-  font-weight: 500;
-  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  z-index: 10;
 }
 
-.referral-modal__progress-fill .referral-modal__level-label {
-  left: 0;
-  color: #FFAE00;
+.referral-modal__level--active {
+  left: 16px;
+  color: #ffffff;
 }
 
-.referral-modal__progress-remaining .referral-modal__level-label {
-  right: 0;
+.referral-modal__level--next {
+  right: 16px;
+  color: #ffffff;
 }
 
 .referral-modal__progress-indicator {
@@ -98,27 +99,33 @@
 
 .referral-modal__commission-rate {
   text-align: center;
-  color: #FFFFFF;
-  font-size: 14px;
-  font-weight: 600;
+  color: #7491AA;
+  font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 10px;
+  line-height: 10px;
+  font-weight: 500; /* Medium */
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
+  vertical-align: middle;
 }
 
 .referral-modal__instructions {
-  padding: 16px;
+  padding: 8px 0 16px 0; /* match market-header__sheet-content */
 }
 
 .referral-modal__instruction-block {
   background: #2A3541;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px;
+  margin: 0px 12px; /* match panel gutters */
+}
+
+.referral-modal__instruction-block:first-child {
+  border-radius: 12px 12px 0 0;
 }
 
 .referral-modal__instruction-block:last-child {
   margin-bottom: 0;
+  border-radius: 0 0 12px 12px;
 }
 
 .referral-modal__instruction-title {
@@ -157,22 +164,3 @@
   border-color: #1d6fa8;
 }
 
-/* Responsive adjustments */
-@media (max-width: 480px) {
-  .referral-modal__progress-section {
-    padding: 16px 12px;
-  }
-  
-  .referral-modal__instructions {
-    padding: 12px;
-  }
-  
-  .referral-modal__instruction-block {
-    padding: 12px;
-  }
-  
-  .referral-modal__progress-bubble {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-}

@@ -2,12 +2,13 @@ import { useModal } from '@/contexts/ModalContext';
 import { UpgradedGiftSlugIcon } from '@/components/GiftIcon';
 import type { GiftAttribute } from '@/lib/api';
 import { getGiftModelIcon, getSymbolIcon } from '@/lib/images';
-import { usePurchaseGift } from '@/lib/api-hooks';
+import { usePurchaseGift, useEditGiftPrice, useSellItem, useRemoveGiftFromSale } from '@/lib/api-hooks';
 import { useToast } from '@/hooks/useToast';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import './Modal.css';
 import { shareGift } from '@/helpers/shareUtils';
 import { getChannelPrice } from '@/helpers/priceUtils';
+import { formatRarity } from '@/helpers/formatUtils';
 
 interface UpgradedGiftModalProps {
   data: {
@@ -24,24 +25,29 @@ interface UpgradedGiftModalProps {
     hideActions?: boolean;
     status?: string;
     onDecline?: (id: string) => void;
+    // Optional: offer context to show offer actions from offers pages
+    offer?: any;
+    offerSide?: 'received' | 'placed';
   };
   onClose: () => void;
 }
 
 export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => {
   const { openModal } = useModal();
-  const { id, giftId, giftSlug, price, model, backdrop, symbol } = data;
+  const { giftId, giftSlug, price, model, backdrop, symbol } = data;
   const purchaseGiftMutation = usePurchaseGift();
+  const editGiftPriceMutation = useEditGiftPrice();
+  const sellItemMutation = useSellItem();
+  const removeGiftFromSaleMutation = useRemoveGiftFromSale();
   const { success: showSuccessToast, block: showErrorToast } = useToast();
   
   // Check if gift is not upgraded
   const isNotUpgraded = giftSlug === 'None-None';
-  const formattedPrice = getChannelPrice(price);
 
   // Market handlers (for buying gifts)
   const handleMakeOffer = () => {
     openModal('gift-offer', {
-      giftId: id,
+      giftId: data.id,
       giftSlug,
       price
     });
@@ -49,7 +55,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
 
   const handleBuyGifts = async () => {
     try {
-      await purchaseGiftMutation.mutateAsync({ giftId: id, price });
+      await purchaseGiftMutation.mutateAsync({ giftId: data.id, price });
       showSuccessToast({ message: 'Gift purchased successfully!' });
       onClose();
     } catch (error) {
@@ -59,30 +65,72 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
   };
 
   // Storage handlers (for managing owned gifts)
-  const handleSellGift = async (price: number, duration?: number) => {
-    console.log('Selling gift:', id, 'for', price, 'TON', duration ? `for ${duration}h` : '');
-    // TODO: Implement actual API call to create sell offer
-    // await createGiftOffer(id, price, duration);
+  const handleSellGift = async (id: string, newPrice: number, duration?: number) => {
+    console.log('Selling gift:', id, 'for', newPrice, 'TON', duration ? `for ${duration}h` : '');
+    
+    try {
+      // Convert duration from hours to seconds if provided
+      const secondsToTransfer = duration ? duration * 3600 : 3600;
+      
+      await sellItemMutation.mutateAsync({
+        itemId: id,
+        price: newPrice,
+        secondsToTransfer,
+        timezone: 'UTC'
+      });
+      
+      showSuccessToast({ message: 'Gift listed for sale successfully!' });
+      onClose();
+    } catch (error) {
+      console.error('Failed to list gift for sale:', error);
+      showErrorToast({ message: 'Failed to list gift for sale. Please try again.' });
+    }
   };
 
-  const handleChangePrice = async (price: number, duration?: number) => {
-    console.log('Changing price for gift:', id, 'to', price, 'TON', duration ? `for ${duration}h` : '');
-    // TODO: Implement actual API call to update gift price
-    // await updateGiftPrice(id, price, duration);
+  const handleChangePrice = async (id: string, newPrice: number) => {
+    console.log('Changing price for gift:', id, 'to', newPrice, 'TON');
+    
+    try {
+      await editGiftPriceMutation.mutateAsync({
+        giftId: id,
+        price: newPrice
+      });
+      
+      showSuccessToast({ message: 'Gift price updated successfully!' });
+      onClose();
+    } catch (error) {
+      console.error('Failed to update gift price:', error);
+      showErrorToast({ message: 'Failed to update gift price. Please try again.' });
+    }
   };
 
   const handleSendGift = () => {
-    console.log('Sending gift:', id);
-    // TODO: Implement send gift functionality
+    openModal('send-gift', {
+      giftId: data.id,
+      giftName: `#${data.id}`,
+      onSuccess: () => {
+        // Gift was sent successfully, modal will close automatically
+        console.log('Gift sent successfully');
+      }
+    });
   };
 
   const handleReceiveGift = () => {
-    console.log('Receiving gift:', id);
-    // TODO: Implement receive gift functionality
+    openModal('receive-gift', {
+      giftId: data.id,
+      giftName: `#${data.id}`,
+      onSuccess: () => {
+        // Gift was received successfully, modal will close automatically
+        console.log('Gift received successfully');
+      }
+    });
   };
 
+  // Offer actions
+  // Offer actions are opened via openModal inline where needed
+
   const handleUpgrade = () => {
-    console.log('Upgrading gift:', id);
+    console.log('Upgrading gift:', data.id);
     // TODO: Implement upgrade functionality
   };
 
@@ -158,7 +206,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             <div className="product-sheet__row-note">Model</div>
             <div className="product-sheet__row-title">
               {model.value}
-              <span className="product-sheet__row-rarity">{((model.rarity_per_mille / 10) || 0).toFixed(2)}%</span>
+              <span className="product-sheet__row-rarity">{formatRarity(model.rarity_per_mille || 0)}%</span>
             </div>
           </div>
           <div className="upgraded-gift-modal__row-price">
@@ -187,7 +235,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             <div className="product-sheet__row-note">Backdrop</div>
             <div className="product-sheet__row-title">
               {backdrop.value}
-              <span className="product-sheet__row-rarity">{((backdrop.rarity_per_mille / 10) || 0).toFixed(2)}%</span>
+              <span className="product-sheet__row-rarity">{formatRarity(backdrop.rarity_per_mille || 0)}%</span>
             </div>
           </div>
           <div className="upgraded-gift-modal__row-price">
@@ -215,7 +263,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             <div className="product-sheet__row-note">Symbol</div>
             <div className="product-sheet__row-title">
               {symbol.value}
-              <span className="product-sheet__row-rarity">{((symbol.rarity_per_mille / 10) || 0).toFixed(2)}%</span>
+              <span className="product-sheet__row-rarity">{formatRarity(symbol.rarity_per_mille || 0)}%</span>
             </div>
           </div>
           <div className="upgraded-gift-modal__row-price">
@@ -247,8 +295,8 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
         )}
       </div>
 
-      {/* Share and View Actions - show for market (when no status) */}
-      {!data.status && (
+      {/* Share and View Actions - show for market (when no status), hidden for offers */}
+      {!data.status && !data.offer && (
         <div className="product-sheet__actions">
           {!isNotUpgraded && (
             <a 
@@ -267,7 +315,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             className="product-sheet__btn" 
             type="button"
             onClick={() => {
-              shareGift(id);
+              shareGift(data.id);
             }}
             style={isNotUpgraded  ? { gridColumn: '1 / -1' } : undefined}
           >
@@ -279,8 +327,8 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
         </div>
       )}
 
-      {/* Market Purchase Buttons - show for market (when no status and not hideActions) */}
-      {!data.status && !data.hideActions && (
+      {/* Market Purchase Buttons - show for market (when no status and not hideActions), hidden for offers */}
+      {!data.status && !data.hideActions && !data.offer && (
         <div className="product-sheet__actions">
           <button 
             className="product-sheet__btn" 
@@ -298,13 +346,13 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             disabled={purchaseGiftMutation.isPending}
           >
             {purchaseGiftMutation.isPending ? 'Purchasing...' : 'Buy Gifts'}
-            <span className="product-sheet__price">{formattedPrice} TON</span>
+            <span className="product-sheet__price">{getChannelPrice(price)} TON</span>
           </button>
         </div>
       )}
 
-      {/* Conditional Action Buttons for storage (when status is present) */}
-      {data.status && (
+      {/* Conditional Action Buttons for storage (when status is present), hidden for offers */}
+      {data.status && !data.offer && (
         <div className="product-sheet__actions">
           {data.status === 'active' ? (
             <>
@@ -312,28 +360,38 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
               <button 
                 className="product-sheet__btn product-sheet__btn--error" 
                 type="button" 
-                onClick={() => {
-                  data.onDecline && data.onDecline(id);
+                disabled={removeGiftFromSaleMutation.isPending}
+                onClick={async () => {
+                  try {
+                    await removeGiftFromSaleMutation.mutateAsync(data.id);
+                    showSuccessToast({ message: 'Gift removed from sale successfully!' });
+                    onClose();
+                  } catch (error) {
+                    console.error('Failed to remove gift from sale:', error);
+                    showErrorToast({ message: 'Failed to remove gift from sale. Please try again.' });
+                  }
                 }}
               >
-                Remove Sell
+                {removeGiftFromSaleMutation.isPending ? 'Removing...' : 'Remove Sell'}
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
                 style={{display: 'inline-block'}} 
                 type="button"
+                disabled={editGiftPriceMutation.isPending}
                 onClick={() => {
                   openModal('sell-channel', {
-                    itemName: `#${id}`,
-                    floorPrice: formattedPrice,
+                    itemId: data.id,
+                    itemName: `#${data.id}`,
+                    floorPrice: getChannelPrice(price),
                     changePrice: true,
                     onSubmit: handleChangePrice,
-                    defaultPrice: formattedPrice,
+                    defaultPrice: getChannelPrice(price),
                   });
                 }}
               >
-                Change Price
-                <span className="product-sheet__price">{formattedPrice} TON</span>
+                {editGiftPriceMutation.isPending ? 'Updating...' : 'Change Price'}
+                <span className="product-sheet__price">{getChannelPrice(price)} TON</span>
               </button>
             </>
           ) : isNotUpgraded ? (
@@ -365,15 +423,17 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 className="product-sheet__btn product-sheet__btn--primary" 
                 style={{display: 'inline-block', gridColumn: '1 / -1'}}
                 type="button"
+                disabled={sellItemMutation.isPending}
                 onClick={() => {
                   openModal('sell-channel', {
-                    itemName: `#${id}`,
+                    itemId: data.id,
+                    itemName: `#${data.id}`,
                     floorPrice: 0,
                     onSubmit: handleSellGift,
                   });
                 }}
               >
-                Sell
+                {sellItemMutation.isPending ? 'Listing...' : 'Sell'}
               </button>
             </>
           ) : (
@@ -398,15 +458,58 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 className="product-sheet__btn product-sheet__btn--primary" 
                 style={{display: 'inline-block', gridColumn: '1 / -1'}}
                 type="button"
+                disabled={sellItemMutation.isPending}
                 onClick={() => {
                   openModal('sell-channel', {
-                    itemName: `#${id}`,
+                    itemId: data.id,
+                    itemName: `#${data.id}`,
                     floorPrice: 0,
                     onSubmit: handleSellGift,
                   });
                 }}
               >
-                Sell
+                {sellItemMutation.isPending ? 'Listing...' : 'Sell'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Offer-side contextual actions: mirror card buttons */}
+      {data.offer && (
+        <div className="product-sheet__actions" style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+          {data.offerSide === 'received' ? (
+            <>
+              
+              <button 
+                className="product-sheet__btn product-sheet__btn--error" 
+                type="button"
+                onClick={() => openModal('cancel-offer', { offer: data.offer, offerSide: data.offerSide })}
+              >
+                Decline Offer
+              </button>
+              <button 
+                className="product-sheet__btn product-sheet__btn--primary" 
+                type="button"
+                onClick={() => openModal('accept-offer', { offer: data.offer, offerSide: data.offerSide })}
+                style={{display: 'inline-block'}}
+              >
+                Accept Offer
+                {data.offer?.price !== undefined && (
+                  <span className="product-sheet__price">{getChannelPrice(data.offer.price)} TON</span>
+                )}
+              </button>
+            </>
+            
+          ) : (
+            <>
+              <button 
+                className="product-sheet__btn product-sheet__btn--error" 
+                type="button"
+                onClick={() => openModal('cancel-offer', { offer: data.offer, offerSide: data.offerSide })}
+                style={{width: '100%'}}
+              >
+                Cancel Offer
               </button>
             </>
           )}

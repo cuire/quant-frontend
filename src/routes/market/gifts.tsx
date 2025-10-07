@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useMarketGiftsInfinite } from '@/lib/api-hooks';
+import { useMarketGiftsInfinite, useGiftsWithFilters } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
 import { GiftFilters } from '@/components/MarketHeader';
+import { ActiveFilters } from '@/components/ActiveFilters';
 import { GiftCurrentFilters, giftFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
 import { useEffect, useRef, useCallback } from 'react';
 import { useModal } from '@/contexts/ModalContext';
@@ -23,7 +24,11 @@ function GiftsPage() {
   const { openModal } = useModal();
   
   // Use the global filters hook
-  const { handleFilterChange, currentFilters, apiFilters } = useGlobalFilters(search, navigate, 'gift');
+  const { handleFilterChange, currentFilters, apiFilters, resetFilters } = useGlobalFilters(search, navigate, 'gift');
+  
+  // Get symbols data for filter badges
+  const { data: giftsMetadata } = useGiftsWithFilters();
+  const allSymbols = giftsMetadata?.symbols || [];
   
   // Use infinite query for gifts with filters
   const {
@@ -35,12 +40,48 @@ function GiftsPage() {
     isError,
     error,
   } = useMarketGiftsInfinite(search.limit, apiFilters);
-
+  
+  // Get bounds from the market gifts query (first page has bounds)
+  const giftBounds = giftsData?.pages[0]?.bounds;
+  
   // Flatten all pages of gifts data
   const gifts = giftsData?.pages.flatMap(page => page.gifts) || [];
   
   // Get models from the first page (they should be the same across all pages)
   const models = giftsData?.pages[0]?.models || [];
+
+  // Handler to remove individual filter
+  const handleRemoveFilter = (filterKey: string) => {
+    const giftFilters = currentFilters as GiftCurrentFilters;
+    const updatedFilters: GiftCurrentFilters = { ...giftFilters };
+    
+    switch (filterKey) {
+      case 'collection':
+        updatedFilters.collection = 'All';
+        break;
+      case 'model':
+        updatedFilters.model = 'All';
+        break;
+      case 'background':
+        updatedFilters.background = 'All';
+        break;
+      case 'symbol':
+        updatedFilters.symbol = 'All';
+        break;
+      case 'price':
+        updatedFilters.minPrice = undefined;
+        updatedFilters.maxPrice = undefined;
+        break;
+      case 'showPremarket':
+        updatedFilters.showPremarket = true; // Reset to default
+        break;
+      case 'showUnupgraded':
+        updatedFilters.showUnupgraded = true; // Reset to default
+        break;
+    }
+    
+    handleFilterChange(updatedFilters);
+  };
 
   // Handler for opening gift modal
   const handleGiftClick = (gift: MarketGift) => {
@@ -127,6 +168,16 @@ function GiftsPage() {
         onFilterChange={handleFilterChange}
         currentFilters={currentFilters as GiftCurrentFilters}
         models={models}
+        bounds={giftBounds}
+      />
+
+      <ActiveFilters
+        filters={currentFilters as GiftCurrentFilters}
+        filterType="gift"
+        onClearAll={resetFilters}
+        onRemoveFilter={handleRemoveFilter}
+        symbols={allSymbols}
+        bounds={giftBounds}
       />
 
       {/* Market Content */}
@@ -171,6 +222,7 @@ function GiftsPage() {
                   ]}
                   title={gift.full_name || 'Unknown Gift'}
                   giftNumber={`#${gift.id}`}
+                  gift_frozen_until={gift.gift_frozen_until}
                   price={Math.round(Number(gift.price) || 0)}
                   action="buy-or-cart"
                   onClick={() => handleGiftClick(gift)}

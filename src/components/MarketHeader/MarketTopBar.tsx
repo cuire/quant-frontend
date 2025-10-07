@@ -5,6 +5,7 @@ import { Link } from '../Link/Link';
 import './MarketHeader.css';
 import { TonConnectButton } from '@tonconnect/ui-react';
 import { useModal } from '@/contexts/ModalContext';
+import { useNavigate } from '@tanstack/react-router';
 
 // Icon components for info button
 const getIconSvg = (symbol: string) => {
@@ -93,6 +94,7 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
   const { data: user } = useUser();
   const balance = propBalance ?? user?.balance ?? 0;
   const { openModal } = useModal();
+  const navigate = useNavigate();
 
   const handleSettingsClick = () => {
     if (onSettingsClick) {
@@ -120,7 +122,17 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
   return (
     <div className={b()}>
       <div className={e('second-row')}>
-        {showConnectButton ? <div /> : (
+        {showConnectButton ? (
+          <button 
+            className={e('close-button')} 
+            onClick={() => navigate({ to: '..' })}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.99998 12L6.66665 8.66667L9.99998 5.33333" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className={e('close-text')}>Back</span>
+          </button>
+        ) : (
           showSettings ? (
             <button 
               className={e('telegram-badge')} 
@@ -176,7 +188,7 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
         <div className={e('right-section')}>
 
           {showConnectButton ? (
-            <TonConnectButton />
+            <TonConnectButton style={{ fontSize:'10px !important' }} />
           ) : (
           <Link className={e('btn-group')} href="/wallet">
             <div className={e('balance-icon')}>

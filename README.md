@@ -42,6 +42,38 @@ npm run {script}
 # Example: npm run build
 ```
 
+## Environment Variables
+
+The application can be configured using the following environment variables:
+
+### API Configuration
+- `VITE_API_URL` - Base URL for the API (default: `https://quant-marketplace-dev.top`)
+
+### Telegram Configuration
+- `VITE_TELEGRAM_CHANNEL_URL` - URL to your Telegram channel (default: `https://t.me/quantmarketplace`)
+- `VITE_TELEGRAM_BOT_USERNAME` - Your Telegram bot username (default: `quant_marketplace_bot`)
+
+### App Configuration
+- `VITE_COMMISSION_RATE` - Commission rate as decimal (default: `0.05` = 5%)
+
+### Guide Links Configuration
+
+You can customize the guide links shown in the Guide modal. The titles and descriptions are static, but the URLs can be configured via environment variables:
+
+- `VITE_GUIDE_LINK_CHANNEL_SALE` - Link for "How to put a channel up for sale" guide (default: `https://telegra.ph/How-to-Sell-Your-Channel-on-QuantMarket-12-23`)
+- `VITE_GUIDE_LINK_UPGRADED_GIFTS` - Link for "How to Sell Upgraded Gifts" guide (default: `https://telegra.ph/How-to-Sell-Upgraded-Gifts-12-23`)
+- `VITE_GUIDE_LINK_UNIMPROVED_GIFTS` - Link for "How to Sell Unimproved Gifts" guide (default: `https://telegra.ph/How-to-Sell-Unimproved-Gifts-12-23`)
+- `VITE_GUIDE_LINK_PREMARKET` - Link for "About how premarket works with us" guide (default: `https://telegra.ph/About-Premarket-12-23`)
+
+Example:
+```bash
+VITE_GUIDE_LINK_CHANNEL_SALE=https://docs.mysite.com/channel-sale
+VITE_GUIDE_LINK_UPGRADED_GIFTS=https://docs.mysite.com/upgraded-gifts
+```
+
+### Debug Configuration
+- `VITE_MOCK_AUTH_DATA` - Mock authentication data for testing
+
 ## Create Bot and Mini App
 
 Before you start, make sure you have already created a Telegram Bot. Here is

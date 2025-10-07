@@ -76,3 +76,36 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+/* Simple modal styles */
+.wallet-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 24, 29, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.wallet-modal {
+  width: 92vw;
+  max-width: 420px;
+  background: #212A33;
+  border-radius: 12px;
+  border: 1px solid #2F3C49;
+  padding: 12px;
+}
+
+.wallet-modal__title {
+  color: #E7EEF7;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.wallet-modal__field {
+  margin: 8px 0 4px 0;
+}

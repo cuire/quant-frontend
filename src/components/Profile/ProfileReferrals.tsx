@@ -42,7 +42,7 @@ export function ProfileReferrals({
         </div>
 
         <div className="profile-referrals__arrow">
-          <svg width="8" height="17" viewBox="0 0 8 17" fill="none">
+          <svg width="4" height="8.5" viewBox="0 0 8 17" fill="none">
             <path d="M1 1L7 8.5L1 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
