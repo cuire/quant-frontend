@@ -295,7 +295,6 @@ function ActivityPage() {
                     date={group.date}
                     activities={group.activities}
                     giftNameById={getGiftNameById}
-                    giftIconById={getGiftIconById}
                     onActivityClick={handleActivityClick}
                   />
                 ))}

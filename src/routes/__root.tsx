@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router';
+import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { BottomNav } from '@/components/Navigation';
 import { Modal } from '@/components/Modal';
 import { ModalProvider } from '@/contexts/ModalContext';
@@ -15,7 +15,6 @@ export const Route = createRootRoute({
 });
 
 function Root() {
-  const location = useLocation();
   // const lp = useLaunchParams();
 
   useEffect(() => {

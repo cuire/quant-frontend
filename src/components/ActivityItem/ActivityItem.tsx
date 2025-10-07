@@ -5,11 +5,10 @@ import { GiftIcon, GiftSlugIcon } from '../GiftIcon';
 interface ActivityItemProps {
   activity: Activity;
   giftName: string;
-  giftIcon: string;
   onItemClick: (activity: Activity) => void;
 }
 
-export function ActivityItem({ activity, giftName, giftIcon, onItemClick }: ActivityItemProps) {
+export function ActivityItem({ activity, giftName, onItemClick }: ActivityItemProps) {
   const getTypeDisplay = (type: string) => {
     const typeMap: Record<string, string> = {
       'purchase': 'Purchase',
