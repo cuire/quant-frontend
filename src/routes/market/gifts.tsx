@@ -8,6 +8,7 @@ import { GiftCurrentFilters, giftFiltersSearchSchema, useGlobalFilters } from '@
 import { useEffect, useRef, useCallback } from 'react';
 import { useModal } from '@/contexts/ModalContext';
 import { MarketGift } from '@/lib/api';
+import { openMarketGiftModal, useDeclineGift } from '@/lib/gift-modals';
 
 // Search schema for gifts page
 const searchSchema = giftFiltersSearchSchema;
@@ -22,6 +23,7 @@ function GiftsPage() {
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const { openModal } = useModal();
+  const handleDeclineGift = useDeclineGift();
   
   // Use the global filters hook
   const { handleFilterChange, currentFilters, apiFilters, resetFilters } = useGlobalFilters(search, navigate, 'gift');
@@ -85,27 +87,7 @@ function GiftsPage() {
 
   // Handler for opening gift modal
   const handleGiftClick = (gift: MarketGift) => {
-    // Find the matching model from the gift's models array
-    const model = gift.attributes.find((a: any) => a.type === 'model');
-    const backdrop = gift.attributes.find((a: any) => a.type === 'backdrop');
-    const symbol = gift.attributes.find((a: any) => a.type === 'symbol');
-
-    console.log('gift', gift,  model, backdrop, symbol);
-    
-    // Open modal for both upgraded and non-upgraded gifts
-    // For non-upgraded gifts (slug "None-None"), attributes might not exist
-    openModal('upgraded-gift', {
-      id: gift.id,
-      giftId: gift.gift_id,
-      giftSlug: gift.slug,
-      price: gift.price,
-      name: gift.full_name,
-      num: gift.num,
-      gift_frozen_until: gift.gift_frozen_until,
-      model: model || { value: '', rarity_per_mille: 0, floor: 0 },
-      backdrop: backdrop || { value: '', rarity_per_mille: 0, floor: 0, centerColor: '000000', edgeColor: '000000' },
-      symbol: symbol || { value: '', rarity_per_mille: 0, floor: 0 },
-    });
+    openMarketGiftModal(gift, openModal, gift.my_gift, gift.my_gift ? handleDeclineGift : undefined);
   };
 
   // Wrapped fetchNextPage with logging
@@ -227,6 +209,10 @@ function GiftsPage() {
                   action="buy-or-cart"
                   onClick={() => handleGiftClick(gift)}
                   style={{ cursor: 'pointer' }}
+                  {...(gift.my_gift && {
+                    variant: 'my-channel',
+                    giftStatus: 'active',
+                  })}
                 />
               );
             })}

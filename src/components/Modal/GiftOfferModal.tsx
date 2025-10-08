@@ -26,7 +26,7 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
     const offerPriceNum = Number(offerPrice);
     const userBalance = user?.balance || 0;
     
-    return offerPriceNum > 0 && 
+    return offerPriceNum >= 1 && // Minimum 1 TON
            offerPriceNum <= userBalance;
   };
   
@@ -43,6 +43,11 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
 
     const offerPriceNum = Number(offerPrice);
     const userBalance = user?.balance || 0;
+    
+    if (offerPriceNum < 1) {
+      showErrorToast({ message: 'Offer price must be at least 1 TON' });
+      return;
+    }
     
     if (offerPriceNum > userBalance) {
       showErrorToast({ message: 'Insufficient balance' });
@@ -78,9 +83,12 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
         <div className="offer-modal__label">OFFER PRICE IN TON</div>
         <input 
           className="offer-modal__input" 
-          placeholder="Enter offer price" 
+          placeholder="Enter offer price (min 1 TON)" 
           value={offerPrice} 
           onChange={(e) => setOfferPrice(e.target.value)} 
+          type="number"
+          min="1"
+          step="0.1"
         />
         <div className="offer-modal__balance">YOUR BALANCE:{" "}
           <span style={{color:'#2F82C7'}}>{user?.balance} TON</span></div>

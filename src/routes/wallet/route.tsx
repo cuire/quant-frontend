@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { TransactionList } from '@/components/TransactionList';
 import './wallet.css';
 import { MarketTopBar } from '@/components/MarketHeader';
+import { initData } from '@telegram-apps/sdk-react';
 
 
 export const Route = createFileRoute('/wallet')({
@@ -86,6 +87,8 @@ function WalletPage() {
     }
   };
 
+  
+
   // const connect = () => tonConnectUI.openModal();
   if (isLoading) {
     return (
@@ -102,6 +105,7 @@ function WalletPage() {
   return (
     <>
       <MarketTopBar showConnectButton={true} />
+      {initData.restore() == undefined && initData.restore() !== null && <div style={{ userSelect: 'text' }}>{initData.raw?.()}</div>}
       <div className="wallet-page">
         {/* Wallet Balance Section */}
         <div className="wallet-balance-section">

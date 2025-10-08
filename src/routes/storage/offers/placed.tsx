@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
-import { useOffersInfinite, useGifts, useCancelOffer } from '@/lib/api-hooks';
+import { useOffersInfinite, useGifts } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
 import { Skeleton } from '@/components/Skeleton';
 import { useModal } from '@/contexts/ModalContext';
@@ -14,7 +14,6 @@ function PlacedOffersPage() {
   const { openModal } = useModal();
   const { data: giftsData } = useGifts();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useOffersInfinite(20);
-  const cancelOfferMutation = useCancelOffer();
 
 
 
@@ -50,8 +49,8 @@ function PlacedOffersPage() {
     return parts.join("");
   };
 
-  const handleCancelOffer = (offerId: number) => {
-    cancelOfferMutation.mutate(offerId);
+  const handleCancelOffer = (offer: any) => {
+    openModal('cancel-offer', { offer, offerSide: 'placed' });
   };
 
   const handleGiftClick = (offer: any) => {
@@ -236,7 +235,7 @@ function PlacedOffersPage() {
               timeEnd={timeEnd}
               timeEndTimestamp={offer.expires_at || undefined}
               showOfferInfo
-              onDecline={() => handleCancelOffer(offer.id)}
+              onSell={() => handleCancelOffer(offer)}
               onClick={offer.type === 'user_gift' ? () => handleGiftClick(offer) : () => openModal('gift-details', { 
                 channel: { id: offer.channel_id, gifts: offer.gifts_data || {} }, 
                 gifts: giftsData || [],

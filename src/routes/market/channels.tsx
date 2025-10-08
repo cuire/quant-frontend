@@ -8,6 +8,7 @@ import { useChannelsInfinite, useGifts, useChannelsBounds } from '@/lib/api-hook
 import { channelFiltersSearchSchema, useGlobalFilters, CurrentFilters } from '@/lib/filters';
 import { getChannelPrice } from '@/helpers/priceUtils';
 import { useEffect, useRef, useCallback } from 'react';
+import { openMarketChannelModal, useDeclineChannel } from '@/lib/gift-modals';
 
 // Search schema for channels page that extends base schema
 const searchSchema = channelFiltersSearchSchema;
@@ -22,6 +23,7 @@ function ChannelsPage() {
   const { openModal } = useModal();
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const handleDeclineChannel = useDeclineChannel();
   
   // Use the global filters hook
   const { handleFilterChange, currentFilters, apiFilters, resetFilters } = useGlobalFilters(search, navigate);
@@ -220,7 +222,13 @@ function ChannelsPage() {
   }, [hasNextPage, isFetchingNextPage, isLoading, channels.length, channelsData, wrappedFetchNextPage]);
 
   const handleGiftClick = (channel: any) => {
-    openModal('gift-details', { channel, gifts });
+    openMarketChannelModal(
+      channel, 
+      gifts, 
+      openModal, 
+      channel.my_channel, 
+      channel.my_channel ? handleDeclineChannel : undefined
+    );
   };
 
   return (
@@ -350,6 +358,10 @@ function ChannelsPage() {
                         price={getChannelPrice(channel.price)}
                         isFastSale={channel.type === 'fast'}
                         onClick={() => handleGiftClick(channel)}
+                        {...(channel.my_channel && {
+                          variant: 'my-channel',
+                          channelStatus: 'active',
+                        })}
                       />
                     );
                   })}

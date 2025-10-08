@@ -931,6 +931,10 @@
     font-size: 18px;
 }
 
+.product-sheet__close span {
+    margin-top: -1px;
+}
+
 .product-sheet__title {
     display: flex;
     align-items: center;

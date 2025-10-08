@@ -41,6 +41,17 @@ textarea {
   font-family: inherit;
 }
 
+/* Hide number input arrows (spinners) globally */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .gifts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

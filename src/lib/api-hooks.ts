@@ -541,6 +541,8 @@ export const useRemoveGiftFromSale = () => {
       // Invalidate user gifts queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      // Also invalidate market gifts to update the market view
+      queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
     },
   });
 };
@@ -557,6 +559,8 @@ export const useRemoveChannelFromSale = () => {
       queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
       queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+      // Also invalidate market channels to update the market view
+      queryClient.invalidateQueries({ queryKey: ['channelsInfinite'] });
     },
   });
 };

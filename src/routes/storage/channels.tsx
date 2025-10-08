@@ -6,6 +6,7 @@ import { Gift } from '@/components/Gift';
 import { Skeleton } from '@/components/Skeleton';
 import { useModal } from '@/contexts/ModalContext';
 import { getGiftIcon } from '@/lib/images';
+import { openUserGiftModal, useDeclineGift, useDeclineChannel } from '@/lib/gift-modals';
 import './activity.css';
 
 export const Route = createFileRoute('/storage/channels')({
@@ -17,6 +18,8 @@ function ChannelsPage() {
   const { data: giftsData } = useGifts();
   const sellItemMutation = useSellItem();
   const sellChannelMutation = useSellChannel();
+  const handleDeclineUserGift = useDeclineGift();
+  const handleDeclineChannel = useDeclineChannel();
   const [activeSubTab, setActiveSubTab] = useLastTab('storage_channels_subtab', 'channels');
   
   const {
@@ -85,12 +88,6 @@ function ChannelsPage() {
     }
   };
 
-  const handleDeclineChannel = (id: string) => {
-    console.log('Declining channel', id);
-    // TODO: Implement actual API call to decline channel
-    // await declineChannel(channel.id);
-  };
-
   const handleSellUserGift = async (id: string, price: number, duration?: number) => {
     console.log('Selling user gift:', id, price, 'TON', duration ? `for ${duration}h` : '');
     
@@ -112,49 +109,8 @@ function ChannelsPage() {
     }
   };
 
-  const handleDeclineUserGift = (id: string) => {
-    console.log('Declining user gift', id);
-    // TODO: Implement actual API call to decline user gift
-    // await declineUserGift(userGift.id);
-  };
-
   const handleGiftClick = (userGift: any) => {
-    // Extract attributes from user gift data
-    const model = userGift.model_data ? {
-      value: userGift.model_data.name || '',
-      rarity_per_mille: userGift.model_data.rarity_per_mille || 0,
-      floor: userGift.model_data.floor || 0
-    } : { value: '', rarity_per_mille: 0, floor: 0 };
-
-    const backdrop = userGift.backdrop_data ? {
-      value: userGift.backdrop_data.name || '',
-      rarity_per_mille: userGift.backdrop_data.rarity_per_mille || 0,
-      floor: userGift.backdrop_data.floor || 0,
-      centerColor: userGift.backdrop_data.center_color || '000000',
-      edgeColor: userGift.backdrop_data.edge_color || '000000'
-    } : { value: '', rarity_per_mille: 0, floor: 0, centerColor: '000000', edgeColor: '000000' };
-
-    const symbol = userGift.symbol_data ? {
-      value: userGift.symbol_data.name || '',
-      rarity_per_mille: userGift.symbol_data.rarity_per_mille || 0,
-      floor: userGift.symbol_data.floor || 0
-    } : { value: '', rarity_per_mille: 0, floor: 0 };
-
-    // Open upgraded-gift modal with status and onDecline
-    openModal('upgraded-gift', {
-      id: userGift.id,
-      giftId: String(userGift.gift_data.id),
-      giftSlug: userGift.slug,
-      name: userGift.gift_data?.full_name || `Gift ${userGift.gift_id}`,
-      num: userGift.id,
-      gift_frozen_until: userGift.gift_frozen_until || null,
-      price: userGift.price || 0,
-      model,
-      backdrop,
-      symbol,
-      status: userGift.status,
-      onDecline: handleDeclineUserGift,
-    });
+    openUserGiftModal(userGift, openModal, handleDeclineUserGift);
   };
 
   return (
@@ -313,14 +269,14 @@ function ChannelsPage() {
           <Gift
             key={`gift-${userGift.id}`}
             items={[{
-              id: userGift.gift_id,
-              name: userGift.gift_data.full_name || `Gift ${userGift.gift_id}`,
+              id: userGift.gift_data.id,
+              name: userGift.gift_data.full_name || `Gift ${userGift.gift_data.id}`,
               icon: userGift.slug && userGift.slug !== 'None-None' 
                 ? ''
                 : getGiftIcon(userGift.gift_data.id),
               giftSlug: userGift.slug,
             }]}
-            title={userGift.gift_data.full_name || `Gift ${userGift.gift_id}`}
+            title={userGift.gift_data.full_name || `Gift ${userGift.gift_data.id}`}
             giftNumber={`#${userGift.id}`}
             price={userGift.price}
             variant="my-channel"

@@ -265,7 +265,6 @@ button {
   display: flex;
   align-items: flex-start;
   gap: 2px;
-  height: 70px;
 }
 
 .profile-stats__card-content {
@@ -273,7 +272,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 .profile-stats__card-value {

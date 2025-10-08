@@ -51,6 +51,8 @@ export interface Channel {
   created_at?: string;
   updated_at?: string;
   gifts?: Record<number, number>;  // { gift_id: quantity }
+  my_channel?: boolean;
+  status?: string; // For market channels that belong to the user
 }
 
 export interface UserChannel extends Channel {

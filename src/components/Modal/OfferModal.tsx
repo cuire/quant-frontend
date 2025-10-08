@@ -21,7 +21,7 @@ export const OfferModal = ({ onClose, data }: OfferModalProps) => {
     const userBalance = user?.balance || 0;
     
     return channelPrice && 
-           offerPriceNum > 0 && 
+           offerPriceNum >= 1 && // Minimum 1 TON
            offerPriceNum < channelPrice && 
            offerPriceNum <= userBalance;
   };
@@ -39,6 +39,11 @@ export const OfferModal = ({ onClose, data }: OfferModalProps) => {
 
     const offerPriceNum = Number(offerPrice);
     const channelPrice = data.channel.price;
+
+    if (offerPriceNum < 1) {
+      console.error('Offer price must be at least 1 TON');
+      return;
+    }
 
     if (offerPriceNum >= channelPrice) {
       console.error('Offer price must be less than channel price');
@@ -83,9 +88,12 @@ export const OfferModal = ({ onClose, data }: OfferModalProps) => {
         <div className="offer-modal__label">OFFER PRICE IN TON</div>
         <input 
           className="offer-modal__input" 
-          placeholder="Enter offer price" 
+          placeholder="Enter offer price (min 1 TON)" 
           value={offerPrice} 
           onChange={(e) => setOfferPrice(e.target.value)} 
+          type="number"
+          min="1"
+          step="0.1"
         />
         <div className="offer-modal__balance">YOUR BALANCE:{" "}
           <span style={{color:'#2F82C7'}}>{user?.balance} TON</span></div>

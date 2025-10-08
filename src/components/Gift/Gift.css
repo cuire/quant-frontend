@@ -445,6 +445,22 @@
   transform: translateY(0);
 }
 
+.gift__price-button--cancel {
+  background: rgba(80, 52, 52, 1);
+  color: rgba(255, 125, 127, 1);
+}
+
+.gift__price-button--cancel:hover {
+  background: linear-gradient(45deg, rgba(100, 62, 62, 1), rgba(120, 72, 72, 1));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(255, 125, 127, 0.3);
+}
+
+.gift__price-button--cancel:active {
+  background: linear-gradient(45deg, rgba(70, 47, 47, 1), rgba(90, 57, 57, 1));
+  transform: translateY(0);
+}
+
 .gift__diamond-icon {
   width: 13px;
   height: 12px;
