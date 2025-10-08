@@ -105,7 +105,6 @@ function WalletPage() {
   return (
     <>
       <MarketTopBar showConnectButton={true} />
-      {initData.restore() == undefined && initData.restore() !== null && <div style={{ userSelect: 'text' }}>{initData.raw?.()}</div>}
       <div className="wallet-page">
         {/* Wallet Balance Section */}
         <div className="wallet-balance-section">

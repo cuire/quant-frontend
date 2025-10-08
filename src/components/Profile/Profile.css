@@ -135,6 +135,18 @@ button {
   font-weight: 400;
 }
 
+.profile-info__username--clickable {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.profile-info__username--clickable:hover {
+  background: rgba(79, 124, 210, 0.15);
+  color: #4F7CD2;
+}
+
 .profile-info__badges {
   display: flex;
   gap: 5px;

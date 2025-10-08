@@ -1,3 +1,5 @@
+import { copyTextToClipboard, initData } from "@telegram-apps/sdk-react";
+
 interface Badge {
   text: string;
   color: 'orange' | 'green' | 'blue';
@@ -43,7 +45,11 @@ export function ProfileInfo({
       </div>
 
       <div className="profile-info__details">
-        <div className="profile-info__username">
+        <div 
+          className="profile-info__username profile-info__username--clickable"
+          onClick={() => copyTextToClipboard(initData.restore() == undefined ? initData.raw?.() || '' : '')}
+          style={{ cursor: 'pointer' }}
+        >
           {username}
         </div>
         <div className="profile-info__badges">
