@@ -1,4 +1,5 @@
-import type { FC } from 'react';
+import { type FC, useState, useEffect } from 'react';
+import Lottie from 'lottie-react';
 
 interface GiftIconProps {
   giftId: string;
@@ -94,8 +95,37 @@ export const UpgradedGiftSlugIcon: FC<UpgradedGiftSlugIconProps> = ({
 }) => {
   const iconUrl = `https://nft.fragment.com/gift/${giftSlug}.medium.jpg`;
   
+  // Lottie animation state
+  const [lottieData, setLottieData] = useState<any>(null);
+  const [lottieError, setLottieError] = useState(false);
+  
   // Don't set width/height attributes if size is a percentage (use CSS instead)
   const isPercentage = size.includes('%');
+  
+  // Fetch Lottie animation when component mounts
+  useEffect(() => {
+    const fetchLottieAnimation = async () => {
+      if (!giftSlug || giftSlug === 'None-None') return;
+      
+      try {
+        const lottieUrl = `https://nft.fragment.com/gift/${giftSlug}.lottie.json`;
+        const response = await fetch(lottieUrl);
+        
+        if (!response.ok) {
+          throw new Error('Lottie animation not found');
+        }
+        
+        const animationData = await response.json();
+        setLottieData(animationData);
+        setLottieError(false);
+      } catch (error) {
+        console.error('Failed to load Lottie animation:', error);
+        setLottieError(true);
+      }
+    };
+
+    fetchLottieAnimation();
+  }, [giftSlug]);
   
   const imgElement = (
     <img 
@@ -111,14 +141,36 @@ export const UpgradedGiftSlugIcon: FC<UpgradedGiftSlugIconProps> = ({
     />
   );
 
-  // If no title or subtitle, just return the image
-  if (!title && !subtitle) {
+  // Render Lottie animation if available
+  const renderContent = () => {
+    if (lottieData && !lottieError) {
+      return (
+        <Lottie 
+          animationData={lottieData}
+          loop={false}
+          autoplay={true}
+          style={{ 
+            width: isPercentage ? size : `${size}px`, 
+            height: isPercentage ? size : `${size}px`,
+            borderRadius: '12px',
+            marginBottom: '4px',
+            overflow: 'hidden'
+          }}
+          className={className}
+        />
+      );
+    }
     return imgElement;
+  };
+
+  // If no title or subtitle, just return the content
+  if (!title && !subtitle) {
+    return renderContent();
   }
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      {imgElement}
+      {renderContent()}
       <div style={{
         position: 'absolute',
         bottom: 14,
@@ -126,14 +178,16 @@ export const UpgradedGiftSlugIcon: FC<UpgradedGiftSlugIconProps> = ({
         transform: 'translateX(-50%)',
         textAlign: 'center',
         width: '100%',
-        padding: '4px'
+        padding: '4px',
+        zIndex: 10
       }}>
         {title && (
           <div style={{
             fontSize: '20px',
             fontWeight: 700,
             color: '#fff',
-            lineHeight: 1.2
+            lineHeight: 1.2,
+            textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)'
           }}>
             {title}
           </div>
@@ -144,7 +198,8 @@ export const UpgradedGiftSlugIcon: FC<UpgradedGiftSlugIconProps> = ({
             color: '#ffffff65',
             fontWeight: 500,
             lineHeight: 1.2,
-            marginTop: title ? '2px' : 0
+            marginTop: title ? '2px' : 0,
+            textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)'
           }}>
             {subtitle}
           </div>

@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
+import { copyTextToClipboard, initData } from "@telegram-apps/sdk-react";
 import { useUser, useUpdateLanguage, useUpdateTheme, useUpdateSetting } from '@/lib/api-hooks';
 import zh from '@/assets/flags/zh.png';
 import ru from '@/assets/flags/ru.png';
@@ -99,7 +100,9 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
 
       <div className="market-header__sheet-header">
         <div>
-          <div className="market-header__sheet-title">Settings privacy</div>
+          <div className="market-header__sheet-title"          
+           onClick={() => copyTextToClipboard(initData.restore() == undefined ? initData.raw?.() || '' : '')}
+          >Settings privacy</div>
         </div>
         <button 
           className="market-header__sheet-close"

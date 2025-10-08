@@ -4,6 +4,7 @@ import { NftBadge } from '@/components/NftBadge/NftBadge';
 import { CountdownTimer } from '../CountdownTimer';
 import { getChannelPrice } from '@/helpers/priceUtils';
 import { shareChannel } from '@/helpers/shareUtils';
+import { parseGiftDataWithArray } from '@/helpers/giftDataUtils';
 import { useRemoveChannelFromSale, useEditChannelPrice, useSellChannel, useReturnChannel, useRemoveChannel } from '@/lib/api-hooks';
 import { useToast } from '@/hooks/useToast';
 
@@ -101,45 +102,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
   const offerSide = data.offerSide as 'received' | 'placed' | undefined;
   
   // Transform gifts object to items array if needed
-  const items = channel.items || (channel.gifts ? (() => {
-    const channelGifts = channel.gifts || {};
-    const itemsArray = [];
-    
-    // Check if gifts has upgraded structure at root level
-    if ('upgraded' in channelGifts && typeof channelGifts === 'object') {
-      // Structure: { upgraded: { modelId: [backdropIds] } }
-      for (const [modelId, backdropIds] of Object.entries(channelGifts.upgraded || {})) {
-        const foundGift = gifts.find((gift: any) => gift.id === modelId);
-        
-        // Ensure backdropIds is an array and get its length safely
-        const quantity = Array.isArray(backdropIds) ? backdropIds.length : 1;
-        
-        itemsArray.push({
-          id: modelId,
-          name: foundGift?.short_name || foundGift?.full_name || `Gift ${modelId}`,
-          icon: `https://FlowersRestricted.github.io/gifts/${modelId}/default.png`,
-          quantity: quantity,
-          type: 'nft'
-        });
-      }
-    } else {
-      // Simple structure: { giftId: quantity }
-      for (const [gift_id, quantity] of Object.entries(channelGifts)) {
-        if (typeof quantity === 'number') {
-          const foundGift = gifts.find((gift: any) => gift.id === gift_id);
-          itemsArray.push({
-            id: gift_id,
-            name: foundGift?.full_name || foundGift?.short_name || `Gift ${gift_id}`,
-            icon: `https://FlowersRestricted.github.io/gifts/${gift_id}/default.png`,
-            quantity: quantity,
-            type: 'item'
-          });
-        }
-      }
-    }
-    
-    return itemsArray;
-  })() : []);
+  const items = channel.items || (channel.gifts ? parseGiftDataWithArray(channel.gifts, gifts) : []);
   
   // Generate title and other properties like in the routes file
   const generateChannelTitle = (gifts: any[], isModal = false) => {

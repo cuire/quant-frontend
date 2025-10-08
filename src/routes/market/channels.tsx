@@ -7,6 +7,7 @@ import { useModal } from '@/contexts/ModalContext';
 import { useChannelsInfinite, useGifts, useChannelsBounds } from '@/lib/api-hooks';
 import { channelFiltersSearchSchema, useGlobalFilters, CurrentFilters } from '@/lib/filters';
 import { getChannelPrice } from '@/helpers/priceUtils';
+import { parseGiftDataWithArray } from '@/helpers/giftDataUtils';
 import { useEffect, useRef, useCallback } from 'react';
 import { openMarketChannelModal, useDeclineChannel } from '@/lib/gift-modals';
 
@@ -270,40 +271,7 @@ function ChannelsPage() {
                     const channelGifts = channel.gifts || {};
                     
                     // Convert gifts to array format, handling both simple and upgraded structures
-                    const channelGiftsArray = [];
-                    
-                    if (channelGifts) {
-                      // Check if gifts has upgraded structure at root level
-                      if ('upgraded' in channelGifts && typeof channelGifts === 'object') {
-                        // Structure: { upgraded: { modelId: [backdropIds] } }
-                        for (const [modelId, backdropIds] of Object.entries(channelGifts.upgraded || {})) {
-                          const foundGift = gifts.find((gift) => gift.id === modelId);
-                          
-                          // Ensure backdropIds is an array and get its length safely
-                          const quantity = Array.isArray(backdropIds) ? backdropIds.length : 1;
-                          
-                          channelGiftsArray.push({
-                            id: modelId,
-                            name: foundGift?.full_name ||foundGift?.short_name || 'Unknown',
-                            quantity: quantity,
-                            type: 'nft' as const
-                          });
-                        }
-                      } else {
-                        // Simple structure: { giftId: quantity }
-                        for (const [gift_id, quantity] of Object.entries(channelGifts)) {
-                          if (typeof quantity === 'number') {
-                            const foundGift = gifts.find((gift) => gift.id === gift_id);
-                            channelGiftsArray.push({
-                              id: gift_id,
-                              name: foundGift?.full_name || foundGift?.short_name || 'Unknown',
-                              quantity: quantity,
-                              type: 'item' as const
-                            });
-                          }
-                        }
-                      }
-                    }
+                    const channelGiftsArray = parseGiftDataWithArray(channelGifts, gifts);
 
                     const generateChannelTitle = (gifts: any[], isModal = false) => {
                       if (!gifts || gifts.length === 0) return "Empty Channel";

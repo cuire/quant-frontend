@@ -4,6 +4,7 @@ import { useOffersInfinite, useGifts } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
 import { useModal } from '@/contexts/ModalContext';
+import { parseGiftData } from '@/helpers/giftDataUtils';
 import '../activity.css';
 
 export const Route = createFileRoute('/storage/offers/received')({
@@ -171,34 +172,7 @@ function ReceivedOffersPage() {
           }
           // Handle channel offers (existing logic)
           else if (offer.gifts_data) {
-            // Check if gifts_data has upgraded structure at root level
-            if ('upgraded' in offer.gifts_data && typeof offer.gifts_data === 'object') {
-              // Structure: { upgraded: { modelId: [backdropIds] } }
-              for (const [modelId, backdropIds] of Object.entries(offer.gifts_data.upgraded || {})) {
-                const gift = giftsMap.get(modelId);
-                items.push({
-                  id: modelId,
-                  name: gift?.full_name || `Gift ${modelId}`,
-                  icon: gift?.image_url || `https://FlowersRestricted.github.io/gifts/${modelId}/default.png`,
-                  quantity: backdropIds.length,
-                  type: 'nft' as const // Add NFT tag for upgraded gifts
-                });
-              }
-            } else {
-              // Simple structure: { giftId: quantity }
-              for (const [giftId, quantity] of Object.entries(offer.gifts_data)) {
-                if (typeof quantity === 'number') {
-                  const gift = giftsMap.get(giftId);
-                  items.push({
-                    id: giftId,
-                    name: gift?.full_name || `Gift ${giftId}`,
-                    icon: gift?.image_url || `https://FlowersRestricted.github.io/gifts/${giftId}/default.png`,
-                    quantity: quantity,
-                    type: 'item' as const
-                  });
-                }
-              }
-            }
+            items.push(...parseGiftData(offer.gifts_data, giftsMap));
           }
 
           const title = offer.type === 'channel' ? generateChannelTitle(items) : offer.gift_data?.full_name || '';
