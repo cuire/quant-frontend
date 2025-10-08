@@ -9,6 +9,8 @@ import { miniApp, swipeBehavior } from '@telegram-apps/sdk-react';
 import { Page } from '@/components/Page';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { publicUrl } from '@/helpers/publicUrl';
+import { Loader } from '@/components/Loader';
+import { useUser } from '@/lib/api-hooks';
 
 export const Route = createRootRoute({
   component: Root,
@@ -16,6 +18,7 @@ export const Route = createRootRoute({
 
 function Root() {
   // const lp = useLaunchParams();
+  const { isLoading: isUserLoading } = useUser();
 
   useEffect(() => {
     swipeBehavior.mount();
@@ -32,6 +35,10 @@ function Root() {
 
   const canGoBack = false;
 
+  // Show loader during initial user data fetch
+  if (isUserLoading) {
+    return <Loader isLoading={true} />;
+  }
 
   return (
     <TonConnectUIProvider manifestUrl={publicUrl('tonconnect-manifest.json')}>

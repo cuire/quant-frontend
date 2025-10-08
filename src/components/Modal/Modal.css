@@ -303,9 +303,10 @@ body.modal-open {
     height: 32px;
     font-weight: 600;
     border-radius: 50%;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
     font-size: 18px;
     cursor: pointer;
     margin-left: 12px;
