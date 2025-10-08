@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { TransactionList } from '@/components/TransactionList';
 import './wallet.css';
 import { MarketTopBar } from '@/components/MarketHeader';
-import { initData } from '@telegram-apps/sdk-react';
 
 
 export const Route = createFileRoute('/wallet')({
