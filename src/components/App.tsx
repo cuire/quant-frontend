@@ -17,12 +17,11 @@ export function App() {
     >
       <RouterProvider router={router} />
       <Toaster
-        position="top-right"
+        position="top-center"
         reverseOrder={false}
         gutter={8}
         containerStyle={{
           top: 20,
-          right: 20,
         }}
         toastOptions={{
           duration: 5000,

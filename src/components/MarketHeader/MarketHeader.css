@@ -929,8 +929,10 @@
     color: #7F94AE;
     font-weight: 600;
     font-size: 18px;
+    position: sticky;
+    top: 12px;
+    z-index: 10;
 }
-
 .product-sheet__close span {
     margin-top: -1px;
 }

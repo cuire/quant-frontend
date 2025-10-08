@@ -98,7 +98,8 @@ export const PurchaseConfirmModal = ({ onClose, data }: PurchaseConfirmModalProp
             textDecoration: 'none',
             opacity: isLoading ? 0.6 : 1,
             cursor: isLoading ? 'not-allowed' : 'pointer',
-            display: 'inline-block',
+            flexDirection: 'column',
+            gap: '0px',
             textAlign: 'center',
           }}
         >

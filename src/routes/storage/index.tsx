@@ -3,7 +3,7 @@ import { createFileRoute, Link, redirect } from '@tanstack/react-router';
 export const Route = createFileRoute('/storage/')({
   beforeLoad: () => {
     throw redirect({
-      to: '/storage/offers/received',
+      to: '/storage/channels',
     });
   },
   component: StorageIndexPage,

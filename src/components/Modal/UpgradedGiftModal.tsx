@@ -402,7 +402,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 type="button"
                 onClick={handleSendGift}
               >
-                Send Gift
+                Transfer Gift
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
@@ -444,7 +444,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 type="button"
                 onClick={handleSendGift}
               >
-                Send Gift
+                Transfer Gift
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 

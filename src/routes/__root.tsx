@@ -11,10 +11,17 @@ import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { publicUrl } from '@/helpers/publicUrl';
 import { Loader } from '@/components/Loader';
 import { useUser } from '@/lib/api-hooks';
+import { useStartParamRedirect } from '@/hooks/useStartParamRedirect';
 
 export const Route = createRootRoute({
   component: Root,
 });
+
+// Component that handles startParam redirects - must be inside ModalProvider
+function StartParamHandler() {
+  useStartParamRedirect();
+  return null;
+}
 
 function Root() {
   // const lp = useLaunchParams();
@@ -45,6 +52,7 @@ function Root() {
       <ThemeProvider>
         <FilterProvider>
           <ModalProvider>
+            <StartParamHandler />
             <div style={{ minHeight: '100vh', position: 'relative' }}>
               <Page back={canGoBack}>
                 <Outlet />

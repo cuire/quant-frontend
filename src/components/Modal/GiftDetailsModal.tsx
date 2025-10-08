@@ -30,7 +30,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
     openModal('purchase-confirm', { channel, gifts });
   };
 
-  const handleSellChannel = async (price: number, duration?: number) => {
+  const handleSellChannel = async (itemId: string, price: number, duration?: number) => {
     console.log('Selling channel:', channel.id, 'for', price, 'TON', duration ? `for ${duration}h` : '');
     
     try {
@@ -52,7 +52,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
     }
   };
 
-  const handleChangePrice = async (newPrice: number) => {
+  const handleChangePrice = async (itemId: string, newPrice: number) => {
     console.log('Changing price for channel:', channel.id, 'to', newPrice, 'TON');
     
     try {

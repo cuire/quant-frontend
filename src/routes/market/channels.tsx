@@ -10,6 +10,7 @@ import { getChannelPrice } from '@/helpers/priceUtils';
 import { parseGiftDataWithArray } from '@/helpers/giftDataUtils';
 import { useEffect, useRef, useCallback } from 'react';
 import { openMarketChannelModal, useDeclineChannel } from '@/lib/gift-modals';
+import { ToastDemo } from '@/components/Toast/ToastDemo';
 
 // Search schema for channels page that extends base schema
 const searchSchema = channelFiltersSearchSchema;
@@ -247,6 +248,8 @@ function ChannelsPage() {
         onRemoveFilter={handleRemoveFilter}
         bounds={channelBounds}
       />
+
+      <ToastDemo />
 
       {/* Market Content */}
       <div className="px-4 py-6">

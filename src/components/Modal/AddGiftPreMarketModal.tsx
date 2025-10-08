@@ -55,7 +55,7 @@ export const AddGiftPreMarketModal = ({ onClose }: AddGiftPreMarketModalProps) =
               type="text"
               value={giftLink}
               onChange={(e) => setGiftLink(e.target.value)}
-              placeholder="https://fragment.com/gift/..."
+              placeholder="t.me/nft/HeartLocket-4"
               style={{
                 width: '100%',
                 padding: '12px 16px',

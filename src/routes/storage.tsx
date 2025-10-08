@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useLocation } from '@tanstack/react-router';
 import { MarketTopBar } from '@/components/MarketHeader';
 import { useModal } from '@/contexts/ModalContext';
+import { useState, useEffect } from 'react';
 
 export const Route = createFileRoute('/storage')({
   component: StorageLayout,
@@ -13,9 +14,34 @@ function StorageLayout() {
   // Check if we're on the channels page
   const isOnChannelsPage = location.pathname === '/storage/channels';
   
+  // State to track active subtab
+  const [activeSubTab, setActiveSubTab] = useState(
+    localStorage.getItem('storage_channels_subtab') || 'channels'
+  );
+  
+  // Listen for localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newSubTab = localStorage.getItem('storage_channels_subtab') || 'channels';
+      setActiveSubTab(newSubTab);
+    };
+
+    // Listen for custom storage event (same-tab changes from useLastTab hook)
+    window.addEventListener('localStorageChange', handleStorageChange);
+    
+    // Listen for storage event (cross-tab changes)
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('localStorageChange', handleStorageChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+  
+  const addButtonText = activeSubTab === 'channels' ? 'Add Channel' : 'Add Gift';
+  
   const handleAddChannel = () => {
     // Decide action based on active sub-tab saved by useLastTab hook
-    const activeSubTab = localStorage.getItem('storage_channels_subtab') || 'channels';
     if (activeSubTab === 'channels') {
       openModal('add-channel', {});
     } else {
@@ -28,6 +54,7 @@ function StorageLayout() {
       <MarketTopBar 
         showAddChannel={isOnChannelsPage}
         onAddChannel={handleAddChannel}
+        addButtonText={addButtonText}
       />
       <Outlet />
     </div>
