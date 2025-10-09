@@ -1,4 +1,4 @@
-import { openLink } from '@telegram-apps/sdk-react';
+import { openLink, openTelegramLink } from '@telegram-apps/sdk-react';
 import { type FC, type MouseEventHandler, useCallback } from 'react';
 import { Link as RouterLink, type LinkProps } from '@tanstack/react-router';
 
@@ -39,9 +39,25 @@ export const Link: FC<CustomLinkProps> = ({
 
     if (isExternal) {
       e.preventDefault();
-      openLink(targetUrl.toString(), { tryInstantView: true });
+      
+      const urlString = targetUrl.toString();
+      const isTelegramLink = urlString.includes('t.me/') || urlString.includes('telegram.me/');
+      
+      try {
+        if (isTelegramLink) {
+          // Use openTelegramLink for Telegram links to keep mini app open
+          openTelegramLink(urlString);
+        } else {
+          // Use openLink for other external links
+          openLink(urlString, { tryInstantView: true });
+        }
+      } catch (error) {
+        console.error('Failed to open link:', error);
+        // Fallback to window.location.href
+        window.location.href = urlString;
+      }
     }
-  }, [to, propsOnClick]);
+  }, [to, propsOnClick, rest.href]);
 
   return (
     <RouterLink
