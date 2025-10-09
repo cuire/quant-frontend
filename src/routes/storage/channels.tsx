@@ -9,6 +9,7 @@ import { useModal } from '@/contexts/ModalContext';
 import { getGiftIcon } from '@/lib/images';
 import { openUserGiftModal, useDeclineGift, useDeclineChannel } from '@/lib/gift-modals';
 import { useToast } from '@/hooks/useToast';
+import { parseGiftData } from '@/helpers/giftDataUtils';
 import './activity.css';
 
 export const Route = createFileRoute('/storage/channels')({
@@ -186,15 +187,7 @@ function ChannelsPage() {
       <div className="gifts-grid">
           {allChannels.map((channel, index) => {
            // Convert channel gifts to items format for Gift component
-           const items = Object.entries(channel.gifts).map(([giftId, quantity]) => {
-              const giftData = giftsMap.get(giftId);
-             return {
-               id: giftId,
-               name: giftData?.full_name || `Gift ${giftId}`,
-                icon: giftData?.image_url || `https://FlowersRestricted.github.io/gifts/${giftId}/default.png`,
-               quantity
-             };
-           });
+           const items = parseGiftData(channel.gifts || {}, giftsMap);
 
            // Generate channel title like on index.tsx
            const generateChannelTitle = (gifts: any[], isModal = false) => {
