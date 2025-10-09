@@ -1,4 +1,4 @@
-import { openLink, openTelegramLink } from '@telegram-apps/sdk-react';
+import { openLink, openTelegramLink, shareURL } from '@telegram-apps/sdk-react';
 import { type FC, type MouseEventHandler, useCallback } from 'react';
 import { Link as RouterLink, type LinkProps } from '@tanstack/react-router';
 

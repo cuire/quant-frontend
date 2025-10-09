@@ -4,6 +4,7 @@ import { useUserProfile } from '@/lib/api-hooks';
 import { config } from '@/lib/config';
 import './ReferralModal.css';
 import { copyTextToClipboard } from '@telegram-apps/sdk';
+import { shareURL } from '@telegram-apps/sdk-react';
 import { useToast } from '@/hooks/useToast';
 
 export interface ReferralModalProps {
@@ -43,15 +44,17 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
     const referralLink = `https://t.me/${config.telegram.botUsername}?start=${referralCode}`;
     const shareText = t('referral.joinMessage', { link: referralLink });
     
-    if (navigator.share) {
-      navigator.share({
-        title: t('referral.joinTitle'),
-        text: shareText,
-        url: referralLink,
-      });
-    } else {
+    try {
+      // Use Telegram SDK shareURL
+      shareURL(referralLink, shareText);
+    } catch (error) {
+      console.error('Failed to share referral link:', error);
       // Fallback to copying to clipboard
-      navigator.clipboard.writeText(shareText);
+      copyTextToClipboard(shareText).catch(() => {
+        showErrorToast({
+          message: t('referral.linkCopyFailed'),
+        });
+      });
     }
   };
 
