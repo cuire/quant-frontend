@@ -279,7 +279,8 @@
         "manualTransferNote": "The channel owner will transfer the owner's rights to you within 1 hour. Please ensure that you are subscribed to this channel.",
         "openChannel": "Open channel",
         "buyChannel": "Buy channel",
-        "processing": "Processing..."
+        "processing": "Processing...",
+        "purchaseFailed": "Failed to purchase channel. Please try again."
     },
     "modalsStorage": {
         "changePrice": "Change Price",

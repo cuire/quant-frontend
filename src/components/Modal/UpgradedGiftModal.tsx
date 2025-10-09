@@ -41,7 +41,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
   const editGiftPriceMutation = useEditGiftPrice();
   const sellItemMutation = useSellItem();
   const removeGiftFromSaleMutation = useRemoveGiftFromSale();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
   
   // Check if gift is not upgraded
   const isNotUpgraded = giftSlug === 'None-None';
@@ -149,7 +149,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
               size="200"
               className="upgraded-gift-modal__icon"
               title={data.name}
-              subtitle={'#' + data.num}
+              subtitle={'#' + giftSlug.split('-')[1]}
             />
           ) : (
             <div className="upgraded-gift-modal__icon" style={{ position: 'relative', width: '240px', height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -15,7 +15,7 @@ interface AcceptOfferModalProps {
 export const AcceptOfferModal = ({ data, onClose }: AcceptOfferModalProps) => {
   const { t } = useTranslation();
   const respondOfferMutation = useRespondOffer();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
   const offer = data?.offer;
   const offerPrice = offer?.price || data?.price || 0;

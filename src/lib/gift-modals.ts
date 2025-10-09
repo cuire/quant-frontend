@@ -162,7 +162,7 @@ export function openMarketGiftModal(
  */
 export function useDeclineGift() {
   const removeGiftFromSaleMutation = useRemoveGiftFromSale();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
   return async (id: string | number) => {
     try {
@@ -182,7 +182,7 @@ export function useDeclineGift() {
  */
 export function useDeclineChannel() {
   const removeChannelFromSaleMutation = useRemoveChannelFromSale();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
   return async (id: string | number) => {
     try {

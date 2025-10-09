@@ -1,6 +1,7 @@
 import { purchaseChannel } from '@/lib/api';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '@/hooks/useToast';
 import './Modal.css';
 
 interface PurchaseConfirmModalProps {
@@ -11,6 +12,7 @@ interface PurchaseConfirmModalProps {
 export const PurchaseConfirmModal = ({ onClose, data }: PurchaseConfirmModalProps) => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
+  const { warning: showErrorToast } = useToast();
 
   const handlePurchase = async () => {
     if (!data?.channel?.id) {
@@ -32,7 +34,8 @@ export const PurchaseConfirmModal = ({ onClose, data }: PurchaseConfirmModalProp
       onClose();
     } catch (error) {
       console.error('Failed to purchase channel:', error);
-      // TODO: Send a toast with error message
+      const errorMessage = (error as any)?.message || t('modalsPurchase.purchaseFailed');
+      showErrorToast({ message: errorMessage });
     } finally {
       setIsLoading(false);
     }

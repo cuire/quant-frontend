@@ -72,7 +72,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
   const updateLanguageMutation = useUpdateLanguage();
   const updateThemeMutation = useUpdateTheme();
   const updateSettingMutation = useUpdateSetting();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
   const [selectedLanguage, setSelectedLanguage] = useState<'EN' | 'RU' | 'ZH'>('EN');
   const [selectedTheme, setSelectedTheme] = useState<'WHITE' | 'SYSTEM' | 'DARK'>('DARK');

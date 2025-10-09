@@ -81,7 +81,7 @@ const CustomToastComponent = ({
 };
 
 export const showToast = (type: ToastType, options: ToastOptions) => {
-  const { title, message, action, duration = 5000 } = options;
+  const { title, message, action, duration = 2000 } = options;
 
   // Block toasts should not auto-close, they should persist until user clicks OK
   const toastDuration = type === 'block' ? Infinity : duration;

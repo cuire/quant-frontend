@@ -22,7 +22,7 @@ export const GiftDetailsModal = ({ data, onClose }: GiftDetailsModalProps) => {
   const sellChannelMutation = useSellChannel();
   const returnChannelMutation = useReturnChannel();
   const removeChannelMutation = useRemoveChannel();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
   const handleMakeOffer = () => {
     openModal('offer', { channel, gifts });

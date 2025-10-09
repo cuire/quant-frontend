@@ -21,7 +21,7 @@ function RouteComponent() {
   const { data: profile } = useUserProfile()
   const withdrawReferralBalance = useWithdrawReferralBalance()
   const { openModal } = useModal()
-  const { success: showSuccessToast, block: showErrorToast } = useToast()
+  const { success: showSuccessToast, warning: showErrorToast } = useToast()
 
   console.log('- User data:', user)
   console.log('- Profile data:', profile)

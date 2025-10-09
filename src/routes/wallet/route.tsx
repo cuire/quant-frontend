@@ -102,19 +102,9 @@ function WalletPage() {
       console.log('Sending transaction via TON Connect:', transaction);
 
       // Send transaction via TON Connect UI
-      const result = await tonConnectUI.sendTransaction(transaction);
-      
-      console.log('Transaction sent successfully:', result);
-      
-      // Close modal and reset form
+      tonConnectUI.sendTransaction(transaction);
       setShowDepositModal(false);
       setDepositAmount('');
-      
-      // Show success message
-      toast.success({
-        message: t('wallet.depositSuccess', 'Deposit sent! Your balance will be updated soon.')
-      });
-      
     } catch (e: any) {
       console.error('Deposit failed:', e);
       
@@ -147,9 +137,6 @@ function WalletPage() {
       await initiateWithdrawalMutation.mutateAsync({ walletAddress: addressFriendly, amount: amountNum });
       setShowWithdrawModal(false);
       setWithdrawAmount('');
-      toast.success({
-        message: t('wallet.withdrawalSuccess', 'Withdrawal initiated! Your funds will be transferred soon.')
-      });
     } catch (e: any) {
       const errorMsg = e?.message || t('wallet.failedWithdraw');
       setModalError(errorMsg);

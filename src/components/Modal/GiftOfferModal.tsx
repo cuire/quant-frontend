@@ -20,7 +20,7 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { data: user } = useUser();
   const offerGiftMutation = useOfferGift();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
   
   // Check if offer is valid
   const isOfferValid = () => {

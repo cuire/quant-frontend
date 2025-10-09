@@ -25,7 +25,7 @@ function ChannelsPage() {
   const handleDeclineUserGift = useDeclineGift();
   const handleDeclineChannel = useDeclineChannel();
   const [activeSubTab, setActiveSubTab] = useLastTab('storage_channels_subtab', 'channels');
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
   
   const {
     data: channelsData,

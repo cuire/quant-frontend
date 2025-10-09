@@ -13,7 +13,7 @@ export interface ReferralModalProps {
 export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
   const { t } = useTranslation();
   const user = useUser();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
   
   // Mock data - in real implementation, these would come from API
   const [currentLevel] = useState(2);

@@ -135,7 +135,7 @@ export const SendGiftModal = ({ giftId, giftName, onClose, onSuccess }: SendGift
     const { t } = useTranslation();
     const [username, setUsername] = useState<string>('');
     const transferGiftMutation = useTransferGift();
-    const { success: showSuccessToast, block: showErrorToast } = useToast();
+    const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
     const isValid = username.trim().length > 0;
 
@@ -212,7 +212,7 @@ type ReceiveGiftModalProps = {
 export const ReceiveGiftModal = ({ giftId, giftName, onClose, onSuccess }: ReceiveGiftModalProps) => {
     const { t } = useTranslation();
     const receiveGiftMutation = useReceiveGift();
-    const { success: showSuccessToast, block: showErrorToast } = useToast();
+    const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
     const handleReceive = async () => {
         if (receiveGiftMutation.isPending) return;

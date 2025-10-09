@@ -24,7 +24,7 @@ export const CancelOfferModal = ({ data, onClose }: CancelOfferModalProps) => {
     : `${t('modalsOfferCancel.channelOffer')} #${offer?.channel_id}`;
   const respondOfferMutation = useRespondOffer();
   const cancelOfferMutation = useCancelOffer();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
   return (
     <div className="offer-modal">

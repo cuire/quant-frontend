@@ -14,7 +14,7 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const addChannelMutation = useAddChannel();
-  const { success: showSuccessToast, block: showErrorToast } = useToast();
+  const { success: showSuccessToast, warning: showErrorToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
