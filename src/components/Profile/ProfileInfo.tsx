@@ -39,7 +39,7 @@ export function ProfileInfo({
           alt={username} 
           className="profile-info__avatar"
         />
-        <ProfileLevel level={telegramLevel} />
+        {/* <ProfileLevel level={telegramLevel} /> */}
       </div>
 
       <div className="profile-info__details">

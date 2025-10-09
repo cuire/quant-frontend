@@ -285,7 +285,7 @@ export const Modal = () => {
           transform: `translateY(${swipeProgress * 30}px) scale(${1 - (swipeProgress * 0.05)})`,
           opacity: 1 - (swipeProgress * 0.4),
           filter: `blur(${swipeProgress * 2}px)`,
-          paddingBottom: 50,
+          paddingBottom: 10,
           backgroundColor: '#212A33',
           borderRadius: '50px 50px 0 0',
           transition: swipeProgress === 0 ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, filter 0.3s ease' : 'none'

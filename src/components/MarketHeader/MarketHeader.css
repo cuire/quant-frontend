@@ -929,7 +929,7 @@
     color: #7F94AE;
     font-weight: 600;
     font-size: 18px;
-    position: sticky;
+    position: absolute;
     top: 12px;
     z-index: 10;
 }
