@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './Modal.css';
 
 interface SuccessModalProps {
@@ -10,6 +11,8 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   onClose,
   ticketCount = 25
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="success-modal__sheet">
       <div className="success-modal__sheet-content">
@@ -22,8 +25,8 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
         </div>
         
         <div className="success-modal__text">
-          <h2 className="success-modal__title">Successfully joined</h2>
-          <p className="success-modal__subtitle">You have successfully joined the contest!</p>
+          <h2 className="success-modal__title">{t('modalsContest.successTitle')}</h2>
+          <p className="success-modal__subtitle">{t('modalsContest.successSubtitle')}</p>
         </div>
         
         <div className="success-modal__ticket">
@@ -39,7 +42,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
               </defs>
             </svg>
           </div>
-          <span className="success-modal__ticket-text">Ticket: {ticketCount}</span>
+          <span className="success-modal__ticket-text">{t('modalsContest.ticket')} {ticketCount}</span>
         </div>
       </div>
       
@@ -49,7 +52,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
           onClick={onClose}
         >
           <span className="success-modal__close-icon">✕</span>
-          Close
+          {t('common.close')}
         </button>
       </div>
     </div>

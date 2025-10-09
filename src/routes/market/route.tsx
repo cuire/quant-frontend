@@ -1,5 +1,6 @@
 import { MarketTopBar } from '@/components/MarketHeader';
 import { createFileRoute, Link, Outlet, useLocation, redirect } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useLastTab } from '@/hooks/useLastTab';
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute('/market')({
 function MarketIndexPage() {
   const location = useLocation();
   const [, setLastTab] = useLastTab('market-last-tab', 'channels');
+  const { t } = useTranslation();
 
   // Save the current tab to localStorage when it changes
   useEffect(() => {
@@ -36,9 +38,9 @@ function MarketIndexPage() {
       <div className="storage-tabs">
         <div className="storage-segment">
           {[
-            { path: '/market/gifts', label: 'Gifts', disabled: false },
-            { path: '/market/channels', label: 'Channels', disabled: false },
-            { path: '/market/stickers', label: 'Stickers', disabled: true },
+            { path: '/market/gifts', label: t('tabs.gifts'), disabled: false },
+            { path: '/market/channels', label: t('tabs.channels'), disabled: false },
+            { path: '/market/stickers', label: t('tabs.stickers'), disabled: true },
           ].map(({ path, label, disabled }) => (
               <Link 
                 key={path}

@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import { useUserActivityInfinite, useGifts } from '@/lib/api-hooks';
 import { createPortal } from 'react-dom';
@@ -25,6 +26,7 @@ export const Route = createFileRoute('/storage/activity')({
 });
 
 function ActivityPage() {
+  const { t } = useTranslation();
   const { data: giftsData } = useGifts();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useUserActivityInfinite(20);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -243,13 +245,13 @@ function ActivityPage() {
       <div className="storage-tabs">
         <div className="storage-segment">
           <Link to="/storage/channels" className="storage-tab-link">
-            Items
+            {t('tabs.items')}
           </Link>
           <Link to="/storage/offers/received" className="storage-tab-link">
-            Offers
+            {t('tabs.offers')}
           </Link>
           <Link to="/storage/activity" className="storage-tab-link is-active">
-            Activity
+            {t('tabs.activity')}
           </Link>
         </div>
       </div>
@@ -284,8 +286,8 @@ function ActivityPage() {
             {filteredAndGroupedActivities.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">😔</div>
-                <h3 className="text-xl font-semibold mb-2">No activity found</h3>
-                <p className="text-gray-400">Your activity history will appear here</p>
+                <h3 className="text-xl font-semibold mb-2">{t('storage.noActivityFound')}</h3>
+                <p className="text-gray-400">{t('storage.yourItemsWillAppearHere')}</p>
               </div>
             ) : (
               <>

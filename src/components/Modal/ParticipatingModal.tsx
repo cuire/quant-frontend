@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './Modal.css';
 
 interface ParticipatingModalProps {
@@ -10,6 +11,8 @@ export const ParticipatingModal: React.FC<ParticipatingModalProps> = ({
   onClose,
   ticketCount = 25
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="success-modal__sheet">
       <div className="success-modal__sheet-content">
@@ -20,8 +23,8 @@ export const ParticipatingModal: React.FC<ParticipatingModalProps> = ({
         </div>
         
         <div className="success-modal__text">
-          <h2 className="success-modal__title">Are you already participating</h2>
-          <p className="success-modal__subtitle">Are you already participating in this contest? Look forward to the results, and don't forget to subscribe to our main channel.</p>
+          <h2 className="success-modal__title">{t('modalsContest.participatingTitle')}</h2>
+          <p className="success-modal__subtitle">{t('modalsContest.participatingSubtitle')}</p>
         </div>
         
         <div className="success-modal__ticket">
@@ -37,7 +40,7 @@ export const ParticipatingModal: React.FC<ParticipatingModalProps> = ({
               </defs>
             </svg>
           </div>
-          <span className="success-modal__ticket-text">Ticket: {ticketCount}</span>
+          <span className="success-modal__ticket-text">{t('modalsContest.ticket')} {ticketCount}</span>
         </div>
       </div>
       
@@ -47,7 +50,7 @@ export const ParticipatingModal: React.FC<ParticipatingModalProps> = ({
           onClick={onClose}
         >
           <span className="success-modal__close-icon">✕</span>
-          Close
+          {t('common.close')}
         </button>
       </div>
     </div>

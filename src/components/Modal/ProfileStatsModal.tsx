@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUserProfile } from '@/lib/api-hooks';
 import '@/components/Profile/Profile.css';
 
@@ -37,13 +38,14 @@ const getIconComponent = (icon: string) => {
 }
 
 export const ProfileStatsModal: FC<ProfileStatsModalProps> = ({ onClose }) => {
+  const { t } = useTranslation();
   const { data: profile, isLoading, error } = useUserProfile();
 
   return (
     <div className="market-header__sheet">
       <div className="market-header__sheet-header">
         <div>
-          <div className="market-header__sheet-title">All Statistics</div>
+          <div className="market-header__sheet-title">{t('modalsStats.allStatistics')}</div>
         </div>
         <button 
           className="market-header__sheet-close"
@@ -57,12 +59,12 @@ export const ProfileStatsModal: FC<ProfileStatsModalProps> = ({ onClose }) => {
       <div className="market-header__sheet-content">
         {isLoading && (
           <div className="profile-container">
-            <div>Loading...</div>
+            <div>{t('common.loading')}</div>
           </div>
         )}
         {(error || !profile) && !isLoading && (
           <div className="profile-container">
-            <div>Error loading stats</div>
+            <div>{t('modalsStats.errorLoadingStats')}</div>
           </div>
         )}
         {profile && !isLoading && (

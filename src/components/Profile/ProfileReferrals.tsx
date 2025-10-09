@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface ProfileReferralsProps {
   referralsCount: number;
   referralsAmount: number;
@@ -15,10 +17,12 @@ export function ProfileReferrals({
   onReferralClick,
   onReceiveClick
 }: ProfileReferralsProps) {
+  const { t } = useTranslation();
+  
   // referralsAmount is kept for backward compatibility but not used in the UI
   return (
     <div className="profile-referrals">
-      <h3 className="profile-referrals__title">Referals</h3>
+      <h3 className="profile-referrals__title">{t('profileReferrals.title')}</h3>
 
       <button className="profile-referrals__card" onClick={onReferralClick}>
         <div className="profile-referrals__icon">
@@ -35,9 +39,9 @@ export function ProfileReferrals({
         </div>
 
         <div className="profile-referrals__content">
-          <div className="profile-referrals__text">Заработать на продвижении</div>
+          <div className="profile-referrals__text">{t('profileReferrals.earnByPromotion')}</div>
           <div className="profile-referrals__description">
-            Рекомендуйте рефералку своим друзьям и получайте долю их прибыли.
+            {t('profileReferrals.earnDescription')}
           </div>
         </div>
 
@@ -52,7 +56,7 @@ export function ProfileReferrals({
         <div className="profile-referrals__stat-card">
           <div className="profile-referrals__stat-content">
             <div className="profile-referrals__stat-value">{friendsInvited}</div>
-            <div className="profile-referrals__stat-label">Friends Invited</div>
+            <div className="profile-referrals__stat-label">{t('profileReferrals.friendsInvited')}</div>
           </div>
           <div className="profile-referrals__stat-icon">
             <svg width="26" height="17" viewBox="0 0 26 17" fill="none">
@@ -66,7 +70,7 @@ export function ProfileReferrals({
           onClick={onReceiveClick}
           disabled={referralBalance <= 0}
         >
-          <div className="profile-referrals__stat-label">Receive:</div>
+          <div className="profile-referrals__stat-label">{t('profileReferrals.receive')}</div>
           <div className="profile-referrals__stat-value">{referralBalance} TON</div>
         </button>
       </div>

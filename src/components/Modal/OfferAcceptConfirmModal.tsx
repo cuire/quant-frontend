@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface AcceptOfferConfirmModalProps {
   data?: { 
     id?: string; 
@@ -9,17 +11,18 @@ interface AcceptOfferConfirmModalProps {
 }
 
 export const AcceptOfferConfirmModal = ({ data, onClose }: AcceptOfferConfirmModalProps) => {
+  const { t } = useTranslation();
   const offer = data?.offer;
   const offerPrice = offer?.price || data?.price || 0;
   const isGiftOffer = offer?.type === 'user_gift';
   const offerTitle = isGiftOffer 
-    ? `GIFT #${offer?.gift_id}` 
-    : `CHANNEL #${offer?.channel_id}`;
+    ? `${t('modalsOfferCancel.giftOffer').toUpperCase()} #${offer?.gift_id}` 
+    : `${t('modalsOfferCancel.channelOffer').toUpperCase()} #${offer?.channel_id}`;
 
   return (
     <div className="offer-modal">
       <div className="offer-modal__header">
-        <div className="offer-modal__title">Accept The Offer</div>
+        <div className="offer-modal__title">{t('modalsOfferAccept.acceptTheOffer')}</div>
         <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
       </div>
 
@@ -27,9 +30,9 @@ export const AcceptOfferConfirmModal = ({ data, onClose }: AcceptOfferConfirmMod
         <div className="market-header__toggle-row" style={{display:'grid', gridTemplateColumns:'24px 1fr', gap:'12px', alignItems:'start'}}>
           <div className="market-header__card-icon" style={{width:24, height:24}}>⏱️</div>
           <div>
-            <div className="market-header__row-title" style={{fontWeight:600}}>Are you sure?</div>
+            <div className="market-header__row-title" style={{fontWeight:600}}>{t('modalsOfferAccept.areYouSure')}</div>
             <div className="market-header__row-note">
-              Are you sure you want to accept the offer for <span style={{color:'#2F82C7', fontWeight:700}}>{offerPrice} TON</span> for <span style={{color:'#2F82C7', fontWeight:700}}>{offerTitle}</span>?
+              {t('modalsOfferAccept.acceptOfferConfirm')} <span style={{color:'#2F82C7', fontWeight:700}}>{offerPrice} TON</span> {t('modalsOfferAccept.for')} <span style={{color:'#2F82C7', fontWeight:700}}>{offerTitle}</span>?
             </div>
           </div>
         </div>
@@ -40,12 +43,12 @@ export const AcceptOfferConfirmModal = ({ data, onClose }: AcceptOfferConfirmMod
           <div className="market-header__card-icon" style={{width:24, height:24}}>🛄</div>
           <div>
             <div className="market-header__row-title" style={{fontWeight:600}}>
-              {isGiftOffer ? 'Gift transfer is required' : 'Manual transfer is required'}
+              {isGiftOffer ? t('modalsOfferAccept.giftTransferRequired') : t('modalsOfferAccept.manualTransferRequired')}
             </div>
             <div className="market-header__row-note" style={{color:'rgba(174, 127, 128, 1)'}}>
               {isGiftOffer 
-                ? 'The gift owner will transfer the gift to you within 1 hour.'
-                : 'The channel owner will transfer the owner\'s rights to you within 1 hour. Please ensure that you are subscribed to this channel.'
+                ? t('modalsOfferAccept.giftTransferNote')
+                : t('modalsOfferAccept.manualTransferNote')
               }
             </div>
           </div>
@@ -53,12 +56,12 @@ export const AcceptOfferConfirmModal = ({ data, onClose }: AcceptOfferConfirmMod
       </div>
 
       {!isGiftOffer && (
-        <button className="offer-modal__submit" type="button" style={{marginTop:8}}>Open Channel</button>
+        <button className="offer-modal__submit" type="button" style={{marginTop:8}}>{t('modalsPurchase.openChannel')}</button>
       )}
 
       <div className="product-sheet__actions" style={{padding:'12px 0 0 0px', borderTop:0}}>
-        <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
-        <button className="product-sheet__btn product-sheet__btn--primary" type="button" onClick={onClose}>Accept Offer</button>
+        <button className="product-sheet__btn" type="button" onClick={onClose}>{t('common.close')}</button>
+        <button className="product-sheet__btn product-sheet__btn--primary" type="button" onClick={onClose}>{t('modalsOfferAccept.acceptOffer')}</button>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { StatCard } from '../../lib/api'
 import { useModal } from '@/contexts/ModalContext';
+import { useTranslation } from 'react-i18next';
 
 interface ProfileStatsProps {
   mainStats: StatCard[];
@@ -83,13 +84,14 @@ const getIconComponent = (icon: string) => {
 }
 
 export function ProfileStats({ mainStats }: ProfileStatsProps) {
+  const { t } = useTranslation();
   const { openModal } = useModal();
   return (
     <div className="profile-stats">
       <div className="profile-stats__header">
-        <h3 className="profile-stats__title">Statistics</h3>
+        <h3 className="profile-stats__title">{t('profileStats.title')}</h3>
          <button className="profile-stats__more" onClick={() => openModal('profile-stats')}>
-           <span>more</span>
+           <span>{t('profileStats.more')}</span>
            <svg width="5" height="9" viewBox="0 0 8 17" fill="none">
              <path d="M1 1L7 8.5L1 16" stroke="#888B8E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
            </svg>

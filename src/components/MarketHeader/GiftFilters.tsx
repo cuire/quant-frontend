@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { bem } from '@/css/bem.ts';
 import type { GiftFilterChangeParams, GiftCurrentFilters } from '@/lib/filters';
 import { GiftIcon } from '@/components/GiftIcon';
@@ -55,6 +56,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
   models = [],
   bounds: propBounds
 }) => {
+  const { t } = useTranslation();
   // Get gifts data from API (for collection and background options)
   const { data: giftsData, isLoading, error } = useGiftsWithFilters();
   const gifts = giftsData?.gifts || [];
@@ -164,32 +166,32 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
 
   // Helper function to get pending gift name by ID
   const getPendingGiftNameById = (giftIds: string[]): string => {
-    if (giftIds.length === 0) return 'All';
+    if (giftIds.length === 0) return t('common.all');
     if (giftIds.length === 1) {
       const gift = gifts.find(g => g.id === giftIds[0]);
-      return gift ? (gift.short_name || gift.full_name) : 'All';
+      return gift ? (gift.short_name || gift.full_name) : t('common.all');
     }
-    return `${giftIds.length} gifts selected`;
+    return `${giftIds.length} ${t('market.giftsSelected')}`;
   };
   // removed unused getCollectionDisplay
   // Helper function to get display name for model
   const getModelDisplay = (modelIds: string[]): string => {
-    if (modelIds.length === 0) return 'All';
+    if (modelIds.length === 0) return t('common.all');
     if (modelIds.length === 1) {
       const model = fetchedModels.find(m => String(m.model_id) === modelIds[0]);
-      return model ? model.value : 'All';
+      return model ? model.value : t('common.all');
     }
-    return `${modelIds.length} models selected`;
+    return `${modelIds.length} ${t('filters.modelsSelected')}`;
   };
 
   // Helper function to get display name for background
   const getBackgroundDisplay = (backgroundIds: string[]): string => {
-    if (backgroundIds.length === 0) return 'All';
+    if (backgroundIds.length === 0) return t('common.all');
     if (backgroundIds.length === 1) {
       const backdrop = backdrops.find(b => b.id === backgroundIds[0]);
-      return backdrop ? backdrop.name : 'All';
+      return backdrop ? backdrop.name : t('common.all');
     }
-    return `${backgroundIds.length} backgrounds selected`;
+    return `${backgroundIds.length} ${t('filters.backgroundsSelected')}`;
   };
 
   // Function to apply pending filters when modal closes
@@ -288,7 +290,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
         {/* Collection chip */}
         <div style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
           <div className={e('filter-chip')} onClick={() => setOpenSheet('collection')} role="button" tabIndex={0}>
-            <span className={e('chip-label')}>Gift</span>
+            <span className={e('chip-label')}>{t('filters.gift')}</span>
             <div className={e('chip-control')}>
               <span className={e('chip-value')}>{getPendingGiftNameById(pendingSelectedGiftIds)}</span>
               <div className={e('chip-select')} />
@@ -311,7 +313,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
             tabIndex={0}
             style={{ cursor: isCollectionSelected ? 'pointer' : 'not-allowed' }}
           >
-            <span className={e('chip-label')}>Model</span>
+            <span className={e('chip-label')}>{t('filters.model')}</span>
           <div className={e('chip-control')}>
             <span className={e('chip-value')}>{getModelDisplay(pendingSelectedModelIds)}</span>
             <div className={e('chip-select')} />
@@ -328,7 +330,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
         {/* Background chip */}
         <div style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
           <div className={e('filter-chip')} onClick={() => setOpenSheet('background')} role="button" tabIndex={0}>
-          <span className={e('chip-label')}>Background</span>
+          <span className={e('chip-label')}>{t('filters.background')}</span>
           <div className={e('chip-control')}>
             <span className={e('chip-value')}>{getBackgroundDisplay(pendingSelectedBackgroundIds)}</span>
             <div className={e('chip-select')} />
@@ -355,12 +357,12 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
             <div className={e('sheet-header')}>
               <div>
                 <div className={e('sheet-title')}>
-                  {openSheet === 'collection' && 'Collection'}
-                  {openSheet === 'model' && 'Model'}
-                  {openSheet === 'background' && 'Background'}
-                  {openSheet === 'filters' && 'Filters'}
+                  {openSheet === 'collection' && t('filters.collection')}
+                  {openSheet === 'model' && t('filters.model')}
+                  {openSheet === 'background' && t('filters.background')}
+                  {openSheet === 'filters' && t('common.filters')}
                 </div>
-                <div className={e('sheet-subtitle')}>Selects the appropriate filter</div>
+                <div className={e('sheet-subtitle')}>{t('filters.selectFilter')}</div>
               </div>
               <button className={e('sheet-close')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>✕</button>
             </div>
@@ -369,12 +371,12 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
               <div className={e('sheet-content')}>
                 <div className={e('panel')}>
                   <div style={{ textAlign: 'center', padding: '40px 20px', color: '#5C6874' }}>
-                    <div style={{ fontSize: '16px', marginBottom: '8px' }}>Select a collection first</div>
-                    <div style={{ fontSize: '14px' }}>Choose a collection to see available models</div>
+                    <div style={{ fontSize: '16px', marginBottom: '8px' }}>{t('modals.selectCollectionFirst')}</div>
+                    <div style={{ fontSize: '14px' }}>{t('modals.chooseCollectionForModels')}</div>
                   </div>
                 </div>
                 <div className={e('sheet-footer')}>
-                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>Close</button>
+                  <button className={e('btn-primary')} onClick={() => setOpenSheet(null)}>{t('modals.close')}</button>
                 </div>
               </div>
             ) : openSheet === 'collection' ? (
@@ -384,16 +386,16 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
                   </svg>
             <input
-              placeholder="Name Gifts"
+              placeholder={t('market.nameGifts')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
                 </div>
                 <div className={e('panel')}>
             {isLoading ? (
-                    <div className={e('loading')}>Loading gifts...</div>
+                    <div className={e('loading')}>{t('modals.loadingGifts')}</div>
                   ) : error ? (
-                    <div className={e('error')}>Error loading gifts</div>
+                    <div className={e('error')}>{t('modals.errorLoadingGifts')}</div>
                   ) : (
               gifts
                 .filter((gift) => {
@@ -418,7 +420,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                           <input type="checkbox" className={e('check')} checked={checked} onChange={(ev) => {
                             setPendingSelectedGiftIds(prev => ev.target.checked ? [...prev, gift.id] : prev.filter(v => v !== gift.id));
                           }} />
-                          <GiftIcon giftId={gift.id} size="40" badge={gift.new ? { text: "New", ...new_colors[gift.new_color] } : undefined} />
+                          <GiftIcon giftId={gift.id} size="40" badge={gift.new ? { text: t('filters.new'), ...new_colors[gift.new_color] } : undefined} />
                           
                           <div className={e('row-main')}>
                             <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -433,7 +435,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                               }}>NEW</span>}
                             </div>
                             <div className={e('row-note')}>
-                              {gift.count} channels on sale
+                              {gift.count} {t('market.channelsOnSale')}
                               {gift.premarket && (
                                 <span style={{ 
                                   backgroundColor: '#FF4545',
@@ -453,7 +455,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                                     <path d="M5 1C4.47471 1 3.95457 1.10346 3.46927 1.30448C2.98396 1.5055 2.54301 1.80014 2.17157 2.17157C1.42143 2.92172 1 3.93913 1 5C1 6.06087 1.42143 7.07828 2.17157 7.82843C2.54301 8.19986 2.98396 8.4945 3.46927 8.69552C3.95457 8.89654 4.47471 9 5 9C6.06087 9 7.07828 8.57857 7.82843 7.82843C8.57857 7.07828 9 6.06087 9 5C9 4.47471 8.89654 3.95457 8.69552 3.46927C8.4945 2.98396 8.19986 2.54301 7.82843 2.17157C7.45699 1.80014 7.01604 1.5055 6.53073 1.30448C6.04543 1.10346 5.52529 1 5 1ZM6.68 6.68L4.6 5.4V3H5.2V5.08L7 6.16L6.68 6.68Z" fill="#FF4545"/>
                                   </svg>
                                   <span style={{ marginTop: '-2px' }}>
-                                    Pre-Market
+                                    {t('filters.preMarket')}
                                   </span>
                                 </span>
                               )}
@@ -466,7 +468,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                               </svg>
                               <span>{gift.floor_price}</span>
                             </div>
-                            <div className={e('row-min')}>Min. Price</div>
+                            <div className={e('row-min')}>{t('market.minPrice')}</div>
                           </div>
                         </label>
                   )
@@ -485,7 +487,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                       sorting: pendingSortingFilter,
                     });
                     setOpenSheet(null);
-                  }}>Reset</button>
+                  }}>{t('common.reset')}</button>
                   <button className={e('btn-primary')} onClick={() => { 
                     const collectionValue = pendingSelectedGiftIds.length > 0 
                       ? pendingSelectedGiftIds.join(',') 
@@ -493,7 +495,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     setPendingCollectionFilter(collectionValue);
                     applyPendingFilters(collectionValue);
                     setOpenSheet(null); 
-                  }}>Search</button>
+                  }}>{t('common.search')}</button>
                 </div>
               </div>
             ) : openSheet === 'model' && isCollectionSelected ? (
@@ -503,7 +505,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
                   </svg>
                   <input
-                    placeholder="Name Model"
+                    placeholder={t('filters.nameModel')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -512,12 +514,12 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                 <div className={e('panel')}>
                   {modelsLoading ? (
                     <div style={{ textAlign: 'center', padding: '40px 20px', color: '#5C6874' }}>
-                      <div style={{ fontSize: '16px' }}>Loading models...</div>
+                      <div style={{ fontSize: '16px' }}>{t('modals.loadingModels')}</div>
                     </div>
                   ) : fetchedModels.length === 0 && pendingSelectedGiftIds.length > 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px 20px', color: '#5C6874' }}>
-                      <div style={{ fontSize: '16px', marginBottom: '8px' }}>No models available</div>
-                      <div style={{ fontSize: '14px' }}>This collection has no models to filter</div>
+                      <div style={{ fontSize: '16px', marginBottom: '8px' }}>{t('modals.noModelsAvailable')}</div>
+                      <div style={{ fontSize: '14px' }}>{t('modals.noModelsToFilter')}</div>
                     </div>
                   ) : (
                     filterOptions.model
@@ -620,7 +622,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
                   </svg>
                   <input
-                    placeholder="Name Background"
+                    placeholder={t('filters.nameBackground')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -710,7 +712,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                       sorting: pendingSortingFilter,
                     });
                     setOpenSheet(null);
-                  }}>Reset</button>
+                  }}>{t('common.reset')}</button>
                   <button className={e('btn-primary')} onClick={() => { 
                     const backgroundValue = pendingSelectedBackgroundIds.length > 0 
                       ? pendingSelectedBackgroundIds.join(',') 
@@ -719,7 +721,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     applyPendingFilters(undefined, undefined, backgroundValue);
                     setSearchTerm('');
                     setOpenSheet(null); 
-                  }}>Search</button>
+                  }}>{t('common.search')}</button>
                 </div>
               </div>
             ) : openSheet === 'filters' ? (
@@ -730,7 +732,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                     <span className={e('card-icon')}>
                       <svg width="14" height="14" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="#AFC0D4"/></svg>
                     </span>
-                    <span className={e('card-title')}>Price</span>
+                    <span className={e('card-title')}>{t('common.price')}</span>
                   </div>
                   <div className={e('range-wrap')}>
                     <div className={e('range-track')} />
@@ -780,13 +782,13 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                       const maxPrice = boundsData?.max_price ?? 10000;
                       const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
                       setPendingPriceRange([Math.min(val, pendingPriceRange[1] - 1), pendingPriceRange[1]]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder={t('common.from')} />
                     <input value={pendingPriceRange[1]} onChange={(e)=> {
                       const minPrice = boundsData?.min_price ?? 0;
                       const maxPrice = boundsData?.max_price ?? 10000;
                       const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
                       setPendingPriceRange([pendingPriceRange[0], Math.max(val, pendingPriceRange[0] + 1)]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder={t('common.to')} />
                   </div>
                 </div>
 
@@ -798,7 +800,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                         <path d="M13.6952 6.3048C15.7411 8.35073 15.7411 11.6493 13.6952 13.6952C11.6493 15.7411 8.35073 15.7411 6.31524 13.6952C4.27975 11.6493 4.25887 8.35073 6.31524 6.3048C8.37161 4.25887 11.6493 4.25887 13.6952 6.3048ZM17.7975 2.22338C17.7975 2.22338 16.785 2.34864 15.6681 3.06889C15.4903 1.90397 14.9412 0.827593 14.1023 0C13.5649 0.518701 13.1753 1.17114 12.9735 1.89027C12.7717 2.6094 12.765 3.36929 12.9541 4.09186C14.405 4.46764 15.5324 5.59499 15.9081 7.04593C17.0772 7.35908 18.7056 7.20251 20 5.8977C19.1816 5.07114 18.1214 4.52642 16.9729 4.34238C17.38 3.73695 17.7035 3.03758 17.7975 2.22338ZM2.20251 17.7766C2.20251 17.7766 3.21503 17.6514 4.33194 16.9311C4.48852 18.0167 5.01044 19.1127 5.8977 20C7.20251 18.7056 7.35908 17.0772 7.04593 15.9081C6.33456 15.7245 5.68538 15.3536 5.16588 14.8341C4.64637 14.3146 4.27551 13.6654 4.09186 12.9541C2.92276 12.6409 1.29436 12.7975 0 14.1023C0.876827 14.9791 1.95198 15.501 3.02714 15.6576C2.62004 16.263 2.29645 16.9729 2.20251 17.7766Z" fill="#AFC0D4"/>
                       </svg>
                     </span>
-                    <span className={e('card-title')}>Symbol</span>
+                    <span className={e('card-title')}>{t('filters.symbol')}</span>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginLeft: 'auto', transform: symbolSectionOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
                       <path d="M4 6L8 10L12 6" stroke="#5C6874" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -812,7 +814,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                           <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
                         </svg>
                         <input
-                          placeholder="Name Symbol"
+                          placeholder={t('filters.nameSymbol')}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           style={{ color: '#E7EEF7'}}
@@ -891,7 +893,7 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                         <path d="M3 5H13M5 9H11M7 13H9" stroke="#AFC0D4" strokeWidth="2" strokeLinecap="round"/>
                       </svg>
                     </span>
-                    <span className={e('card-title')}>Sorting</span>
+                    <span className={e('card-title')}>{t('filters.sorting')}</span>
                   </div>
                   {filterOptions.sorting.map((option) => (
                     <label key={option.value} className={e('row')} style={{ paddingLeft: '0', paddingRight: '0'}}>
@@ -916,11 +918,11 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                 {/* Toggle Section */}
                 <div className={e('card')}>
                   <label className={e('toggle-row')}>
-                    <span style={{color: '#fff'}}>Show pre-market</span>
+                    <span style={{color: '#fff'}}>{t('filters.showPremarket')}</span>
                     <input className={e('switch')} type="checkbox" checked={pendingShowPremarket} onChange={(e)=> setPendingShowPremarket(e.target.checked)} />
                   </label>
                   <label className={e('toggle-row')}>
-                    <span style={{color: '#fff'}}>Show unupgraded gifts</span>
+                    <span style={{color: '#fff'}}>{t('filters.showUnupgraded')}</span>
                     <input className={e('switch')} type="checkbox" checked={pendingShowUnupgraded} onChange={(e)=> setPendingShowUnupgraded(e.target.checked)} />
                   </label>
                 </div>
@@ -952,11 +954,11 @@ export const GiftFilters: FC<GiftFiltersProps> = ({
                       showUnupgraded: true,
                     });
                     setOpenSheet(null);
-                  }}>Reset</button>
+                  }}>{t('common.reset')}</button>
                   <button className={e('btn-primary')} onClick={() => { 
                     applyPendingFilters(); 
                     setOpenSheet(null); 
-                  }}>Search</button>
+                  }}>{t('common.search')}</button>
                 </div>
               </div>
             ) : null}

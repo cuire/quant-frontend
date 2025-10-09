@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { config } from '@/lib/config';
 import './SettingsModal.css';
 import './GuideModal.css';
@@ -8,6 +9,7 @@ export interface GuideModalProps {
 }
 
 export const GuideModal: FC<GuideModalProps> = ({ onClose }) => {
+  const { t } = useTranslation();
   const guideItems = config.guide.items;
 
   const handleOpenGuide = (link: string) => {
@@ -41,7 +43,7 @@ export const GuideModal: FC<GuideModalProps> = ({ onClose }) => {
               className="guide-modal__item-button"
               onClick={() => handleOpenGuide(item.link)}
             >
-              Open
+              {t('modalsGuide.open')}
             </button>
           </div>
         ))}
@@ -49,7 +51,7 @@ export const GuideModal: FC<GuideModalProps> = ({ onClose }) => {
 
       <div className="market-header__sheet-footer">
         <button className="market-header__btn-primary" onClick={onClose}>
-          OK
+          {t('modalsGuide.ok')}
         </button>
       </div>
     </div>

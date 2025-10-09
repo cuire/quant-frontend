@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useUser } from '@/lib/api-hooks';
 import { useOfferGift } from '@/lib/api-hooks';
 import { useState } from 'react';
@@ -13,6 +14,7 @@ interface GiftOfferModalProps {
 }
 
 export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
+  const { t } = useTranslation();
   const [offerPrice, setOfferPrice] = useState<string>('');
   const [offerDuration, setOfferDuration] = useState<'1d' | '1w' | 'forever'>('1w');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,12 +47,12 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
     const userBalance = user?.balance || 0;
     
     if (offerPriceNum < 1) {
-      showErrorToast({ message: 'Offer price must be at least 1 TON' });
+      showErrorToast({ message: t('modalsOffer.offerPriceMin') });
       return;
     }
     
     if (offerPriceNum > userBalance) {
-      showErrorToast({ message: 'Insufficient balance' });
+      showErrorToast({ message: t('modalsOffer.insufficientBalance') });
       return;
     }
 
@@ -63,11 +65,12 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
         price: offerPriceNum,
         duration_days: durationDays
       });
-      showSuccessToast({ message: 'Offer sent successfully!' });
+      showSuccessToast({ message: t('modalsOffer.offerSentSuccess') });
       onClose();
     } catch (error) {
       console.error('Failed to create offer:', error);
-      showErrorToast({ message: 'Failed to send offer. Please try again.' });
+      const errorMessage = (error as any)?.message || t('modalsOffer.offerSendFailed');
+      showErrorToast({ message: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -76,46 +79,46 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
   return (
     <div className="offer-modal">
       <div className="offer-modal__header">
-        <div className="offer-modal__title">Make an offer</div>
+        <div className="offer-modal__title">{t('modalsOffer.makeAnOffer')}</div>
         <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
       </div>
       <div className="offer-modal__block">
-        <div className="offer-modal__label">OFFER PRICE IN TON</div>
+        <div className="offer-modal__label">{t('modalsOffer.offerPriceInTon')}</div>
         <input 
           className="offer-modal__input" 
-          placeholder="Enter offer price (min 1 TON)" 
+          placeholder={t('modalsOffer.enterOfferPriceMin')}
           value={offerPrice} 
           onChange={(e) => setOfferPrice(e.target.value)} 
           type="number"
           min="1"
           step="0.1"
         />
-        <div className="offer-modal__balance">YOUR BALANCE:{" "}
+        <div className="offer-modal__balance">{t('modalsOffer.yourBalance')}{" "}
           <span style={{color:'#2F82C7'}}>{user?.balance} TON</span></div>
       </div>
       <div className="offer-modal__block">
-        <div className="offer-modal__label">OFFER DURATION</div>
+        <div className="offer-modal__label">{t('modalsOffer.offerDuration')}</div>
         <div className="offer-modal__segmented">
           <button 
             type="button" 
             className={offerDuration === '1d' ? 'is-active' : ''} 
             onClick={() => setOfferDuration('1d')}
           >
-            1 Day
+            {t('modalsOffer.oneDay')}
           </button>
           <button 
             type="button" 
             className={offerDuration === '1w' ? 'is-active' : ''} 
             onClick={() => setOfferDuration('1w')}
           >
-            1 Week
+            {t('modalsOffer.oneWeek')}
           </button>
           <button 
             type="button" 
             className={offerDuration === 'forever' ? 'is-active' : ''} 
             onClick={() => setOfferDuration('forever')}
           >
-            Forever
+            {t('modalsOffer.forever')}
           </button>
         </div>
       </div>
@@ -125,7 +128,7 @@ export const GiftOfferModal = ({ onClose, data }: GiftOfferModalProps) => {
         onClick={handleSendOffer}
         disabled={isLoading || !isOfferValid()}
       >
-        {isLoading ? 'Sending...' : 'Send Offer'}
+        {isLoading ? t('modalsStorage.sending') : t('modalsOffer.sendOffer')}
       </button>
     </div>
   );

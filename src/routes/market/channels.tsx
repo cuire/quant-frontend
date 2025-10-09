@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { Gift } from '@/components/Gift';
 import { Skeleton } from '@/components/Skeleton';
 import { MarketFilters } from '@/components/MarketHeader';
@@ -25,6 +26,7 @@ function ChannelsPage() {
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const handleDeclineChannel = useDeclineChannel();
+  const { t } = useTranslation();
   
   // Use the global filters hook
   const { handleFilterChange, currentFilters, apiFilters, resetFilters } = useGlobalFilters(search, navigate);
@@ -261,8 +263,8 @@ function ChannelsPage() {
             {channels.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">😔</div>
-                <h3 className="text-xl font-semibold mb-2">No channels found</h3>
-                <p className="text-gray-400">Try adjusting your filters</p>
+                <h3 className="text-xl font-semibold mb-2">{t('market.noChannelsFound')}</h3>
+                <p className="text-gray-400">{t('market.adjustFilters')}</p>
               </div>
             ) : (
               <>
@@ -274,7 +276,7 @@ function ChannelsPage() {
                     const channelGiftsArray = parseGiftDataWithArray(channelGifts, gifts);
 
                     const generateChannelTitle = (gifts: any[], isModal = false) => {
-                      if (!gifts || gifts.length === 0) return "Empty Channel";
+                      if (!gifts || gifts.length === 0) return t('channel.emptyChannel');
 
                       const maxDisplay = 2;
                       const displayGifts = gifts.slice(0, maxDisplay);
@@ -283,7 +285,7 @@ function ChannelsPage() {
 
                       for (let i = 0; i < displayGifts.length; i++) {
                         const gift = displayGifts[i];
-                        const giftName = gift.name || "Unknown";
+                        const giftName = gift.name || t('channel.unknown');
                         
                         // Ensure quantity is a number
                         const quantity = typeof gift.quantity === 'number' ? gift.quantity : 1;

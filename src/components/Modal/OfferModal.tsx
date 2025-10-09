@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useUser } from '@/lib/api-hooks';
 import { createOffer } from '@/lib/api';
 import { useState } from 'react';
@@ -8,6 +9,7 @@ interface OfferModalProps {
 }
 
 export const OfferModal = ({ onClose, data }: OfferModalProps) => {
+  const { t } = useTranslation();
   const [offerPrice, setOfferPrice] = useState<string>('');
   const [offerDuration, setOfferDuration] = useState<'1d' | '1w' | 'forever'>('1w');
   const [isLoading, setIsLoading] = useState(false);
@@ -81,46 +83,46 @@ export const OfferModal = ({ onClose, data }: OfferModalProps) => {
   return (
     <div className="offer-modal">
       <div className="offer-modal__header">
-        <div className="offer-modal__title">Your suggestion</div>
+        <div className="offer-modal__title">{t('modalsOffer.yourSuggestion')}</div>
         <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
       </div>
       <div className="offer-modal__block">
-        <div className="offer-modal__label">OFFER PRICE IN TON</div>
+        <div className="offer-modal__label">{t('modalsOffer.offerPriceInTon')}</div>
         <input 
           className="offer-modal__input" 
-          placeholder="Enter offer price (min 1 TON)" 
+          placeholder={t('modalsOffer.enterOfferPriceMin')}
           value={offerPrice} 
           onChange={(e) => setOfferPrice(e.target.value)} 
           type="number"
           min="1"
           step="0.1"
         />
-        <div className="offer-modal__balance">YOUR BALANCE:{" "}
+        <div className="offer-modal__balance">{t('modalsOffer.yourBalance')}{" "}
           <span style={{color:'#2F82C7'}}>{user?.balance} TON</span></div>
       </div>
       <div className="offer-modal__block">
-        <div className="offer-modal__label">OFFER DURATION</div>
+        <div className="offer-modal__label">{t('modalsOffer.offerDuration')}</div>
         <div className="offer-modal__segmented">
           <button 
             type="button" 
             className={offerDuration === '1d' ? 'is-active' : ''} 
             onClick={() => setOfferDuration('1d')}
           >
-            1 Day
+            {t('modalsOffer.oneDay')}
           </button>
           <button 
             type="button" 
             className={offerDuration === '1w' ? 'is-active' : ''} 
             onClick={() => setOfferDuration('1w')}
           >
-            1 Week
+            {t('modalsOffer.oneWeek')}
           </button>
           <button 
             type="button" 
             className={offerDuration === 'forever' ? 'is-active' : ''} 
             onClick={() => setOfferDuration('forever')}
           >
-            Forever
+            {t('modalsOffer.forever')}
           </button>
         </div>
       </div>
@@ -130,7 +132,7 @@ export const OfferModal = ({ onClose, data }: OfferModalProps) => {
         onClick={handleSendOffer}
         disabled={isLoading || !isOfferValid()}
       >
-        {isLoading ? 'Sending...' : 'Send Offer'}
+        {isLoading ? t('modalsStorage.sending') : t('modalsOffer.sendOffer')}
       </button>
     </div>
   );

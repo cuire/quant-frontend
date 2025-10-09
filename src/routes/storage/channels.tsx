@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useRef, useCallback, useMemo } from 'react';
 import { useMeChannelsInfinite, useMeGiftsInfinite, useGifts, useSellItem, useSellChannel } from '@/lib/api-hooks';
 import { useLastTab } from '@/hooks/useLastTab';
@@ -7,6 +8,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { useModal } from '@/contexts/ModalContext';
 import { getGiftIcon } from '@/lib/images';
 import { openUserGiftModal, useDeclineGift, useDeclineChannel } from '@/lib/gift-modals';
+import { useToast } from '@/hooks/useToast';
 import './activity.css';
 
 export const Route = createFileRoute('/storage/channels')({
@@ -14,6 +16,7 @@ export const Route = createFileRoute('/storage/channels')({
 });
 
 function ChannelsPage() {
+  const { t } = useTranslation();
   const { openModal } = useModal();
   const { data: giftsData } = useGifts();
   const sellItemMutation = useSellItem();
@@ -21,6 +24,7 @@ function ChannelsPage() {
   const handleDeclineUserGift = useDeclineGift();
   const handleDeclineChannel = useDeclineChannel();
   const [activeSubTab, setActiveSubTab] = useLastTab('storage_channels_subtab', 'channels');
+  const { success: showSuccessToast, block: showErrorToast } = useToast();
   
   const {
     data: channelsData,
@@ -82,9 +86,11 @@ function ChannelsPage() {
       });
       
       console.log('✅ Channel listed for sale successfully');
+      showSuccessToast({ message: t('toast.channelListedSuccess') });
     } catch (error) {
       console.error('❌ Failed to list channel for sale:', error);
-      // You might want to show an error toast here
+      const errorMessage = (error as any)?.message || t('toast.channelListedFailed');
+      showErrorToast({ message: errorMessage });
     }
   };
 
@@ -103,9 +109,11 @@ function ChannelsPage() {
       });
       
       console.log('✅ User gift listed for sale successfully');
+      showSuccessToast({ message: t('toast.giftListedSuccess') });
     } catch (error) {
       console.error('❌ Failed to list user gift for sale:', error);
-      // You might want to show an error toast here
+      const errorMessage = (error as any)?.message || t('toast.giftListedFailed');
+      showErrorToast({ message: errorMessage });
     }
   };
 
@@ -118,10 +126,10 @@ function ChannelsPage() {
       <div className="storage-tabs">
         <div className="storage-segment">
           <Link to="/storage/channels" className="storage-tab-link is-active">
-            Items
+            {t('tabs.items')}
           </Link>
           <Link to="/storage/offers/received" className="storage-tab-link">
-            Offers
+            {t('tabs.offers')}
           </Link>
           <Link 
             to="/storage/activity" 
@@ -133,7 +141,7 @@ function ChannelsPage() {
             } as any}
             className="storage-tab-link"
           >
-            Activity
+            {t('tabs.activity')}
           </Link>
         </div>
         <div className="storage-segment" style={{ gridTemplateColumns: '1fr 1fr' }}>
@@ -141,13 +149,13 @@ function ChannelsPage() {
             className={`storage-tab-link ${activeSubTab === 'channels' ? 'is-active' : ''}`}
             onClick={() => setActiveSubTab('channels')}
           >
-            Channels
+            {t('tabs.channels')}
           </button>
           <button
             className={`storage-tab-link ${activeSubTab === 'gifts' ? 'is-active' : ''}`}
             onClick={() => setActiveSubTab('gifts')}
           >
-            Gifts
+            {t('tabs.gifts')}
           </button>
         </div>
       </div>
@@ -160,7 +168,7 @@ function ChannelsPage() {
 
       {activeSubTab === 'channels' && channelsError && (
         <div style={{ textAlign: 'center', padding: '20px', color: '#FF3939' }}>
-          <p>Error loading channels: {channelsError.message}</p>
+          <p>{t('storage.errorLoadingChannels')}: {channelsError.message}</p>
         </div>
       )}
 
@@ -168,8 +176,8 @@ function ChannelsPage() {
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <div className="text-center py-16">
             <div className="text-6xl mb-4">😔</div>
-            <h3 className="text-xl font-semibold mb-2">No activity found</h3>
-            <p className="text-gray-400">Your items will appear here</p>
+            <h3 className="text-xl font-semibold mb-2">{t('storage.noActivityFound')}</h3>
+            <p className="text-gray-400">{t('storage.yourItemsWillAppearHere')}</p>
           </div>
         </div>
       )}
@@ -190,7 +198,7 @@ function ChannelsPage() {
 
            // Generate channel title like on index.tsx
            const generateChannelTitle = (gifts: any[], isModal = false) => {
-             if (!gifts || gifts.length === 0) return "Empty Channel";
+             if (!gifts || gifts.length === 0) return t('channel.emptyChannel');
 
              const maxDisplay = 2;
              const displayGifts = gifts.slice(0, maxDisplay);
@@ -199,7 +207,7 @@ function ChannelsPage() {
 
              for (let i = 0; i < displayGifts.length; i++) {
                const gift = displayGifts[i];
-               const giftName = gift.name || "Unknown";
+               const giftName = gift.name || t('channel.unknown');
                const giftText = `${giftName} x${gift.quantity}`;
 
                // Add spacing if not first item

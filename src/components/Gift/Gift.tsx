@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
@@ -87,6 +88,8 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
   gift_frozen_until = null,
   ...rest 
 }, ref) => {
+  const { t } = useTranslation();
+  
   // Определяем класс сетки в зависимости от количества элементов
   const getGridClass = () => {
     if (items.length === 1) return 'single';
@@ -112,7 +115,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
     >
       {isFastSale && (
         <div className={e('fast-sale-banner')}>
-          Fast sale
+          {t('gift.fastSale')}
         </div>
       )}
       
@@ -165,7 +168,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
 
             {items.length > 4 && (
               <div className={e('item')}>
-                  <div className={e('more-badge')}><span>+{items.length - 3} more</span></div>
+                  <div className={e('more-badge')}><span>+{items.length - 3} {t('gift.more')}</span></div>
               </div>
             )}
           </div>
@@ -208,8 +211,8 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
 
           {showOfferInfo && (
             <div className={e('offer-info')}>
-              <div className={e('offer-price')}>Offer Price: <span>{offerPriceTon} TON</span></div>
-              <div className={e('offer-time')}>Time End: <span>{timeEndTimestamp ? <CountdownTimer endTime={timeEndTimestamp} /> : (timeEnd || '--:--:--')}</span></div>
+              <div className={e('offer-price')}>{t('gift.offerPrice')}: <span>{offerPriceTon} TON</span></div>
+              <div className={e('offer-time')}>{t('gift.timeEnd')}: <span>{timeEndTimestamp ? <CountdownTimer endTime={timeEndTimestamp} /> : (timeEnd || '--:--:--')}</span></div>
             </div>
           )}
 
@@ -222,7 +225,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     className={e('sell-button')} 
                     onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
                   >
-                    Sell
+                    {t('giftStatus.sell')}
                   </button>
                 </div>
               ) : variant === 'my-channel' && channelStatus === 'reserved' ? (
@@ -232,7 +235,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     className={e('sell-button')} 
                     onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
                   >
-                    Sell
+                    {t('giftStatus.sell')}
                   </button>
                 </div>
               ) : variant === 'my-channel' && channelStatus === 'transferring' ? (
@@ -244,7 +247,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                       backgroundColor: '#DA7024',
                     }}
                   >
-                    Receiving
+                    {t('giftStatus.receiving')}
                   </button>
                 </div>
               ) : variant === 'my-channel' && channelStatus === 'frozen' ? (
@@ -253,7 +256,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     type="button" 
                     className={e('sell-button')} 
                   >
-                    Frozen by admin
+                    {t('giftStatus.frozenByAdmin')}
                   </button>
                 </div>
               ) : variant === 'my-channel' && channelStatus === 'active' || giftStatus === 'active' ? (
@@ -266,7 +269,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                       display: 'flex', alignItems: 'center', gap: '4px', paddingLeft: '12px', paddingRight: '12px', textAlign: 'left' }}
                   >
                     <div className="" style={{ flex: 1 }}>
-                      Your Price:
+                      {t('gift.yourPrice')}:
                     </div>
                     <div className="">
                       {price} TON
@@ -280,7 +283,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     className={e('remove-button')} 
                     onClick={(ev) => { ev.stopPropagation(); onDecline && onDecline(); }}
                   >
-                    Remove Offers
+                    {t('gift.removeOffers')}
                   </button>
                 </div>
               ) : (
@@ -290,7 +293,7 @@ export const Gift = forwardRef<HTMLDivElement, GiftProps>(({
                     className={e('sell-button')} 
                     onClick={(ev) => { ev.stopPropagation(); onSell && onSell(); }}
                   >
-                    Sell
+                    {t('giftStatus.sell')}
                   </button>
                   <button 
                     type="button" 

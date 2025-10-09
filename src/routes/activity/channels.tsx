@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { MarketTopBar, MarketFilters } from '@/components/MarketHeader';
 import { useActivityChannelsInfinite, useGifts } from '@/lib/api-hooks';
 import { channelFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
@@ -16,6 +17,7 @@ export const Route = createFileRoute('/activity/channels')({
 });
 
 function ActivityChannelsPage() {
+  const { t } = useTranslation();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -180,8 +182,8 @@ function ActivityChannelsPage() {
             {activities.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">😔</div>
-                <h3 className="text-xl font-semibold mb-2">No activity channels found</h3>
-                <p className="text-gray-400">Try adjusting your filters</p>
+                <h3 className="text-xl font-semibold mb-2">{t('market.noChannelsFound')}</h3>
+                <p className="text-gray-400">{t('market.adjustFilters')}</p>
               </div>
             ) : (
               <>
@@ -345,9 +347,9 @@ function ActivityChannelsPage() {
                   shareChannel(channelId, { gifts: selected.items.reduce((acc, item) => ({ ...acc, [item.id]: item.quantity }), {}) });
                 }}
               >
-                Share Channel
+                {t('channel.shareChannel')}
               </button>
-              <button className="product-sheet__btn product-sheet__btn--primary" type="button">Open Channel</button>
+              <button className="product-sheet__btn product-sheet__btn--primary" type="button">{t('channel.openChannel')}</button>
             </div>
           </div>
         </div>, document.body)}

@@ -204,6 +204,10 @@ export const useAddChannel = () => {
     mutationFn: addChannel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.userChannels });
+      queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
     },
   });
 };
@@ -323,6 +327,16 @@ export const useAcceptOffer = () => {
     mutationFn: acceptOffer,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['offers'] });
+      queryClient.invalidateQueries({ queryKey: ['offersInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };
@@ -334,6 +348,9 @@ export const useRejectOffer = () => {
     mutationFn: rejectOffer,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['offers'] });
+      queryClient.invalidateQueries({ queryKey: ['offersInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
     },
   });
 };
@@ -345,6 +362,9 @@ export const useCancelOffer = () => {
     mutationFn: cancelOffer,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['offers'] });
+      queryClient.invalidateQueries({ queryKey: ['offersInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
     },
   });
 };
@@ -355,7 +375,16 @@ export const useRespondOffer = () => {
     mutationFn: ({ offerId, action }: { offerId: number; action: 'accept' | 'reject' }) => respondOffer(offerId, action),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['offers'] });
+      queryClient.invalidateQueries({ queryKey: ['offersInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };
@@ -461,7 +490,13 @@ export const usePurchaseGift = () => {
       // Invalidate relevant queries after successful purchase
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
       queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };
@@ -476,8 +511,15 @@ export const useOfferGift = () => {
       // Invalidate relevant queries after successful offer
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['meGifts'] });
       queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['offers'] });
+      queryClient.invalidateQueries({ queryKey: ['offersInfinite'] });
     },
   });
 };
@@ -496,8 +538,15 @@ export const useSellItem = () => {
       // Invalidate relevant queries after successful sale listing
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };
@@ -526,6 +575,10 @@ export const useEditGiftPrice = () => {
       // Invalidate user gifts queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };
@@ -542,7 +595,10 @@ export const useRemoveGiftFromSale = () => {
       queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meGifts'] });
       // Also invalidate market gifts to update the market view
+      queryClient.invalidateQueries({ queryKey: ['marketGifts'] });
       queryClient.invalidateQueries({ queryKey: ['marketGiftsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };
@@ -560,7 +616,10 @@ export const useRemoveChannelFromSale = () => {
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
       queryClient.invalidateQueries({ queryKey: ['userChannels'] });
       // Also invalidate market channels to update the market view
+      queryClient.invalidateQueries({ queryKey: ['channels'] });
       queryClient.invalidateQueries({ queryKey: ['channelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannelsInfinite'] });
     },
   });
 };
@@ -577,6 +636,10 @@ export const useEditChannelPrice = () => {
       queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
       queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['channels'] });
+      queryClient.invalidateQueries({ queryKey: ['channelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannelsInfinite'] });
     },
   });
 };
@@ -598,6 +661,12 @@ export const useSellChannel = () => {
       queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
       queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['channels'] });
+      queryClient.invalidateQueries({ queryKey: ['channelsInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannelsInfinite'] });
     },
   });
 };
@@ -614,6 +683,10 @@ export const useReturnChannel = () => {
       queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
       queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannelsInfinite'] });
     },
   });
 };
@@ -630,6 +703,10 @@ export const useRemoveChannel = () => {
       queryClient.invalidateQueries({ queryKey: ['meChannelsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meChannels'] });
       queryClient.invalidateQueries({ queryKey: ['userChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannels'] });
+      queryClient.invalidateQueries({ queryKey: ['activityChannelsInfinite'] });
     },
   });
 };
@@ -645,6 +722,10 @@ export const useTransferGift = () => {
       // Invalidate user gifts queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };
@@ -660,6 +741,10 @@ export const useReceiveGift = () => {
       // Invalidate user gifts queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['meGiftsInfinite'] });
       queryClient.invalidateQueries({ queryKey: ['meGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivity'] });
+      queryClient.invalidateQueries({ queryKey: ['userActivityInfinite'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGifts'] });
+      queryClient.invalidateQueries({ queryKey: ['activityGiftsInfinite'] });
     },
   });
 };

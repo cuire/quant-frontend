@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AddGiftPreMarketModalProps {
   onClose: () => void;
 }
 
 export const AddGiftPreMarketModal = ({ onClose }: AddGiftPreMarketModalProps) => {
+  const { t } = useTranslation();
   const [giftLink, setGiftLink] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -12,7 +14,7 @@ export const AddGiftPreMarketModal = ({ onClose }: AddGiftPreMarketModalProps) =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!giftLink.trim()) {
-      setError('Please paste a gift link');
+      setError(t('modalsAddGift.pleasePassGiftLink'));
       return;
     }
     setIsLoading(true);
@@ -30,7 +32,7 @@ export const AddGiftPreMarketModal = ({ onClose }: AddGiftPreMarketModalProps) =
     <div className="market-header__sheet">
       <div className="product-sheet__header">
         <div style={{ textAlign: 'left', flex: 1 }}>
-          <h2 className="product-sheet__title" style={{ textAlign: 'left', padding: '0px' }}>Pre-Market</h2>
+          <h2 className="product-sheet__title" style={{ textAlign: 'left', padding: '0px' }}>{t('modalsAddGift.preMarketTitle')}</h2>
         </div>
         <button className="product-sheet__close" onClick={onClose}>✕</button>
       </div>
@@ -43,13 +45,13 @@ export const AddGiftPreMarketModal = ({ onClose }: AddGiftPreMarketModalProps) =
           marginBottom: '16px'
         }}>
           <div style={{ color: '#E7EEF7', fontSize: 12, lineHeight: 1.5 }}>
-            Send a link to our bot or paste it here and hit Send. The gift should appear in your inventory within 3 minutes.
+            {t('modalsAddGift.preMarketNote')}
           </div>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '16px' }}>
-            <label htmlFor="giftLink" style={{ display: 'block', marginBottom: 8, color: '#E7EEF7', fontSize: 14, fontWeight: 500 }}>PASTE GIFT LINK</label>
+            <label htmlFor="giftLink" style={{ display: 'block', marginBottom: 8, color: '#E7EEF7', fontSize: 14, fontWeight: 500 }}>{t('modalsAddGift.pasteGiftLink')}</label>
             <input
               id="giftLink"
               type="text"
@@ -89,7 +91,7 @@ export const AddGiftPreMarketModal = ({ onClose }: AddGiftPreMarketModalProps) =
               }}
               disabled={isLoading}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
@@ -106,7 +108,7 @@ export const AddGiftPreMarketModal = ({ onClose }: AddGiftPreMarketModalProps) =
               }}
               disabled={isLoading}
             >
-              {isLoading ? 'Sending...' : 'Send'}
+              {isLoading ? t('modalsStorage.sending') : t('modalsStorage.send')}
             </button>
           </div>
         </form>

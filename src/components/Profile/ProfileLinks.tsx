@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { config } from '@/lib/config';
 
 export interface ProfileLinksProps {
@@ -14,18 +15,20 @@ export const ProfileLinks: FC<ProfileLinksProps> = ({
   channelChannelUrl,
   channelChatUrl,
 }) => {
+  const { t } = useTranslation();
+  
   // Allow env-config override in future if needed
   const links = [
-    { label: 'Канал про подарки', url: giftChannelUrl || config.telegramChannelUrl },
-    { label: 'Чат про подарки', url: giftChatUrl || config.settings.supportUrl },
-    { label: 'Канал про каналы', url: channelChannelUrl || config.telegramChannelUrl },
-    { label: 'Чат про каналы', url: channelChatUrl || config.settings.supportUrl },
+    { label: t('profileLinks.giftChannel'), url: giftChannelUrl || config.telegramChannelUrl },
+    { label: t('profileLinks.giftChat'), url: giftChatUrl || config.settings.supportUrl },
+    { label: t('profileLinks.channelChannel'), url: channelChannelUrl || config.telegramChannelUrl },
+    { label: t('profileLinks.channelChat'), url: channelChatUrl || config.settings.supportUrl },
   ];
 
   return (
     <div className="profile-links">
       <div className="profile-links__header">
-        <h3 className="profile-links__title">Links</h3>
+        <h3 className="profile-links__title">{t('profileLinks.title')}</h3>
       </div>
       <div className="profile-links__grid">
         {links.map((item, i) => (

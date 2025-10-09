@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { GiftCurrentFilters, CurrentFilters } from '@/lib/filters';
 import './ActiveFilters.css';
 
@@ -24,6 +25,7 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
   symbols = [],
   bounds,
 }) => {
+  const { t } = useTranslation();
   const activeFilters: Array<{ key: string; label: string; value: string }> = [];
 
   if (filterType === 'gift') {
@@ -38,9 +40,9 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
       if (symbolIds.length === 1) {
         const symbol = symbols.find(s => s.id === symbolIds[0]);
         const name = symbol ? symbol.name : symbolIds[0];
-        activeFilters.push({ key: 'symbol', label: 'Symbol', value: name });
+        activeFilters.push({ key: 'symbol', label: t('filters.symbol'), value: name });
       } else if (symbolIds.length > 1) {
-        activeFilters.push({ key: 'symbol', label: 'Symbol', value: `${symbolIds.length} symbols` });
+        activeFilters.push({ key: 'symbol', label: t('filters.symbol'), value: `${symbolIds.length} symbols` });
       }
     }
 
@@ -61,7 +63,7 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
       if (!isDefaultPrice) {
         activeFilters.push({ 
           key: 'price', 
-          label: 'Price', 
+          label: t('common.price'), 
           value: `${giftFilters.minPrice} - ${giftFilters.maxPrice}` 
         });
       }
@@ -71,8 +73,8 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
     if (giftFilters.showPremarket === false) {
       activeFilters.push({ 
         key: 'showPremarket', 
-        label: 'Pre-market', 
-        value: 'Hidden' 
+        label: t('filters.preMarket'), 
+        value: t('filters.hidden') 
       });
     }
 
@@ -80,8 +82,8 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
     if (giftFilters.showUnupgraded === false) {
       activeFilters.push({ 
         key: 'showUnupgraded', 
-        label: 'Unupgraded', 
-        value: 'Hidden' 
+        label: t('filters.unupgraded'), 
+        value: t('filters.hidden') 
       });
     }
   } else {
@@ -100,7 +102,7 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
       if (!isDefaultPrice) {
         activeFilters.push({ 
           key: 'price', 
-          label: 'Price', 
+          label: t('common.price'), 
           value: `${channelFilters.minPrice} - ${channelFilters.maxPrice}` 
         });
       }
@@ -116,7 +118,7 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
       if (!isDefaultQuantity) {
         activeFilters.push({ 
           key: 'quantity', 
-          label: 'Quantity', 
+          label: t('common.quantity'), 
           value: `${channelFilters.minQuantity} - ${channelFilters.maxQuantity}` 
         });
       }
@@ -126,8 +128,8 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
     if (channelFilters.onlyExactGift === true) {
       activeFilters.push({ 
         key: 'onlyExactGift', 
-        label: 'Only exact gift', 
-        value: 'Enabled' 
+        label: t('filters.onlyExactGift'), 
+        value: t('filters.enabled') 
       });
     }
 
@@ -135,8 +137,8 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
     if (channelFilters.showUpgraded === false) {
       activeFilters.push({ 
         key: 'showUpgraded', 
-        label: 'Upgraded gifts', 
-        value: 'Hidden' 
+        label: t('filters.upgradedGifts'), 
+        value: t('filters.hidden') 
       });
     }
   }
@@ -149,7 +151,7 @@ export const ActiveFilters: FC<ActiveFiltersProps> = ({
   return (
     <div className="active-filters">
       <button className="active-filters__clear" onClick={onClearAll}>
-        Clear Filters
+        {t('filters.clearFilters')}
       </button>
       {activeFilters.map(({ key, label, value }) => (
         <div key={key} className="active-filters__chip">

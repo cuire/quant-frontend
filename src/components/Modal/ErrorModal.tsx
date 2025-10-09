@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './Modal.css';
 
 interface ErrorModalProps {
@@ -8,6 +9,8 @@ interface ErrorModalProps {
 export const ErrorModal: React.FC<ErrorModalProps> = ({
   onClose
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="success-modal__sheet">
       <div className="success-modal__sheet-content">
@@ -16,8 +19,8 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
         </div>
         
         <div className="success-modal__text">
-          <h2 className="success-modal__title">No purchases or sales</h2>
-          <p className="success-modal__subtitle">To participate in this contest, you must make purchases or sales of at least 10 TON since the start of the contest.</p>
+          <h2 className="success-modal__title">{t('modalsContest.errorTitle')}</h2>
+          <p className="success-modal__subtitle">{t('modalsContest.errorSubtitle')}</p>
         </div>
       </div>
       
@@ -27,7 +30,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
           onClick={onClose}
         >
           <span className="success-modal__close-icon">✕</span>
-          Close
+          {t('common.close')}
         </button>
       </div>
     </div>

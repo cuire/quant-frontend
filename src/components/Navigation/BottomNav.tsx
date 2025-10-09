@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { bem } from '@/css/bem.ts';
 import { classNames } from '@/css/classnames.ts';
 import { useLastTab } from '@/hooks/useLastTab';
@@ -49,6 +50,7 @@ function Icon({ name, active }: { name: NavItem['icon']; active: boolean }) {
 export const BottomNav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { t } = useTranslation();
   
   // Use the custom hook to track localStorage changes
   const [lastTab] = useLastTab('market-last-tab', 'channels');
@@ -64,10 +66,10 @@ export const BottomNav = () => {
   };
 
   const navItems: NavItem[] = [
-    { id: 'market', label: 'Market', path: '/market', icon: 'market', dynamicPath: getMarketPath },
-    { id: 'activity', label: 'Activity', path: '/activity', icon: 'activity', dynamicPath: getActivityPath },
-    { id: 'storage', label: 'Storage', path: '/storage', icon: 'storage' },
-    { id: 'profile', label: 'Profile', path: '/profile', icon: 'profile' },
+    { id: 'market', label: t('nav.market'), path: '/market', icon: 'market', dynamicPath: getMarketPath },
+    { id: 'activity', label: t('nav.activity'), path: '/activity', icon: 'activity', dynamicPath: getActivityPath },
+    { id: 'storage', label: t('nav.storage'), path: '/storage', icon: 'storage' },
+    { id: 'profile', label: t('nav.profile'), path: '/profile', icon: 'profile' },
   ];
 
   return (

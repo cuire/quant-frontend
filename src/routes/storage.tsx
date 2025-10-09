@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, useLocation } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { MarketTopBar } from '@/components/MarketHeader';
 import { useModal } from '@/contexts/ModalContext';
 import { useState, useEffect } from 'react';
@@ -10,6 +11,7 @@ export const Route = createFileRoute('/storage')({
 function StorageLayout() {
   const location = useLocation();
   const { openModal } = useModal();
+  const { t } = useTranslation();
   
   // Check if we're on the channels page
   const isOnChannelsPage = location.pathname === '/storage/channels';
@@ -38,7 +40,7 @@ function StorageLayout() {
     };
   }, []);
   
-  const addButtonText = activeSubTab === 'channels' ? 'Add Channel' : 'Add Gift';
+  const addButtonText = activeSubTab === 'channels' ? t('storage.addChannel') : t('storage.addGift');
   
   const handleAddChannel = () => {
     // Decide action based on active sub-tab saved by useLastTab hook

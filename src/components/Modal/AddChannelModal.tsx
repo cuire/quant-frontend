@@ -1,22 +1,26 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAddChannel } from '@/lib/api-hooks';
 import { Link } from '../Link/Link';
+import { useToast } from '@/hooks/useToast';
 
 interface AddChannelModalProps {
   onClose: () => void;
 }
 
 export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
+  const { t } = useTranslation();
   const [inviteLink, setInviteLink] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const addChannelMutation = useAddChannel();
+  const { success: showSuccessToast, block: showErrorToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!inviteLink.trim()) {
-      setError('Please enter an invite link');
+      setError(t('modalsAddChannel.pleaseEnterLink'));
       return;
     }
 
@@ -25,9 +29,12 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
 
     try {
       await addChannelMutation.mutateAsync(inviteLink);
+      showSuccessToast({ message: t('modalsAddChannel.channelAddedSuccess') });
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to add channel');
+      const errorMsg = err.message || t('modalsAddChannel.failedToAdd');
+      setError(errorMsg);
+      showErrorToast({ message: errorMsg });
     } finally {
       setIsLoading(false);
     }
@@ -37,14 +44,14 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
     <div className="market-header__sheet">
       <div className="product-sheet__header">
         <div style={{ textAlign: 'left', flex: 1 }}>
-          <h2 className="product-sheet__title" style={{ textAlign: 'left', padding: '0px' }}>Add Channel</h2>
+          <h2 className="product-sheet__title" style={{ textAlign: 'left', padding: '0px' }}>{t('modalsAddChannel.addChannel')}</h2>
           <p style={{ 
             color: '#9CA3AF', 
             fontSize: '14px', 
             margin: '4px 0 0 0',
             textAlign: 'left'
           }}>
-            You choose method "With Waiting".
+            {t('modalsAddChannel.withWaitingNote')}
           </p>
         </div>
         <button className="product-sheet__close" onClick={onClose}>✕</button>
@@ -63,7 +70,7 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
               <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M14 2V8H20" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span style={{ color: '#FFFFFF', fontWeight: '600', fontSize: '14px' }}>Instructions:</span>
+            <span style={{ color: '#FFFFFF', fontWeight: '600', fontSize: '14px' }}>{t('modalsAddChannel.instructions')}</span>
           </div>
           <ol style={{ 
             color: '#E7EEF7', 
@@ -72,10 +79,10 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
             paddingLeft: '20px'
           }}>
             <li style={{ marginBottom: '8px' }}>
-              Add <span style={{ color: '#248BDA' }}>@QuantMarketRobot</span> as administrator to your channel.
+              {t('modalsAddChannel.instruction1')}
             </li>
             <li style={{ marginBottom: '8px' }}>
-              Paste your channel username below (Only public channel).
+              {t('modalsAddChannel.instruction2')}
             </li>
           </ol>
           <Link
@@ -94,7 +101,7 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
               textAlign: 'center'
             }}>
 
-            Quick add bot
+            {t('modalsAddChannel.quickAddBot')}
             </div>
           </Link>
         </div>
@@ -113,7 +120,7 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
               <path d="M12 9V13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M12 17H12.01" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span style={{ color: '#FFFFFF', fontWeight: '600', fontSize: '14px' }}>Important:</span>
+            <span style={{ color: '#FFFFFF', fontWeight: '600', fontSize: '14px' }}>{t('modalsAddChannel.important')}</span>
           </div>
           <ul style={{ 
             color: '#AE7F80', 
@@ -123,13 +130,13 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
             opacity: 0.8
           }}>
             <li style={{ marginBottom: '8px' }}>
-              If you remove the bot from the channel, the listing will disappear from market.
+              {t('modalsAddChannel.important1')}
             </li>
             <li style={{ marginBottom: '8px' }}>
-              Make sure gifts in channel are visible and you have 2FA authentication enabled for at least 7 days.
+              {t('modalsAddChannel.important2')}
             </li>
             <li style={{ marginBottom: '8px' }}>
-              You'll have 1 hour to transfer the channel when selling.
+              {t('modalsAddChannel.important3')}
             </li>
           </ul>
         </div>
@@ -144,14 +151,14 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
               fontSize: '14px',
               fontWeight: '500'
             }}>
-              PASTE CHANNEL LINK
+              {t('modalsAddChannel.pasteChannelLink')}
             </label>
             <input
               id="inviteLink"
               type="text"
               value={inviteLink}
               onChange={(e) => setInviteLink(e.target.value)}
-              placeholder="@username"
+              placeholder={t('modalsAddChannel.usernamePlaceholder')}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -191,7 +198,7 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
               }}
               disabled={isLoading}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
@@ -208,7 +215,7 @@ export const AddChannelModal = ({ onClose }: AddChannelModalProps) => {
               }}
               disabled={isLoading}
             >
-              {isLoading ? 'Adding...' : 'Add Channel'}
+              {isLoading ? t('modalsAddChannel.adding') : t('modalsAddChannel.addChannel')}
             </button>
           </div>
         </form>

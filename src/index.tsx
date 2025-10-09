@@ -14,6 +14,9 @@ import './index.css';
 // Mock the environment in case, we are outside Telegram.
 import './mockEnv.ts';
 
+// Initialize i18n
+import '@/lib/i18n';
+
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
 try {

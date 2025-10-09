@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from '@/contexts/ModalContext';
 
 interface AddGiftModalProps {
@@ -6,6 +7,7 @@ interface AddGiftModalProps {
 }
 
 export const AddGiftModal = ({ onClose }: AddGiftModalProps) => {
+  const { t } = useTranslation();
   const { openModal } = useModal();
   const [addType, setAddType] = useState<'upgraded' | 'pre-market' | 'new'>('upgraded');
 
@@ -88,9 +90,9 @@ export const AddGiftModal = ({ onClose }: AddGiftModalProps) => {
     <div className="market-header__sheet">
       <div className="product-sheet__header">
         <div style={{ textAlign: 'left', flex: 1 }}>
-          <h2 className="product-sheet__title" style={{ textAlign: 'left', padding: '0px' }}>Select the gift type</h2>
+          <h2 className="product-sheet__title" style={{ textAlign: 'left', padding: '0px' }}>{t('modalsAddGift.selectGiftType')}</h2>
           <p style={{ color: '#9CA3AF', fontSize: '14px', margin: '4px 0 0 0', textAlign: 'left' }}>
-            Choose the method to add your gift:
+            {t('modalsAddGift.chooseMethod')}
           </p>
         </div>
         <button className="product-sheet__close" onClick={onClose}>✕</button>
@@ -99,23 +101,23 @@ export const AddGiftModal = ({ onClose }: AddGiftModalProps) => {
       <div className="product-sheet__list" style={{ marginTop: 8 }}>
         <Option
           value="upgraded"
-          title="Upgraded"
-          description="Just send your gift to @QuantRelayer and it will show in our marketplace. You can withdraw your gift at any time"
+          title={t('modalsAddGift.upgraded')}
+          description={t('modalsAddGift.upgradedDescription')}
         />
         <Option
           value="pre-market"
-          title="Pre-Market"
-          description="Send a link to the bot or paste it here and it will show in your inventory"
+          title={t('modalsAddGift.preMarket')}
+          description={t('modalsAddGift.preMarketDescription')}
         />
         <Option
           value="new"
-          title="New Gift"
-          description="Just send a new gift to @QuantRelayer and you can sell it in our marketplace"
+          title={t('modalsAddGift.newGift')}
+          description={t('modalsAddGift.newGiftDescription')}
         />
       </div>
 
       <div className="product-sheet__actions">
-        <button className="product-sheet__btn" type="button" onClick={onClose}>Close</button>
+        <button className="product-sheet__btn" type="button" onClick={onClose}>{t('common.close')}</button>
         <button
           className="product-sheet__btn product-sheet__btn--primary"
           style={{ display: 'inline-block' }}
@@ -130,7 +132,7 @@ export const AddGiftModal = ({ onClose }: AddGiftModalProps) => {
             }
           }}
         >
-          {addType === 'pre-market' ? 'Next: Pre-Market' : addType === 'upgraded' ? 'Next: Upgraded' : 'Next: New Gift'}
+          {addType === 'pre-market' ? t('modalsAddGift.nextPreMarket') : addType === 'upgraded' ? t('modalsAddGift.nextUpgraded') : t('modalsAddGift.nextNewGift')}
         </button>
       </div>
     </div>

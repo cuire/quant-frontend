@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useMarketGiftsInfinite, useGiftsWithFilters } from '@/lib/api-hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { Gift } from '@/components/Gift';
@@ -24,6 +25,7 @@ function GiftsPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const { openModal } = useModal();
   const handleDeclineGift = useDeclineGift();
+  const { t } = useTranslation();
   
   // Use the global filters hook
   const { handleFilterChange, currentFilters, apiFilters, resetFilters } = useGlobalFilters(search, navigate, 'gift');
@@ -172,14 +174,14 @@ function GiftsPage() {
       ) : isError ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">😔</div>
-          <h3 className="text-xl font-semibold mb-2">Error loading gifts</h3>
-          <p className="text-gray-400">{error?.message || 'Something went wrong'}</p>
+          <h3 className="text-xl font-semibold mb-2">{t('market.errorLoadingGifts')}</h3>
+          <p className="text-gray-400">{error?.message || t('market.somethingWentWrong')}</p>
         </div>
       ) : gifts.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🎁</div>
-          <h3 className="text-xl font-semibold mb-2">No gifts available</h3>
-          <p className="text-gray-400">Check back later for new gifts</p>
+          <h3 className="text-xl font-semibold mb-2">{t('market.noGiftsAvailable')}</h3>
+          <p className="text-gray-400">{t('market.checkBackLater')}</p>
         </div>
       ) : (
         <>
@@ -196,13 +198,13 @@ function GiftsPage() {
                   items={[
                     {
                       id: gift.gift_id.toString(),
-                      name: gift.slug || 'Unknown Gift',
+                      name: gift.slug || t('gift.unknownGift'),
                       icon: `https://FlowersRestricted.github.io/gifts/${gift.gift_id}/default.png`,
                       type: undefined,
                       giftSlug: gift.slug,
                     }
                   ]}
-                  title={gift.full_name || 'Unknown Gift'}
+                  title={gift.full_name || t('gift.unknownGift')}
                   giftNumber={`#${gift.id}`}
                   gift_frozen_until={gift.gift_frozen_until}
                   price={Math.round(Number(gift.price) || 0)}

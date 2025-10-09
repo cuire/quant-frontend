@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './Modal.css';
 
 interface Subscription {
@@ -39,6 +40,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   onSubscribe,
   subscriptions = defaultSubscriptions
 }) => {
+  const { t } = useTranslation();
   const [subscribedIds, setSubscribedIds] = useState<Set<string>>(new Set());
 
   const handleSubscribe = (subscriptionId: string) => {
@@ -60,8 +62,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     <div className="market-header__sheet">
       <div className="market-header__sheet-header">
         <div>
-          <div className="market-header__sheet-title">Subscriptions are required</div>
-          <div className="market-header__sheet-subtitle">To participate, subscribe</div>
+          <div className="market-header__sheet-title">{t('modalsContest.subscriptionsRequired')}</div>
+          <div className="market-header__sheet-subtitle">{t('modalsContest.toParticipateSubscribe')}</div>
         </div>
         <button 
           className="market-header__sheet-close"
@@ -99,7 +101,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
                     </svg>
                   ) : (
-                    'Subscribe'
+                    t('modalsContest.subscribe')
                   )}
                 </button>
               </div>
@@ -114,7 +116,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           onClick={onNext}
           disabled={!hasAllSubscriptions}
         >
-          Next
+          {t('modalsContest.next')}
         </button>
       </div>
     </div>

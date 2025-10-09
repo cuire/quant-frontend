@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useModal } from '@/contexts/ModalContext';
 import { UpgradedGiftSlugIcon } from '@/components/GiftIcon';
 import type { GiftAttribute } from '@/lib/api';
@@ -33,6 +34,7 @@ interface UpgradedGiftModalProps {
 }
 
 export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => {
+  const { t } = useTranslation();
   const { openModal } = useModal();
   const { giftId, giftSlug, price, model, backdrop, symbol } = data;
   const purchaseGiftMutation = usePurchaseGift();
@@ -60,7 +62,8 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
       onClose();
     } catch (error) {
       console.error('Purchase failed:', error);
-      showErrorToast({ message: 'Failed to purchase gift. Please try again.' });
+      const errorMessage = (error as any)?.message || 'Failed to purchase gift. Please try again.';
+      showErrorToast({ message: errorMessage });
     }
   };
 
@@ -83,7 +86,8 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
       onClose();
     } catch (error) {
       console.error('Failed to list gift for sale:', error);
-      showErrorToast({ message: 'Failed to list gift for sale. Please try again.' });
+      const errorMessage = (error as any)?.message || 'Failed to list gift for sale. Please try again.';
+      showErrorToast({ message: errorMessage });
     }
   };
 
@@ -100,7 +104,8 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
       onClose();
     } catch (error) {
       console.error('Failed to update gift price:', error);
-      showErrorToast({ message: 'Failed to update gift price. Please try again.' });
+      const errorMessage = (error as any)?.message || 'Failed to update gift price. Please try again.';
+      showErrorToast({ message: errorMessage });
     }
   };
 
@@ -203,7 +208,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             />
           </div>
           <div className="product-sheet__row-main">
-            <div className="product-sheet__row-note">Model</div>
+            <div className="product-sheet__row-note">{t('modals.model')}</div>
             <div className="product-sheet__row-title">
               {model.value}
               <span className="product-sheet__row-rarity">{formatRarity(model.rarity_per_mille || 0)}%</span>
@@ -232,7 +237,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             />
           </div>
           <div className="product-sheet__row-main">
-            <div className="product-sheet__row-note">Backdrop</div>
+            <div className="product-sheet__row-note">{t('modals.backdrop')}</div>
             <div className="product-sheet__row-title">
               {backdrop.value}
               <span className="product-sheet__row-rarity">{formatRarity(backdrop.rarity_per_mille || 0)}%</span>
@@ -260,7 +265,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
               />
           </div>
           <div className="product-sheet__row-main">
-            <div className="product-sheet__row-note">Symbol</div>
+            <div className="product-sheet__row-note">{t('modals.symbol')}</div>
             <div className="product-sheet__row-title">
               {symbol.value}
               <span className="product-sheet__row-rarity">{formatRarity(symbol.rarity_per_mille || 0)}%</span>
@@ -286,7 +291,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
               </svg>
             </div>
             <div className="product-sheet__row-main">
-              <div className="product-sheet__row-note">Unlock</div>
+              <div className="product-sheet__row-note">{t('modals.unlock')}</div>
               <div className="product-sheet__row-title">
                 <CountdownTimer endTime={data.gift_frozen_until} />
               </div>
@@ -307,7 +312,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
               target="_blank"
               rel="noopener noreferrer"
             >
-              View
+              {t('modals.view')}
             </a>
           )}
           
@@ -322,7 +327,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9.05056 11.514L5.64389 9.65599C5.31689 9.98059 4.9011 10.2011 4.44895 10.2897C3.9968 10.3784 3.52853 10.3312 3.10317 10.1541C2.67782 9.97695 2.31442 9.67787 2.05879 9.29453C1.80316 8.91119 1.66675 8.46075 1.66675 7.99999C1.66675 7.53924 1.80316 7.08879 2.05879 6.70545C2.31442 6.32211 2.67782 6.02304 3.10317 5.84593C3.52853 5.66882 3.9968 5.6216 4.44895 5.71024C4.9011 5.79888 5.31689 6.01939 5.64389 6.34399L9.05056 4.48599C8.93372 3.93782 9.01811 3.3659 9.28829 2.87483C9.55847 2.38376 9.99638 2.00635 10.522 1.81161C11.0475 1.61688 11.6256 1.61784 12.1506 1.81432C12.6755 2.01079 13.1121 2.38965 13.3807 2.88162C13.6492 3.37358 13.7317 3.94578 13.6131 4.49356C13.4944 5.04135 13.1826 5.52812 12.7345 5.86486C12.2864 6.2016 11.7321 6.36581 11.173 6.32746C10.6138 6.2891 10.0871 6.05075 9.68922 5.65599L6.28256 7.51399C6.3507 7.83419 6.3507 8.16513 6.28256 8.48533L9.68922 10.344C10.0871 9.94923 10.6138 9.71088 11.173 9.67253C11.7321 9.63418 12.2864 9.79838 12.7345 10.1351C13.1826 10.4719 13.4944 10.9586 13.6131 11.5064C13.7317 12.0542 13.6492 12.6264 13.3807 13.1184C13.1121 13.6103 12.6755 13.9892 12.1506 14.1857C11.6256 14.3821 11.0475 14.3831 10.522 14.1884C9.99638 13.9936 9.55847 13.6162 9.28829 13.1252C9.01811 12.6341 8.93372 12.0622 9.05056 11.514Z" fill="currentColor"/>
             </svg>
-            Share
+            {t('modals.share')}
           </button>
         </div>
       )}
@@ -335,7 +340,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             type="button"
             onClick={handleMakeOffer}
           >
-            Make Offer
+            {t('channel.makeOffer')}
           </button>
           
           <button 
@@ -345,7 +350,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
             onClick={handleBuyGifts}
             disabled={purchaseGiftMutation.isPending}
           >
-            {purchaseGiftMutation.isPending ? 'Purchasing...' : 'Buy Gifts'}
+            {purchaseGiftMutation.isPending ? t('modals.purchasing') : t('modals.buyGifts')}
             <span className="product-sheet__price">{getChannelPrice(price)} TON</span>
           </button>
         </div>
@@ -368,11 +373,12 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                     onClose();
                   } catch (error) {
                     console.error('Failed to remove gift from sale:', error);
-                    showErrorToast({ message: 'Failed to remove gift from sale. Please try again.' });
+                    const errorMessage = (error as any)?.message || 'Failed to remove gift from sale. Please try again.';
+                    showErrorToast({ message: errorMessage });
                   }
                 }}
               >
-                {removeGiftFromSaleMutation.isPending ? 'Removing...' : 'Remove Sell'}
+                {removeGiftFromSaleMutation.isPending ? t('channel.removing') : t('modals.removeSell')}
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
@@ -390,7 +396,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                   });
                 }}
               >
-                {editGiftPriceMutation.isPending ? 'Updating...' : 'Change Price'}
+                {editGiftPriceMutation.isPending ? t('channel.updating') : t('channel.changePrice')}
                 <span className="product-sheet__price">{getChannelPrice(price)} TON</span>
               </button>
             </>
@@ -402,7 +408,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 type="button"
                 onClick={handleSendGift}
               >
-                Transfer Gift
+                {t('modals.transferGift')}
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
@@ -417,7 +423,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 onClick={handleUpgrade}
                 disabled
               >
-                Upgrade
+                {t('modals.upgrade')}
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
@@ -433,7 +439,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                   });
                 }}
               >
-                {sellItemMutation.isPending ? 'Listing...' : 'Sell'}
+                {sellItemMutation.isPending ? t('channel.listing') : t('modals.sell')}
               </button>
             </>
           ) : (
@@ -444,7 +450,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 type="button"
                 onClick={handleSendGift}
               >
-                Transfer Gift
+                {t('modals.transferGift')}
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
@@ -452,7 +458,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 type="button"
                 onClick={handleReceiveGift}
               >
-                Receive Gift
+                {t('modals.receiveGift')}
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
@@ -468,7 +474,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                   });
                 }}
               >
-                {sellItemMutation.isPending ? 'Listing...' : 'Sell'}
+                {sellItemMutation.isPending ? t('channel.listing') : t('modals.sell')}
               </button>
             </>
           )}
@@ -486,7 +492,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 type="button"
                 onClick={() => openModal('cancel-offer', { offer: data.offer, offerSide: data.offerSide })}
               >
-                Decline Offer
+                {t('channel.declineOffer')}
               </button>
               <button 
                 className="product-sheet__btn product-sheet__btn--primary" 
@@ -494,7 +500,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 onClick={() => openModal('accept-offer', { offer: data.offer, offerSide: data.offerSide })}
                 style={{display: 'inline-block'}}
               >
-                Accept Offer
+                {t('channel.acceptOffer')}
                 {data.offer?.price !== undefined && (
                   <span className="product-sheet__price">{getChannelPrice(data.offer.price)} TON</span>
                 )}
@@ -509,7 +515,7 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
                 onClick={() => openModal('cancel-offer', { offer: data.offer, offerSide: data.offerSide })}
                 style={{width: '100%'}}
               >
-                Cancel Offer
+                {t('channel.cancelOffer')}
               </button>
             </>
           )}

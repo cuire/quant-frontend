@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { bem } from '@/css/bem.ts';
 import type { Gift } from '@/lib/api';
 import { GiftIcon } from '@/components/GiftIcon';
@@ -40,6 +41,8 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
   currentFilters,
   gifts = []
 }) => {
+  const { t } = useTranslation();
+  
   // Fetch bounds data for price and quantity ranges
   const { data: boundsData } = useChannelsBounds();
   
@@ -128,33 +131,33 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
 
   // Helper function to get pending gift name by ID
   const getPendingGiftNameById = (giftIds: string[]): string => {
-    if (giftIds.length === 0) return 'All';
+    if (giftIds.length === 0) return t('common.all');
     if (giftIds.length === 1) {
       const gift = gifts.find(g => g.id === giftIds[0]);
-      return gift ? (gift.short_name || gift.full_name) : 'All';
+      return gift ? (gift.short_name || gift.full_name) : t('common.all');
     }
-    return `${giftIds.length} gifts selected`;
+    return `${giftIds.length} ${t('market.giftsSelected')}`;
   };
 
   // Helper function to convert backend channel type to frontend display
   const getChannelTypeDisplay = (backendType: string): string => {
-    if (backendType === 'fast') return 'Instant';
-    if (backendType === 'waiting') return 'With Waiting';
-    return 'All';
+    if (backendType === 'fast') return t('filters.instant');
+    if (backendType === 'waiting') return t('filters.withWaiting');
+    return t('common.all');
   };
 
   // Helper function to convert backend sorting to frontend display
   const getSortingDisplay = (backendSorting: string): string => {
     const mapping: Record<string, string> = {
-      'date_new_to_old': 'Date: New to Old',
-      'date_old_to_new': 'Date: Old to New',
-      'price_low_to_high': 'Price: Low to High',
-      'price_high_to_low': 'Price: High to Low',
-      'price_per_unit': 'Price per unit',
-      'quantity_low_to_high': 'Quantity: Low to High',
-      'quantity_high_to_low': 'Quantity: High to Low',
+      'date_new_to_old': t('filters.dateNewToOld'),
+      'date_old_to_new': t('filters.dateOldToNew'),
+      'price_low_to_high': t('filters.priceLowToHigh'),
+      'price_high_to_low': t('filters.priceHighToLow'),
+      'price_per_unit': t('filters.pricePerUnit'),
+      'quantity_low_to_high': t('filters.quantityLowToHigh'),
+      'quantity_high_to_low': t('filters.quantityHighToLow'),
     };
-    return mapping[backendSorting] || 'Date: New to Old';
+    return mapping[backendSorting] || t('filters.dateNewToOld');
   };
 
   // Function to apply pending filters when modal closes
@@ -189,7 +192,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
         {/* Gift chip */}
         <div  style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
         <div className={e('filter-chip')} onClick={() => setOpenSheet('gift')} role="button" tabIndex={0}>
-          <span className={e('chip-label')}>Gift</span>
+          <span className={e('chip-label')}>{t('filters.gift')}</span>
           <div className={e('chip-control')}>
             <span className={e('chip-value')}>{getPendingGiftNameById(pendingSelectedGiftIds)}</span>
             <div className={e('chip-select')} />
@@ -206,7 +209,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
         {/* Channel Type chip */}
         <div  style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
         <div className={e('filter-chip')} onClick={() => setOpenSheet('channelType')} role="button" tabIndex={0}>
-          <span className={e('chip-label')}>Channel Type</span>
+          <span className={e('chip-label')}>{t('filters.channelType')}</span>
           <div className={e('chip-control')}>
             <span className={e('chip-value')}>{getChannelTypeDisplay(pendingChannelTypeFilter)}</span>
             <div className={e('chip-select')} />
@@ -223,7 +226,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
         {/* Sorting chip */}
         <div  style={{display: 'flex', flexDirection: 'row', backgroundColor: '#212A33', alignItems: 'center'}} className={e('filter-chip-container')}>
         <div className={e('filter-chip')} onClick={() => setOpenSheet('sorting')} role="button" tabIndex={0}>
-          <span className={e('chip-label')}>Sorting</span>
+          <span className={e('chip-label')}>{t('filters.sorting')}</span>
           <div className={e('chip-control')}>
             <span className={e('chip-value')}>{getSortingDisplay(pendingSortingFilter)}</span>
             <div className={e('chip-select')} />
@@ -249,12 +252,12 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
             <div className={e('sheet-header')}>
               <div>
                 <div className={e('sheet-title')}>
-                  {openSheet === 'gift' && 'Gift'}
-                  {openSheet === 'channelType' && 'Channel Type'}
-                  {openSheet === 'sorting' && 'Sorting'}
-                  {openSheet === 'filters' && 'Filters'}
+                  {openSheet === 'gift' && t('filters.gift')}
+                  {openSheet === 'channelType' && t('filters.channelType')}
+                  {openSheet === 'sorting' && t('filters.sorting')}
+                  {openSheet === 'filters' && t('common.filters')}
                 </div>
-                <div className={e('sheet-subtitle')}>Selects the appropriate filter</div>
+                <div className={e('sheet-subtitle')}>{t('filters.selectFilter')}</div>
               </div>
               <button className={e('sheet-close')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>✕</button>
             </div>
@@ -266,7 +269,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                     <path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 13.4 3.5 10.45 3.5S5 6.01 5 9.5 7.51 15.5 10.45 15.5c1.61 0 3.09-.59 4.23-1.48l.27.28v.79L20 20.49 21.49 19 15.5 14zm-5.05 0C8.01 14 6 11.99 6 9.5S8.01 5 10.45 5 14.9 7.01 14.9 9.5 12.89 14 10.45 14z" fill="#5B738F"/>
                   </svg>
                   <input
-                    placeholder="Name Gifts"
+                    placeholder={t('market.nameGifts')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -304,7 +307,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                           <div className={e('row-title')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span>{gift.full_name || gift.short_name}</span>
                           </div>
-                          <div className={e('row-note')}>{gift.count} channels on sale</div>
+                          <div className={e('row-note')}>{gift.count} {t('market.channelsOnSale')}</div>
                         </div>
                         <div className={e('row-right')}>
                           <div className={e('row-price')}>
@@ -313,7 +316,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                             </svg>
                             <span>{gift.floor_price}</span>
                           </div>
-                          <div className={e('row-min')}>Min. Price</div>
+                          <div className={e('row-min')}>{t('market.minPrice')}</div>
                         </div>
                       </label>
                     )
@@ -335,11 +338,11 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       showUpgraded: pendingShowUpgraded,
                     });
                     setOpenSheet(null);
-                  }}>Reset</button>
+                  }}>{t('common.reset')}</button>
                   <button className={e('btn-primary')} onClick={() => { 
                     applyPendingFilters();
                     setOpenSheet(null); 
-                  }}>Search</button>
+                  }}>{t('common.search')}</button>
                 </div>
               </div>
             )}
@@ -348,9 +351,9 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
               <div className={e('sheet-content')}>
                 <div className={e('panel')}>
                 {[
-                  {value: 'All', label: 'All'},
-                  {value: 'fast', label: 'Instant'},
-                  {value: 'waiting', label: 'With Waiting'}
+                  {value: 'All', label: t('common.all')},
+                  {value: 'fast', label: t('filters.instant')},
+                  {value: 'waiting', label: t('filters.withWaiting')}
                 ].map(({value, label}) => (
                   <label key={value} className={e('row')}>
                     <input type="radio" className={e('radio')} name="channelType" checked={pendingChannelTypeFilter===value} onChange={() => updatePendingFilter('channelType', value)} />
@@ -396,8 +399,8 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       showUpgraded: pendingShowUpgraded,
                     });
                     setOpenSheet(null);
-                  }}>Reset</button>
-                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                  }}>{t('common.reset')}</button>
+                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>{t('common.search')}</button>
                 </div>
               </div>
             )}
@@ -406,13 +409,13 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
               <div className={e('sheet-content')}>
                 <div className={e('panel')}>
                 {[
-                  {value: 'date_new_to_old', label: 'Date: New to Old'},
-                  {value: 'date_old_to_new', label: 'Date: Old to New'},
-                  {value: 'price_low_to_high', label: 'Price: Low to High'},
-                  {value: 'price_high_to_low', label: 'Price: High to Low'},
-                  {value: 'price_per_unit', label: 'Price per unit'},
-                  {value: 'quantity_low_to_high', label: 'Quantity: Low to High'},
-                  {value: 'quantity_high_to_low', label: 'Quantity: High to Low'}
+                  {value: 'date_new_to_old', label: t('filters.dateNewToOld')},
+                  {value: 'date_old_to_new', label: t('filters.dateOldToNew')},
+                  {value: 'price_low_to_high', label: t('filters.priceLowToHigh')},
+                  {value: 'price_high_to_low', label: t('filters.priceHighToLow')},
+                  {value: 'price_per_unit', label: t('filters.pricePerUnit')},
+                  {value: 'quantity_low_to_high', label: t('filters.quantityLowToHigh')},
+                  {value: 'quantity_high_to_low', label: t('filters.quantityHighToLow')}
                 ].map(({value, label}) => (
                   <label key={value} className={e('row')}>
                     <input type="radio" className={e('radio')} name="sorting" checked={pendingSortingFilter===value} onChange={() => updatePendingFilter('sorting', value)} />
@@ -438,8 +441,8 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       showUpgraded: pendingShowUpgraded,
                     });
                     setOpenSheet(null);
-                  }}>Reset</button>
-                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>Search</button>
+                  }}>{t('common.reset')}</button>
+                  <button className={e('btn-primary')} onClick={() => { applyPendingFilters(); setOpenSheet(null); }}>{t('common.search')}</button>
                 </div>
               </div>
             )}
@@ -451,7 +454,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                     <span className={e('card-icon')}>
                       <svg width="14" height="14" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.915 2.31099L6.62167 10.7402C6.5571 10.8426 6.46755 10.9269 6.36145 10.9852C6.25534 11.0435 6.13616 11.0738 6.0151 11.0734C5.89403 11.073 5.77506 11.0418 5.66936 10.9828C5.56366 10.9238 5.4747 10.8388 5.41083 10.736L0.221667 2.30765C0.0765355 2.07125 -0.000196165 1.79922 3.76621e-07 1.52182C0.0065815 1.11219 0.175416 0.721902 0.469449 0.436618C0.763481 0.151334 1.15869 -0.00563721 1.56833 0.000154777H10.5825C11.4433 0.000154777 12.1433 0.679321 12.1433 1.51849C12.1428 1.7988 12.0637 2.07335 11.915 2.31099ZM1.49667 2.02932L5.3575 7.98265V1.42932H1.9C1.5 1.42932 1.32167 1.69349 1.49667 2.02932ZM6.78583 7.98265L10.6467 2.02932C10.825 1.69349 10.6433 1.42932 10.2433 1.42932H6.78583V7.98265Z" fill="#AFC0D4"/></svg>
                     </span>
-                    <span className={e('card-title')}>Price</span>
+                    <span className={e('card-title')}>{t('common.price')}</span>
                   </div>
                   <div className={e('range-wrap')}>
                     <div className={e('range-track')} />
@@ -499,13 +502,13 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       const maxPrice = boundsData?.bounds?.max_price || 2000;
                       const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
                       setPendingPriceRange([Math.min(val, pendingPriceRange[1] - 1), pendingPriceRange[1]]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder={t('common.from')} />
                     <input value={pendingPriceRange[1]} onChange={(e)=> {
                       const minPrice = boundsData?.bounds?.min_price || 0;
                       const maxPrice = boundsData?.bounds?.max_price || 2000;
                       const val = Math.max(minPrice, Math.min(maxPrice, Number(e.target.value)));
                       setPendingPriceRange([pendingPriceRange[0], Math.max(val, pendingPriceRange[0] + 1)]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder={t('common.to')} />
                   </div>
                 </div>
                 <div className={e('card')}>
@@ -513,7 +516,7 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                     <span className={e('card-icon')}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v2H4V7zm0 5h16v2H4v-2zm0 5h16v2H4v-2z" fill="#AFC0D4"/></svg>
                     </span>
-                    <span className={e('card-title')}>Quantity</span>
+                    <span className={e('card-title')}>{t('common.quantity')}</span>
                   </div>
                   <div className={e('range-wrap')}>
                     <div className={e('range-track')} />
@@ -561,23 +564,23 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       const maxCount = boundsData?.bounds?.max_count || 200;
                       const val = Math.max(minCount, Math.min(maxCount, Number(e.target.value)));
                       setPendingQtyRange([Math.min(val, pendingQtyRange[1] - 1), pendingQtyRange[1]]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="From" />
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder={t('common.from')} />
                     <input value={pendingQtyRange[1]} onChange={(e)=> {
                       const minCount = boundsData?.bounds?.min_count || 0;
                       const maxCount = boundsData?.bounds?.max_count || 200;
                       const val = Math.max(minCount, Math.min(maxCount, Number(e.target.value)));
                       setPendingQtyRange([pendingQtyRange[0], Math.max(val, pendingQtyRange[0] + 1)]);
-                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder="To" />
+                    }} style={{backgroundColor: '#2A3541', border: '1px solid #3F4B58', borderRadius: '7px'}} placeholder={t('common.to')} />
                   </div>
                 </div>
 
                 <div className={e('card')}>
                   <label className={e('toggle-row')}>
-                    <span style={{color: '#fff'}}>Only exact gift</span>
+                    <span style={{color: '#fff'}}>{t('filters.onlyExactGift')}</span>
                     <input className={e('switch')} type="checkbox" checked={pendingOnlyExactGift} onChange={(e)=> setPendingOnlyExactGift(e.target.checked)} />
                   </label>
                   <label className={e('toggle-row')}>
-                    <span style={{color: '#fff'}}>Show with upgraded gifts</span>
+                    <span style={{color: '#fff'}}>{t('filters.showUpgradedGifts')}</span>
                     <input className={e('switch')} type="checkbox" checked={pendingShowUpgraded} onChange={(e)=> setPendingShowUpgraded(e.target.checked)} />
                   </label>
                 </div>
@@ -610,11 +613,11 @@ export const MarketFilters: FC<MarketFiltersProps> = ({
                       showUpgraded: true,
                     });
                     setOpenSheet(null);
-                  }}>Reset</button>
+                  }}>{t('common.reset')}</button>
                   <button className={e('btn-primary')} onClick={() => {
                     applyPendingFilters();
                     setOpenSheet(null);
-                  }}>Search</button>
+                  }}>{t('common.search')}</button>
                 </div>
               </div>
             )}

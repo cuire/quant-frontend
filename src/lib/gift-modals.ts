@@ -126,7 +126,7 @@ export function openMarketGiftModal(
     giftSlug: gift.slug,
     price: gift.price,
     name: gift.full_name,
-    num: gift.num,
+    num: gift.id,
     gift_frozen_until: gift.gift_frozen_until,
     model: model ? {
       value: model.value,
@@ -170,7 +170,8 @@ export function useDeclineGift() {
       showSuccessToast({ message: 'Gift removed from sale successfully!' });
     } catch (error) {
       console.error('Failed to remove gift from sale:', error);
-      showErrorToast({ message: 'Failed to remove gift from sale. Please try again.' });
+      const errorMessage = (error as any)?.message || 'Failed to remove gift from sale. Please try again.';
+      showErrorToast({ message: errorMessage });
     }
   };
 }
@@ -189,7 +190,8 @@ export function useDeclineChannel() {
       showSuccessToast({ message: 'Channel removed from sale successfully!' });
     } catch (error) {
       console.error('Failed to remove channel from sale:', error);
-      showErrorToast({ message: 'Failed to remove channel from sale. Please try again.' });
+      const errorMessage = (error as any)?.message || 'Failed to remove channel from sale. Please try again.';
+      showErrorToast({ message: errorMessage });
     }
   };
 }

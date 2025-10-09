@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useUser, useUserProfile, useWithdrawReferralBalance } from '../../lib/api-hooks'
 import { useModal } from '../../contexts/ModalContext'
 import { 
@@ -8,16 +9,19 @@ import {
 } from '../../components/Profile'
 import '../../components/Profile/Profile.css'
 import { ProfileLinks } from '../../components/Profile/ProfileLinks'
+import { useToast } from '../../hooks/useToast'
 
 export const Route = createFileRoute('/profile/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const { t } = useTranslation()
   const { data: user } = useUser()
   const { data: profile } = useUserProfile()
   const withdrawReferralBalance = useWithdrawReferralBalance()
   const { openModal } = useModal()
+  const { success: showSuccessToast, block: showErrorToast } = useToast()
 
   console.log('- User data:', user)
   console.log('- Profile data:', profile)
@@ -25,9 +29,11 @@ function RouteComponent() {
   const handleWithdrawReferralBalance = async () => {
     try {
       await withdrawReferralBalance.mutateAsync()
-      // Success is handled by the hook's onSuccess callback
+      showSuccessToast({ message: t('profile.referralBalanceWithdrawn') })
     } catch (error) {
       console.error('Failed to withdraw referral balance:', error)
+      const errorMessage = (error as any)?.message || t('profile.referralBalanceWithdrawFailed')
+      showErrorToast({ message: errorMessage })
     }
   }
 
@@ -38,7 +44,7 @@ function RouteComponent() {
   if (!user || !profile) {
     return (
       <div className="profile-container">
-        <div>Loading...</div>
+        <div>{t('profile.loading')}</div>
       </div>
     )
   }

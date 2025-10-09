@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './Modal.css';
 import { config } from '@/lib/config';
 import { useTransferGift, useReceiveGift } from '@/lib/api-hooks';
@@ -21,6 +22,7 @@ type SellModalProps = {
 }
 
 export const SellModal = ({ itemId, itemName, defaultPrice, shouldShowDuration = true, changePrice = false, floorPrice = 891, onClose, onSubmit, type='channel' }: SellModalProps) => {
+    const { t } = useTranslation();
     const [price, setPrice] = useState<string>(defaultPrice ? defaultPrice.toString() : '');
     const [duration, setDuration] = useState<1 | 3 | 5 | 8>(1);
     const [isLoading, setIsLoading] = useState(false);
@@ -48,32 +50,37 @@ export const SellModal = ({ itemId, itemName, defaultPrice, shouldShowDuration =
     return (
         <div className="offer-modal">
             <div className="offer-modal__header">
-                <div className="offer-modal__title">{changePrice ? 'Change Price' : `Sell ${type === 'channel' ? 'Channel' : 'Gift'}`} {itemName}</div>
+                <div className="offer-modal__title">
+                    {changePrice 
+                        ? t('modalsStorage.changePrice') 
+                        : (type === 'channel' ? t('modalsStorage.sellChannel') : t('modalsStorage.sellGift'))
+                    } {itemName}
+                </div>
                 <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
             </div>
 
             <div className="offer-modal__block">
-                <div className="offer-modal__label">PRICE IN TON</div>
+                <div className="offer-modal__label">{t('modalsStorage.priceInTon')}</div>
                 <input 
                     className="offer-modal__input" 
                     type="number"
-                    placeholder="Enter price" 
+                    placeholder={t('modalsStorage.enterPrice')}
                     value={price} 
                     onChange={(e) => setPrice(e.target.value)} 
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3px' }}>
                     <div className="offer-modal__balance">
-                        You will receive: <span style={{color:'#2F82C7'}}>{youWillReceive.toFixed(2)} TON</span>
+                        {t('modalsStorage.youWillReceive')} <span style={{color:'#2F82C7'}}>{youWillReceive.toFixed(2)} TON</span>
                     </div>
                     <div className="offer-modal__balance">
-                        Floor price: <span style={{color:'#7F94AE'}}>{floorPrice} TON</span>
+                        {t('modalsStorage.floorPrice')} <span style={{color:'#7F94AE'}}>{floorPrice} TON</span>
                     </div>
                 </div>
             </div>
 
             {shouldShowDuration && (
                 <div className="offer-modal__block">
-                    <div className="offer-modal__label">DURATION</div>
+                    <div className="offer-modal__label">{t('modalsStorage.duration')}</div>
                     <div className="sell-modal__duration-slider">
                         <input
                             type="range"
@@ -95,7 +102,7 @@ export const SellModal = ({ itemId, itemName, defaultPrice, shouldShowDuration =
                         </div>
                     </div>
                     <div className="offer-modal__balance" style={{ marginTop: '8px' }}>
-                        You can choose how much time you want to spend on the channel.
+                        {t('modalsStorage.durationNote')}
                     </div>
                 </div>
             )}
@@ -106,7 +113,12 @@ export const SellModal = ({ itemId, itemName, defaultPrice, shouldShowDuration =
                 onClick={handleSubmit}
                 disabled={isLoading || !isValid}
             >
-                {isLoading ? 'Processing...' : changePrice ? 'Change Price' : `Sell ${type === 'channel' ? 'Channel' : 'Gift'}`}
+                {isLoading 
+                    ? t('modalsStorage.sending') 
+                    : changePrice 
+                        ? t('modalsStorage.changePrice') 
+                        : (type === 'channel' ? t('modalsStorage.sellChannel') : t('modalsStorage.sellGift'))
+                }
             </button>
         </div>
     );
@@ -120,6 +132,7 @@ type SendGiftModalProps = {
 }
 
 export const SendGiftModal = ({ giftId, giftName, onClose, onSuccess }: SendGiftModalProps) => {
+    const { t } = useTranslation();
     const [username, setUsername] = useState<string>('');
     const transferGiftMutation = useTransferGift();
     const { success: showSuccessToast, block: showErrorToast } = useToast();
@@ -134,24 +147,25 @@ export const SendGiftModal = ({ giftId, giftName, onClose, onSuccess }: SendGift
                 giftId,
                 userIdOrUsername: username.trim()
             });
-            showSuccessToast({ message: 'Gift sent successfully!' });
+            showSuccessToast({ message: t('modalsStorage.giftSentSuccess') });
             onSuccess();
             onClose();
         } catch (error) {
             console.error('Failed to send gift:', error);
-            showErrorToast({ message: 'Failed to send gift. Please try again.' });
+            const errorMessage = (error as any)?.message || t('modalsStorage.giftSentFailed');
+            showErrorToast({ message: errorMessage });
         }
     };
 
     return (
         <div className="offer-modal">
             <div className="offer-modal__header">
-                <div className="offer-modal__title">Send Gift {giftName}</div>
+                <div className="offer-modal__title">{t('modalsStorage.sendGift')} {giftName}</div>
                 <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
             </div>
 
             <div className="offer-modal__block">
-                <div className="offer-modal__label">ENTER YOUR USERNAME OR TELEGRAM ID</div>
+                <div className="offer-modal__label">{t('modalsStorage.enterUsernameOrId')}</div>
                 <div style={{ position: 'relative' }}>
                     <span style={{
                         position: 'absolute',
@@ -165,14 +179,14 @@ export const SendGiftModal = ({ giftId, giftName, onClose, onSuccess }: SendGift
                     <input 
                         className="offer-modal__input" 
                         type="text"
-                        placeholder="username..." 
+                        placeholder={t('modalsStorage.usernamePlaceholder')}
                         value={username} 
                         onChange={(e) => setUsername(e.target.value)}
                         style={{ paddingLeft: '24px' }}
                     />
                 </div>
                 <div className="offer-modal__balance" style={{ marginTop: '8px' }}>
-                    Our bot will redirect this gift to the user you specified.
+                    {t('modalsStorage.botWillRedirect')}
                 </div>
             </div>
 
@@ -182,7 +196,7 @@ export const SendGiftModal = ({ giftId, giftName, onClose, onSuccess }: SendGift
                 onClick={handleSubmit}
                 disabled={transferGiftMutation.isPending || !isValid}
             >
-                {transferGiftMutation.isPending ? 'Sending...' : `Send 1 Gift`}
+                {transferGiftMutation.isPending ? t('modalsStorage.sending') : t('modalsStorage.sendOneGift')}
             </button>
         </div>
     );
@@ -196,6 +210,7 @@ type ReceiveGiftModalProps = {
 }
 
 export const ReceiveGiftModal = ({ giftId, giftName, onClose, onSuccess }: ReceiveGiftModalProps) => {
+    const { t } = useTranslation();
     const receiveGiftMutation = useReceiveGift();
     const { success: showSuccessToast, block: showErrorToast } = useToast();
 
@@ -207,28 +222,29 @@ export const ReceiveGiftModal = ({ giftId, giftName, onClose, onSuccess }: Recei
             
             await receiveGiftMutation.mutateAsync(giftId);
             
-            showSuccessToast({ message: 'Gift received successfully!' });
+            showSuccessToast({ message: t('modalsStorage.giftReceivedSuccess') });
             onSuccess();
             onClose();
         } catch (error) {
             console.error('Failed to receive gift:', error);
-            showErrorToast({ message: 'Failed to receive gift. Please try again.' });
+            const errorMessage = (error as any)?.message || t('modalsStorage.giftReceivedFailed');
+            showErrorToast({ message: errorMessage });
         }
     };
 
     return (
         <div className="offer-modal">
             <div className="offer-modal__header">
-                <div className="offer-modal__title">Receive Gift</div>
+                <div className="offer-modal__title">{t('modalsStorage.receiveGift')}</div>
                 <button className="offer-modal__close" type="button" onClick={onClose}>✕</button>
             </div>
 
             <div className="offer-modal__block">
                 <div className="offer-modal__balance" style={{ marginBottom: '16px' }}>
-                    Are you sure you want to receive a gift? (cost of receiving <span style={{color:'#2F82C7'}}>0.1 TON</span>)
+                    {t('modalsStorage.receiveConfirm')} <span style={{color:'#2F82C7'}}>0.1 TON</span>)
                 </div>
                 
-                <div className="offer-modal__label">WITHDRAWAL FEE:</div>
+                <div className="offer-modal__label">{t('modalsStorage.withdrawalFee')}</div>
                 <div style={{
                     backgroundColor: '#344150',
                     border: '1px solid #4A5568',
@@ -249,7 +265,7 @@ export const ReceiveGiftModal = ({ giftId, giftName, onClose, onSuccess }: Recei
                     onClick={onClose}
                     disabled={receiveGiftMutation.isPending}
                 >
-                    X Close
+                    {t('modalsStorage.xClose')}
                 </button>
                 <button 
                     className="product-sheet__btn product-sheet__btn--primary" 
@@ -257,7 +273,7 @@ export const ReceiveGiftModal = ({ giftId, giftName, onClose, onSuccess }: Recei
                     onClick={handleReceive}
                     disabled={receiveGiftMutation.isPending}
                 >
-                    {receiveGiftMutation.isPending ? 'Receiving...' : 'Receive'}
+                    {receiveGiftMutation.isPending ? t('modalsStorage.receiving') : t('modalsStorage.receive')}
                 </button>
             </div>
         </div>

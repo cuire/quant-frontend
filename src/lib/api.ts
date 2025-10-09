@@ -263,6 +263,22 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
 
   if (!response.ok) {
+    // Try to parse error response for detail message
+    try {
+      const errorData = await response.json();
+      // If status is not 500 and there's a detail field, use it
+      if (response.status !== 500 && errorData?.detail) {
+        const error = new Error(errorData.detail);
+        (error as any).status = response.status;
+        (error as any).detail = errorData.detail;
+        throw error;
+      }
+    } catch (parseError) {
+      // If parsing fails, fall through to generic error
+      if (parseError instanceof Error && (parseError as any).detail) {
+        throw parseError;
+      }
+    }
     throw new Error(`API error: ${response.status}`);
   }
 

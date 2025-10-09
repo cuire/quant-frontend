@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useActivityGiftsInfinite, useGifts } from '@/lib/api-hooks';
 import { GiftFilters } from '@/components/MarketHeader';
 import { GiftCurrentFilters, giftFiltersSearchSchema, useGlobalFilters } from '@/lib/filters';
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/activity/gifts')({
 });
 
 function ActivityGiftsPage() {
+  const { t } = useTranslation();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -189,8 +191,8 @@ function ActivityGiftsPage() {
         ) : activityGifts.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🎁</div>
-            <h3 className="text-xl font-semibold mb-2">No activity gifts available</h3>
-            <p className="text-gray-400">Try adjusting your filters</p>
+            <h3 className="text-xl font-semibold mb-2">{t('market.noGiftsAvailable')}</h3>
+            <p className="text-gray-400">{t('market.adjustFilters')}</p>
           </div>
         ) : (
           <>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useMemo } from 'react';
 import { useOffersInfinite, useGifts } from '@/lib/api-hooks';
 import { Gift } from '@/components/Gift';
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/storage/offers/placed')({
 });
 
 function PlacedOffersPage() {
+  const { t } = useTranslation();
   const { openModal } = useModal();
   const { data: giftsData } = useGifts();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useOffersInfinite(20);
@@ -24,7 +26,7 @@ function PlacedOffersPage() {
   }, [giftsData]);
 
   const generateChannelTitle = (gifts: any[], isModal = false) => {
-    if (!gifts || gifts.length === 0) return "Empty Channel";
+    if (!gifts || gifts.length === 0) return t('channel.emptyChannel');
 
     const maxDisplay = 2;
     const displayGifts = gifts.slice(0, maxDisplay);
@@ -33,7 +35,7 @@ function PlacedOffersPage() {
 
     for (let i = 0; i < displayGifts.length; i++) {
       const gift = displayGifts[i];
-      const giftName = gift.name || "Unknown";
+      const giftName = gift.name || t('channel.unknown');
       const giftText = `${giftName} x${gift.quantity}`;
 
       // Add spacing if not first item
@@ -119,22 +121,22 @@ function PlacedOffersPage() {
       <div className="storage-tabs">
         <div className="storage-segment">
           <Link to="/storage/channels" className="storage-tab-link">
-            Items
+            {t('tabs.items')}
           </Link>
           <Link to="/storage/offers/received" className="storage-tab-link is-active">
-            Offers
+            {t('tabs.offers')}
           </Link>
           <Link to="/storage/activity" search={{ page: 1, limit: 20, gift_id: [], sort_by: 'date_new_to_old' } as any} className="storage-tab-link">
-            Activity
+            {t('tabs.activity')}
           </Link>
         </div>
 
         <div className="storage-subsegment">
           <Link to="/storage/offers/received" className="storage-tab-link">
-            Received
+            {t('tabs.received')}
           </Link>
           <Link to="/storage/offers/placed" className="storage-tab-link is-active">
-            Placed
+            {t('tabs.placed')}
           </Link>
         </div>
       </div>
@@ -147,15 +149,15 @@ function PlacedOffersPage() {
 
       {error && (
         <div style={{ textAlign: 'center', padding: '20px', color: '#FF3939' }}>
-          <p>Error loading offers: {error.message}</p>
+          <p>{t('common.error')}: {error.message}</p>
         </div>
       )}
 
       {!isLoading && allOffers.length === 0 && (
        <div className="text-center py-16">
         <div className="text-6xl mb-4">😔</div>
-        <h3 className="text-xl font-semibold mb-2">No activity found</h3>
-        <p className="text-gray-400">Your placed offers will appear here</p>
+        <h3 className="text-xl font-semibold mb-2">{t('storage.noOffersFound')}</h3>
+        <p className="text-gray-400">{t('storage.checkBackLater')}</p>
       </div>
       )}
 

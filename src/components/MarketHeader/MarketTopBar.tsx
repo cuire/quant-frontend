@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { bem } from '@/css/bem.ts';
 import { useUser } from '@/lib/api-hooks';
 import { Link } from '../Link/Link';
@@ -94,6 +95,7 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
   onSettingsClick,
   addButtonText = 'Add Channel'
 }) => {
+  const { t } = useTranslation();
   const { data: user } = useUser();
   const balance = propBalance ?? user?.balance ?? 0;
   const { openModal } = useModal();
@@ -133,7 +135,7 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9.99998 12L6.66665 8.66667L9.99998 5.33333" stroke="white" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className={e('close-text')}>Back</span>
+            <span className={e('close-text')}>{t('topBar.back')}</span>
           </button>
         ) : (
           showSettings ? (

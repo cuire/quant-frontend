@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface AddGiftInstructionsModalProps {
   onClose: () => void;
   type: 'upgraded' | 'new';
@@ -6,16 +8,18 @@ interface AddGiftInstructionsModalProps {
 import { InfoBackground } from '../Graphics/InfoBackground';
 
 export const AddGiftInstructionsModal = ({ onClose, type }: AddGiftInstructionsModalProps) => {
+  const { t } = useTranslation();
+  
   const items: Array<{ title: string; note?: string }> = type === 'upgraded'
     ? [
-        { title: 'Click the button to access the bot', note: 'The username of the @QuantRelayer' },
-        { title: 'Send a gift to the bot', note: 'In any quantity' },
-        { title: 'The gift will appear in the "Storage"', note: 'The gift should appear within 3 minutes.' },
+        { title: t('modalsAddGift.instructions1'), note: t('modalsAddGift.instructions1Note') },
+        { title: t('modalsAddGift.instructions2'), note: t('modalsAddGift.instructions2Note') },
+        { title: t('modalsAddGift.instructions3Upgraded'), note: t('modalsAddGift.instructions3Note') },
       ]
     : [
-        { title: 'Click the button to access the bot', note: 'The username of the @QuantRelayer' },
-        { title: 'Send a gift to the bot', note: 'In any quantity' },
-        { title: 'You can sell it in our marketplace', note: 'The gift should appear within 3 minutes.' },
+        { title: t('modalsAddGift.instructions1'), note: t('modalsAddGift.instructions1Note') },
+        { title: t('modalsAddGift.instructions2'), note: t('modalsAddGift.instructions2Note') },
+        { title: t('modalsAddGift.instructions3New'), note: t('modalsAddGift.instructions3Note') },
       ];
 
   return (
@@ -60,7 +64,7 @@ export const AddGiftInstructionsModal = ({ onClose, type }: AddGiftInstructionsM
             className="product-sheet__btn product-sheet__btn--primary"
             style={{ textDecoration: 'none' }}
           >
-            Open @QuantRelayer
+            {t('modalsAddGift.openQuantRelayer')}
           </a>
         </div>
       </div>

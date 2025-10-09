@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './Loader.css';
 
 interface LoaderProps {
@@ -8,8 +9,9 @@ interface LoaderProps {
 
 export const Loader: React.FC<LoaderProps> = ({ 
   isLoading, 
-  message = "Loading..." 
+  message 
 }) => {
+  const { t } = useTranslation();
   if (!isLoading) return null;
 
   return (
@@ -27,7 +29,7 @@ export const Loader: React.FC<LoaderProps> = ({
         
         {/* Loading Text */}
         <div className="loader-text">
-          {message}
+          {message || t('common.loading')}
         </div>
         
         {/* Secondary Text */}

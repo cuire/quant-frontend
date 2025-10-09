@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { copyTextToClipboard, initData } from "@telegram-apps/sdk-react";
 import { useUser, useUpdateLanguage, useUpdateTheme, useUpdateSetting } from '@/lib/api-hooks';
 import zh from '@/assets/flags/zh.png';
@@ -7,6 +8,7 @@ import ru from '@/assets/flags/ru.png';
 import en from '@/assets/flags/en.png';
 import './SettingsModal.css';
 import { config } from '@/lib/config';
+import { useToast } from '@/hooks/useToast';
 
 export interface SettingsModalProps {
   onClose: () => void;
@@ -65,10 +67,12 @@ const getLanguageForBackend = (language: string) => {
 }
 
 export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
+  const { t, i18n } = useTranslation();
   const user = useUser();
   const updateLanguageMutation = useUpdateLanguage();
   const updateThemeMutation = useUpdateTheme();
   const updateSettingMutation = useUpdateSetting();
+  const { success: showSuccessToast, block: showErrorToast } = useToast();
 
   const [selectedLanguage, setSelectedLanguage] = useState<'EN' | 'RU' | 'ZH'>('EN');
   const [selectedTheme, setSelectedTheme] = useState<'WHITE' | 'SYSTEM' | 'DARK'>('DARK');
@@ -85,14 +89,31 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
     }
   }, [user?.data]);
 
-  const handleLanguageChange = (language: 'EN' | 'RU' | 'ZH') => {
+  const handleLanguageChange = async (language: 'EN' | 'RU' | 'ZH') => {
     setSelectedLanguage(language);
-    updateLanguageMutation.mutate(getLanguageForBackend(language));
+    const backendLang = getLanguageForBackend(language);
+    try {
+      await updateLanguageMutation.mutateAsync(backendLang);
+      // Also update i18n language immediately for UI
+      i18n.changeLanguage(backendLang);
+      showSuccessToast({ message: t('settings.languageUpdated') });
+    } catch (error) {
+      console.error('Failed to update language:', error);
+      const errorMessage = (error as any)?.message || t('settings.languageUpdateFailed');
+      showErrorToast({ message: errorMessage });
+    }
   };
 
-  const handleThemeChange = (theme: 'WHITE' | 'SYSTEM' | 'DARK') => {
+  const handleThemeChange = async (theme: 'WHITE' | 'SYSTEM' | 'DARK') => {
     setSelectedTheme(theme);
-    updateThemeMutation.mutate(getThemeForBackend(theme));
+    try {
+      await updateThemeMutation.mutateAsync(getThemeForBackend(theme));
+      showSuccessToast({ message: t('settings.themeUpdated') });
+    } catch (error) {
+      console.error('Failed to update theme:', error);
+      const errorMessage = (error as any)?.message || t('settings.themeUpdateFailed');
+      showErrorToast({ message: errorMessage });
+    }
   };
 
   return (
@@ -102,7 +123,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
         <div>
           <div className="market-header__sheet-title"          
            onClick={() => copyTextToClipboard(initData.restore() == undefined ? initData.raw?.() || '' : '')}
-          >Settings privacy</div>
+          >{t('settings.title')}</div>
         </div>
         <button 
           className="market-header__sheet-close"
@@ -118,7 +139,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
         <div className="market-header__panel">
           <div className="market-header__row">
             <div className="market-header__row-main">
-              <div className="settings-modal__section-title">LANGUAGE</div>
+              <div className="settings-modal__section-title">{t('settings.language')}</div>
             </div>
           </div>
             <div className="settings-modal__button-group">
@@ -156,7 +177,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
           <div className="market-header__panel">
             <div className="market-header__row">
               <div className="market-header__row-main">
-                <div className="settings-modal__section-title">THEME</div>
+                <div className="settings-modal__section-title">{t('settings.theme')}</div>
               </div>
             </div>
                 <div className="settings-modal__button-group">
@@ -200,27 +221,41 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
           <div className="market-header__panel">
             <div className="market-header__row">
               <div className="market-header__row-main">
-                <div className="settings-modal__section-title">NOTIFICATIONS OFFERS</div>
+                <div className="settings-modal__section-title">{t('settings.notificationsOffers')}</div>
               </div>
             </div>
             <div className="settings-modal__button-group">
               <button 
                 className={`settings-modal__option-button settings-modal__option-button--notifications ${notificationsEnabled ? 'settings-modal__option-button--active' : ''}`}
-                onClick={() => {
-                  setNotificationsEnabled(true);
-                  updateSettingMutation.mutate({ setting: 'offers_notifications', status: true });
+                onClick={async () => {
+                  try {
+                    setNotificationsEnabled(true);
+                    await updateSettingMutation.mutateAsync({ setting: 'offers_notifications', status: true });
+                    showSuccessToast({ message: t('settings.notificationsEnabled') });
+                  } catch (error) {
+                    console.error('Failed to enable notifications:', error);
+                    const errorMessage = (error as any)?.message || t('settings.notificationsUpdateFailed');
+                    showErrorToast({ message: errorMessage });
+                  }
                 }}
               >
-                <span>ON</span>
+                <span>{t('settings.on')}</span>
               </button>
               <button 
                 className={`settings-modal__option-button settings-modal__option-button--notifications ${!notificationsEnabled ? 'settings-modal__option-button--active' : ''}`}
-                onClick={() => {
-                  setNotificationsEnabled(false);
-                  updateSettingMutation.mutate({ setting: 'offers_notifications', status: false });
+                onClick={async () => {
+                  try {
+                    setNotificationsEnabled(false);
+                    await updateSettingMutation.mutateAsync({ setting: 'offers_notifications', status: false });
+                    showSuccessToast({ message: t('settings.notificationsDisabled') });
+                  } catch (error) {
+                    console.error('Failed to disable notifications:', error);
+                    const errorMessage = (error as any)?.message || t('settings.notificationsUpdateFailed');
+                    showErrorToast({ message: errorMessage });
+                  }
                 }}
               >
-                <span>OFF</span>
+                <span>{t('settings.off')}</span>
               </button>
             </div>
           </div>
@@ -231,13 +266,13 @@ export const SettingsModal: FC<SettingsModalProps> = ({ onClose }) => {
           <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6.68603 18.2083L2.41666 21.5625V3.83333C2.41666 3.57917 2.51762 3.33541 2.69735 3.15569C2.87707 2.97597 3.12082 2.875 3.37499 2.875H20.625C20.8792 2.875 21.1229 2.97597 21.3026 3.15569C21.4824 3.33541 21.5833 3.57917 21.5833 3.83333V17.25C21.5833 17.5042 21.4824 17.7479 21.3026 17.9276C21.1229 18.1074 20.8792 18.2083 20.625 18.2083H6.68603ZM11.0417 13.4167V15.3333H12.9583V13.4167H11.0417ZM8.71003 8.44579L10.5903 8.82242C10.6436 8.55546 10.7717 8.30913 10.9596 8.11212C11.1475 7.9151 11.3874 7.77548 11.6516 7.70951C11.9157 7.64354 12.1931 7.65393 12.4516 7.73947C12.71 7.82501 12.9389 7.98219 13.1115 8.19271C13.2841 8.40323 13.3934 8.65844 13.4266 8.92864C13.4599 9.19885 13.4157 9.47294 13.2993 9.71902C13.1828 9.9651 12.9989 10.1731 12.7689 10.3187C12.5389 10.4643 12.2722 10.5416 12 10.5417H11.0417V12.4583H12C12.6351 12.4581 13.2572 12.2776 13.7938 11.9377C14.3303 11.5979 14.7594 11.1126 15.031 10.5385C15.3026 9.96432 15.4056 9.32485 15.328 8.69446C15.2504 8.06406 14.9954 7.46865 14.5927 6.97748C14.19 6.48632 13.6561 6.1196 13.0531 5.91997C12.4502 5.72035 11.8029 5.69603 11.1867 5.84984C10.5704 6.00365 10.0105 6.32928 9.57208 6.78884C9.13365 7.24839 8.8347 7.82299 8.71003 8.44579Z" fill="currentColor"/>
           </svg>
-          <span>Politics</span>
+          <span>{t('settings.politics')}</span>
         </button>
         <button className="market-header__btn-primary" onClick={() => window.open(config.settings.supportUrl, '_blank')}>
           <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 20.125C13.9137 20.1247 15.773 19.488 17.2851 18.3151C18.7972 17.1421 19.8763 15.4996 20.3525 13.6461C20.8286 11.7926 20.6748 9.83331 19.9153 8.07679C19.1558 6.32026 17.8336 4.86623 16.157 3.94359C14.4804 3.02096 12.5445 2.68213 10.6542 2.98045C8.76391 3.27877 7.02649 4.19729 5.71549 5.59141C4.4045 6.98553 3.59438 8.77607 3.41269 10.6811C3.231 12.5862 3.68805 14.4976 4.71188 16.1144L3.375 20.125L7.38563 18.7881C8.76522 19.6637 10.366 20.1275 12 20.125Z" fill="currentColor" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span>Support</span>
+          <span>{t('settings.support')}</span>
         </button>
       </div>
     </div>

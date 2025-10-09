@@ -12,6 +12,7 @@ import { publicUrl } from '@/helpers/publicUrl';
 import { Loader } from '@/components/Loader';
 import { useUser } from '@/lib/api-hooks';
 import { useStartParamRedirect } from '@/hooks/useStartParamRedirect';
+import { LanguageSync } from '@/components/LanguageSync';
 
 export const Route = createRootRoute({
   component: Root,
@@ -52,6 +53,7 @@ function Root() {
       <ThemeProvider>
         <FilterProvider>
           <ModalProvider>
+            <LanguageSync />
             <StartParamHandler />
             <div style={{ minHeight: '100vh', position: 'relative' }}>
               <Page back={canGoBack}>
