@@ -6,6 +6,7 @@ import { getGiftModelIcon, getSymbolIcon } from '@/lib/images';
 import { usePurchaseGift, useEditGiftPrice, useSellItem, useRemoveGiftFromSale } from '@/lib/api-hooks';
 import { useToast } from '@/hooks/useToast';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { Link } from '../Link/Link';
 import './Modal.css';
 import { shareGift } from '@/helpers/shareUtils';
 import { getChannelPrice } from '@/helpers/priceUtils';
@@ -304,16 +305,12 @@ export const UpgradedGiftModal = ({ data, onClose }: UpgradedGiftModalProps) => 
       {!data.status && !data.offer && (
         <div className="product-sheet__actions">
           {!isNotUpgraded && (
-            <a 
+            <Link 
               className="product-sheet__btn" 
-              type="button"
-              href={`https://t.me/nft/${giftSlug}`}
-              style={{textDecoration: 'none'}}
-              target="_blank"
-              rel="noopener noreferrer"
+              to={`https://t.me/nft/${giftSlug}` as any}
             >
               {t('modals.view')}
-            </a>
+            </Link>
           )}
           
           <button 

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from '../Link/Link';
 
 interface AddGiftInstructionsModalProps {
   onClose: () => void;
@@ -58,14 +59,12 @@ export const AddGiftInstructionsModal = ({ onClose, type }: AddGiftInstructionsM
         </div>
 
         <div className="product-sheet__list" style={{ margin: 16 }}>
-          <a
-            href="https://t.me/QuantRelayer"
-            target="_blank"
+          <Link
+            to={"https://t.me/QuantRelayer" as any}
             className="product-sheet__btn product-sheet__btn--primary"
-            style={{ textDecoration: 'none' }}
           >
             {t('modalsAddGift.openQuantRelayer')}
-          </a>
+          </Link>
         </div>
       </div>
     </div>

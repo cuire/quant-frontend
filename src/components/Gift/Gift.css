@@ -90,7 +90,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 2px;
+  padding: 4px;
   position: relative;
 }
 
@@ -317,11 +317,11 @@
 }
 
 .gift__info {
-  padding: 0 2px;
+  padding: 2px 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .gift__info.gift__info--offer {
@@ -349,8 +349,6 @@
 
 /* версия info без внутренних отступов и внешних отступов для storage */
 .gift__info--storage {
-  padding: 0;
-  margin: 0;
 }
 
 .gift__offer-info {

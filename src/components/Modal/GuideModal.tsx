@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { openLink } from '@telegram-apps/sdk-react';
 import { config } from '@/lib/config';
 import './SettingsModal.css';
 import './GuideModal.css';
@@ -13,7 +14,7 @@ export const GuideModal: FC<GuideModalProps> = ({ onClose }) => {
   const guideItems = config.guide.items;
 
   const handleOpenGuide = (link: string) => {
-    window.open(link, '_blank');
+    openLink(link);
   };
 
   return (

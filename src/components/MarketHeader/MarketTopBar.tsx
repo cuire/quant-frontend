@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { openLink } from '@telegram-apps/sdk-react';
 import { bem } from '@/css/bem.ts';
 import { useUser } from '@/lib/api-hooks';
 import { Link } from '../Link/Link';
@@ -117,7 +118,7 @@ export const MarketTopBar: FC<MarketTopBarProps> = ({
     if (link === 'guide' || !link) {
       openModal('guide');
     } else if (link && link.startsWith('http')) {
-      window.open(link, '_blank');
+      openLink(link);
     } else if (link) {
       // Internal link navigation
       window.location.href = link;

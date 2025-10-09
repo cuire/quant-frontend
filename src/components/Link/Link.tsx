@@ -39,7 +39,7 @@ export const Link: FC<CustomLinkProps> = ({
 
     if (isExternal) {
       e.preventDefault();
-      openLink(targetUrl.toString());
+      openLink(targetUrl.toString(), { tryInstantView: true });
     }
   }, [to, propsOnClick]);
 

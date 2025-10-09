@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useUser } from '@/lib/api-hooks';
+import { useUserProfile } from '@/lib/api-hooks';
+import { config } from '@/lib/config';
 import './ReferralModal.css';
 import { copyTextToClipboard } from '@telegram-apps/sdk';
 import { useToast } from '@/hooks/useToast';
@@ -12,21 +12,21 @@ export interface ReferralModalProps {
 
 export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
   const { t } = useTranslation();
-  const user = useUser();
+  const { data: userProfile, isLoading } = useUserProfile();
   const { success: showSuccessToast, warning: showErrorToast } = useToast();
   
-  // Mock data - in real implementation, these would come from API
-  const [currentLevel] = useState(2);
-  const [nextLevel] = useState(3);
-  const [currentProgress] = useState(100600); // 100.6K
-  const [targetProgress] = useState(200000); // 200K
-  const [commissionRate] = useState(25);
-  const [referralCode] = useState(user?.data?.referral_code || 'REF123456');
+  // Get data from API
+  const currentLevel = userProfile?.referral_level || 1;
+  const nextLevel = currentLevel + 1;
+  const currentProgress = userProfile?.referrals_volume || 0;
+  const targetProgress = userProfile?.referrals_volume_max || 0;
+  const commissionRate = userProfile?.referrals_percent || 0;
+  const referralCode = userProfile?.referrals_code || '';
 
-  const progressPercentage = (currentProgress / targetProgress) * 100;
+  const progressPercentage = targetProgress > 0 ? (currentProgress / targetProgress) * 100 : 0;
 
   const handleCopyReferralLink = async () => {
-    const referralLink = `https://t.me/your_bot?start=${referralCode}`;
+    const referralLink = `https://t.me/${config.telegram.botUsername}?start=${referralCode}`;
     try {
       await copyTextToClipboard(referralLink);
       showSuccessToast({
@@ -40,7 +40,7 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
   };
 
   const handleShare = () => {
-    const referralLink = `https://t.me/your_bot?start=${referralCode}`;
+    const referralLink = `https://t.me/${config.telegram.botUsername}?start=${referralCode}`;
     const shareText = t('referral.joinMessage', { link: referralLink });
     
     if (navigator.share) {
@@ -61,6 +61,29 @@ export const ReferralModal: FC<ReferralModalProps> = ({ onClose }) => {
     }
     return num.toString();
   };
+
+  if (isLoading) {
+    return (
+      <div className="market-header__sheet referral-modal">
+        <div className="market-header__sheet-header">
+          <div>
+          </div>
+          <button 
+            className="market-header__sheet-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="market-header__sheet-content">
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            {t('common.loading')}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="market-header__sheet referral-modal">

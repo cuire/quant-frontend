@@ -2,6 +2,7 @@ import { purchaseChannel } from '@/lib/api';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/useToast';
+import { Link } from '../Link/Link';
 import './Modal.css';
 
 interface PurchaseConfirmModalProps {
@@ -70,16 +71,12 @@ export const PurchaseConfirmModal = ({ onClose, data }: PurchaseConfirmModalProp
           </div>
         </div>
         
-        <a 
+        <Link 
           className="product-sheet__btn product-sheet__btn--primary" 
-          type="button" 
-          href={channelInviteLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ marginTop: '16px', width: '100%', height: '52px', textDecoration: 'none' }}
+          to={channelInviteLink as any}
         >
           {t('modalsPurchase.openChannel')}
-        </a>
+        </Link>
       </div>
       
       <div className="purchase-confirm-modal__actions">
